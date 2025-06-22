@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "eurybium",
+  "version": "${version}",
+  "name": "Eurybium",
+  "description": "A simple mod using Essentials UniversalCraft.",
+  "authors": ["BusinessDirt"],
+
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "*",
+    "universalcraft": "*"
+  },
+
+  "entrypoints": {
+    "main": [
+      "github.businessdirt.eurybium.Eurybium"
+    ]
+  }
+}
