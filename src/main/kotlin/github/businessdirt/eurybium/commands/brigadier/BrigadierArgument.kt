@@ -1,0 +1,12 @@
+package github.businessdirt.eurybium.commands.brigadier
+
+@JvmRecord
+data class BrigadierArgument<T>(val argumentName: String, val clazz: Class<T>) {
+    fun get(context: ArgContext): T = context.getArg<T>(this)
+
+    operator fun invoke(context: ArgContext): T = get(context)
+
+    companion object {
+        inline fun <reified T> of(argumentName: String): BrigadierArgument<T> = BrigadierArgument<T>(argumentName, T::class.java)
+    }
+}

@@ -1,10 +1,14 @@
 import gg.essential.gradle.util.*
 
 plugins {
+    idea
+    java
     kotlin("jvm")
+    kotlin("plugin.power-assert")
     id("gg.essential.multi-version")
     id("gg.essential.defaults")
     id("gg.essential.defaults.maven-publish")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 repositories {
@@ -30,13 +34,20 @@ val devAuthModule = when {
 val fabricVersion: String by project
 
 dependencies {
-    val vigilanceVersion = 306
+    // JUnit Jupiter API + Engine
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+
+    val vigilanceVersion = 312
     implementation("gg.essential:vigilance:${vigilanceVersion}")
 
-    val universalCraftVersion = 412
+    val universalCraftVersion = 427
     modImplementation("gg.essential:universalcraft-$platform:$universalCraftVersion")
 
-    val elementaVersion = 708
+    val elementaVersion = 710
     implementation("gg.essential:elementa:$elementaVersion")
     implementation("gg.essential:elementa-unstable-statev2:$elementaVersion")
 
@@ -54,5 +65,18 @@ tasks {
                 "version" to version
             ))
         }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    shadowJar {
+        archiveClassifier.set(null as String?)
+        relocate("gg.essential.elementa.unstable", "github.businessdirt.elementa.unstable")
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }

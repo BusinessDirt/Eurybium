@@ -5,16 +5,17 @@
   "name": "Eurybium",
   "description": "A simple mod using Essentials UniversalCraft.",
   "authors": ["BusinessDirt"],
-
   "depends": {
     "fabricloader": "*",
     "minecraft": "*",
     "universalcraft": "*"
   },
-
   "entrypoints": {
     "main": [
-      "github.businessdirt.eurybium.Eurybium"
+      "github.businessdirt.eurybium.EurybiumModLoader"
     ]
-  }
+  },
+  "mixins": [
+    "mixins.eurybium.json"
+  ]
 }
