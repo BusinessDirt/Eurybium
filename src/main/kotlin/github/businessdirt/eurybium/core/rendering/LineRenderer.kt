@@ -3,19 +3,13 @@ package github.businessdirt.eurybium.core.rendering
 import com.mojang.blaze3d.systems.RenderSystem
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UMatrixStack
-import gg.essential.universal.UMinecraft.getMinecraft
 import gg.essential.universal.render.URenderPipeline
 import gg.essential.universal.shader.BlendState
 import gg.essential.universal.vertex.UBufferBuilder
-import gg.essential.universal.vertex.UVertexConsumer
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderAfterEntitiesEvent
 import github.businessdirt.eurybium.utils.Reference
-import net.minecraft.client.render.RenderLayer
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL30
-import org.lwjgl.opengl.GL46
 import java.awt.Color
 
 object LineRenderer {

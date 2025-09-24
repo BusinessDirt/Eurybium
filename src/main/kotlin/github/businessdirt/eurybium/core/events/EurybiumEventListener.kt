@@ -4,7 +4,6 @@ import github.businessdirt.eurybium.core.minecraftevents.ClientEvents
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.utils.SkyBlockUtils
 import java.util.function.Consumer
-import java.util.function.Predicate
 
 typealias EventPredicate = (event: EurybiumEvent) -> Boolean
 

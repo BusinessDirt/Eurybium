@@ -12,8 +12,6 @@ import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.skyblock.MineshaftEnteredEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.concurrent.Coroutine
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
 
 object MineshaftWaypoints {
 

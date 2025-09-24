@@ -4,7 +4,6 @@ import com.google.gson.JsonParser
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.utils.PostModInitializationEvent
-import github.businessdirt.eurybium.utils.Scheduler
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

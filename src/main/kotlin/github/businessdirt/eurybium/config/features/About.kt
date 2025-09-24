@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.config.features
 
 import gg.essential.vigilance.Vigilant.CategoryPropertyBuilder
-import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.ConfigCategory
 
 class About : ConfigCategory() {

@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.data.model
 
 import github.businessdirt.eurybium.utils.SkyBlockUtils
-import java.util.*
 
 enum class IslandType(val displayName: String) {
     PRIVATE_ISLAND("Private Island"),

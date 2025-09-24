@@ -8,7 +8,6 @@ import github.businessdirt.eurybium.utils.Reference
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.lang.reflect.Type
 
 abstract class Storage<T>(path: String, val type: TypeToken<T>, extraAdapters: List<AbstractAdapter<*>> = emptyList()) {
 

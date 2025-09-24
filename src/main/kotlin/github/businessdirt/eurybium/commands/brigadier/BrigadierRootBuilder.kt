@@ -5,7 +5,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.CommandNode
 import github.businessdirt.eurybium.commands.CommandCategory
 import net.minecraft.command.CommandSource
-import java.util.function.Consumer
 
 class BrigadierRootBuilder<S : CommandSource>(override val name: String) : CommandData, BrigadierBuilder<S, LiteralArgumentBuilder<S>>(
     LiteralArgumentBuilder.literal(name)

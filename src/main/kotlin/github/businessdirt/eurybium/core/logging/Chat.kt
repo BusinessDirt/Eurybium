@@ -4,7 +4,6 @@ import github.businessdirt.eurybium.core.logging.ChatFormatter.newColoredInfoCha
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.MessageIndicator
 import net.minecraft.network.message.MessageSignatureData
-import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent.ShowText
 import net.minecraft.text.Style
 import net.minecraft.text.Text

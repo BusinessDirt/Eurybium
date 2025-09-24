@@ -1,15 +1,9 @@
 package github.businessdirt.eurybium.core.scanner
 
 import gg.essential.universal.UMinecraft
-import github.businessdirt.eurybium.core.rendering.BlockOutlineRenderer
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.yield
 import net.minecraft.block.Block
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier

@@ -3,10 +3,6 @@ package github.businessdirt.eurybium.core.comparators
 import com.google.common.collect.ComparisonChain
 import net.minecraft.client.network.PlayerListEntry
 import net.minecraft.world.GameMode
-import java.lang.Boolean
-import kotlin.Any
-import kotlin.Comparator
-import kotlin.Int
 
 class PlayerListEntryComparator : Comparator<PlayerListEntry> {
     override fun compare(o1: PlayerListEntry, o2: PlayerListEntry): Int {

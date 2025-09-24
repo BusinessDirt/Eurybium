@@ -1,14 +1,10 @@
 package github.businessdirt.eurybium.core.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
-import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.core.rendering.RenderState.with
-import github.businessdirt.eurybium.core.scanner.BlockScanner
-import github.businessdirt.eurybium.events.CommandRegistrationEvent
-import github.businessdirt.eurybium.utils.concurrent.Coroutine
+import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import net.minecraft.block.BlockRenderType
-import net.minecraft.block.Blocks
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.registry.Registries
@@ -104,6 +100,11 @@ object BlockOutlineRenderer {
             ColorHelper.getBlue(color),
             ColorHelper.getAlpha(color)
         )
+    }
+
+    @HandleEvent
+    fun onWorldChangeEvent(event: WorldChangeEvent) {
+        clearBlockOutlines()
     }
 
     internal class InvisibleVertexConsumer(val delegate: VertexConsumer) : VertexConsumer {

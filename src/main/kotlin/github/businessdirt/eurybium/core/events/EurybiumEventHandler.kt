@@ -2,9 +2,6 @@ package github.businessdirt.eurybium.core.events
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.utils.StringUtils.optionalAn
-import java.util.function.Consumer
-import java.util.function.ToIntFunction
-import java.util.stream.Collectors
 
 class EurybiumEventHandler private constructor(
     val name: String,

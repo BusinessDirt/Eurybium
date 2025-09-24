@@ -3,13 +3,12 @@ package github.businessdirt.eurybium.data
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.ScoreboardUpdateEvent
 import github.businessdirt.eurybium.events.minecraft.ScoreboardTitleUpdateEvent
 import github.businessdirt.eurybium.events.minecraft.packet.PacketReceivedEvent
-import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.utils.StringUtils.removeColor
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket

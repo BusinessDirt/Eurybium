@@ -4,7 +4,6 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
-import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.features.types.GemstoneType
 import java.lang.reflect.Type
 
