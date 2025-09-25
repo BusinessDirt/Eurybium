@@ -44,7 +44,7 @@ object MineshaftWaypoints {
             category = CommandCategory.DEVELOPER_TEST
             description = "Scans the world for gemstone blocks"
             simpleCallback {
-                Coroutine.launchCoroutine {
+                Coroutine.launch("MineshaftWaypoints::onCommandRegistrationEvent") {
                     scanner.find()
                     storage.setAll(scanner.clusterBlocks(false))
                     storage.save()

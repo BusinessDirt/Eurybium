@@ -6,6 +6,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 object Coroutine {
 
@@ -20,10 +22,12 @@ object Coroutine {
      * @param mutex The mutex to lock during the execution of the block.
      * @param block The suspend function to execute within the IO context.
      */
-    fun launchIOCoroutineWithMutex(
+    fun launchIOWithMutex(
+        name: String,
         mutex: Mutex,
+        timeout: Duration = 10.seconds,
         block: suspend CoroutineScope.() -> Unit,
-    ): Job = launchCoroutine {
+    ): Job = launch("launchIOWithMutex $name", timeout) {
         mutex.withLock {
             withContext(Dispatchers.IO, block)
         }
@@ -34,7 +38,11 @@ object Coroutine {
      * This coroutine will catch any exceptions thrown by the provided function.
      * @param block The suspend function to execute within the IO context.
      */
-    fun launchIOCoroutine(block: suspend CoroutineScope.() -> Unit): Job = launchCoroutine {
+    fun launchIO(
+        name: String,
+        timeout: Duration = 10.seconds,
+        block: suspend CoroutineScope.() -> Unit,
+    ): Job = launch("launchIO $name", timeout) {
         withContext(Dispatchers.IO, block)
     }
 
@@ -44,7 +52,11 @@ object Coroutine {
      * The function provided here must not rely on the CoroutineScope's context.
      * @param function The function to execute in the coroutine.
      */
-    fun launchNoScopeCoroutine(function: suspend () -> Unit): Job = launchCoroutine { function() }
+    fun launchNoScope(
+        name: String,
+        timeout: Duration = 10.seconds,
+        block: suspend () -> Unit,
+    ): Job = launch("launchNoScope $name", timeout) { block() }
 
     /**
      * Launches a coroutine in the current scope.
@@ -52,16 +64,31 @@ object Coroutine {
      * @param function The suspend function to execute in the coroutine.
      */
     @OptIn(InternalCoroutinesApi::class)
-    fun launchCoroutine(function: suspend CoroutineScope.() -> Unit): Job = coroutineScope.launch {
-        try {
-            function()
-        } catch (e: CancellationException) {
-            // Don't notify the user about cancellation exceptions - these are to be expected at times
-            val jobState = coroutineContext[Job]?.toString() ?: "unknown job"
-            val cancellationCause = coroutineContext[Job]?.getCancellationException()
-            EurybiumMod.logger.debug("Job $jobState was cancelled with cause: $cancellationCause", e)
-        } catch (e: Throwable) {
-            EurybiumMod.logger.error("Asynchronous exception caught: {}", e.message)
+    fun launch(name: String,
+               timeout: Duration = 10.seconds,
+               function: suspend CoroutineScope.() -> Unit
+    ): Job = coroutineScope.launch {
+        val mainJob = launch {
+            try {
+                function()
+            } catch (e: CancellationException) {
+                // Don't notify the user about cancellation exceptions - these are to be expected at times
+                val jobState = coroutineContext[Job]?.toString() ?: "unknown job"
+                val cancellationCause = coroutineContext[Job]?.getCancellationException()
+                EurybiumMod.logger.debug("Job $jobState was cancelled with cause: $cancellationCause", e)
+            } catch (e: Throwable) {
+                EurybiumMod.logger.error("Asynchronous exception caught: {}", e.message)
+            }
+        }
+
+        if (timeout != Duration.INFINITE && timeout != Duration.ZERO) {
+            launch {
+                delay(timeout)
+                if (mainJob.isActive) {
+                    EurybiumMod.logger.error("Coroutine timed out: The coroutine '$name' took longer than the specified timeout of $timeout (timeout=$timeout, name=$name)")
+                    mainJob.cancel(CancellationException("Coroutine $name timed out after $timeout"))
+                }
+            }
         }
     }
 }

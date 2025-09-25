@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.features.mining.glacitemineshaft
 
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.core.api.BazaarAPI
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
@@ -17,15 +16,6 @@ object ProfitableMineshaft {
     @HandleEvent()
     fun onMineshaftEnteredEvent(event: MineshaftEnteredEvent) {
         val gemstone = GemstoneType.fromMineshaftType(event.type) ?: return
-        val fineGemstonePrice = BazaarAPI.getProduct("FINE_${gemstone.name}_GEM")?.sellPrice ?: return
-        val normalizedFineGemstonePrice = normalizeGemstonePrice(fineGemstonePrice, gemstone.blockStrength, corpseCount, config.mineshaftCorpseMultiplier)
-
-        if (normalizedFineGemstonePrice >= config.gemstonePriceThreshold) {
-            EurybiumMod.logger.info(
-                "Normalized price ($normalizedFineGemstonePrice) is higher than ${config.gemstonePriceThreshold}. " +
-                        "You should mine in this mineshaft!"
-            )
-        } else EurybiumMod.logger.debug("Normalized price ($normalizedFineGemstonePrice) is lower than ${config.gemstonePriceThreshold}.")
     }
 
     @HandleEvent()

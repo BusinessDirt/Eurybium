@@ -3,8 +3,10 @@ package github.businessdirt.eurybium.config.manager
 import com.google.gson.Gson
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.config.EurybiumConfig
 import github.businessdirt.eurybium.core.json.BaseGsonBuilder
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
+import github.businessdirt.eurybium.utils.OSUtils
 import github.businessdirt.eurybium.utils.Reference
 import github.businessdirt.eurybium.utils.files.StringFileHandler
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
@@ -14,7 +16,7 @@ import io.github.notenoughupdates.moulconfig.processor.ConfigProcessorDriver
 import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.concurrent.fixedRateTimer
-import kotlin.jvm.javaClass
+import kotlin.time.Duration.Companion.days
 
 class ConfigManager {
     companion object {
@@ -24,7 +26,11 @@ class ConfigManager {
 
     private val logger = LoggerFactory.getLogger(javaClass)
     private val configHolder = ConfigHolder()
+
+    private var editor: MoulConfigEditor<EurybiumConfig>? = null
     lateinit var processor: ConfigProcessor
+
+    fun getEditorInstance() = editor ?: MoulConfigEditor(processor).also { editor = it }
 
     fun initialize() {
         configHolder.checkLoaded(logger)
@@ -44,6 +50,8 @@ class ConfigManager {
         val driver = ConfigProcessorDriver(processor)
         driver.warnForPrivateFields = false
         driver.processConfig(EurybiumMod.config)
+
+        OSUtils.deleteExpiredFiles(File("${Reference.MOD_ID}/config/backup"), 7.days) // TODO: add config value
     }
 
     private fun firstLoadFile(file: File, fileType: ConfigFileType, defaultValue: Any): Any {
@@ -109,7 +117,7 @@ class ConfigManager {
 
     fun openConfigGui() {
         getMinecraft().send {
-            IMinecraft.getInstance().openWrappedScreen(MoulConfigEditor(processor))
+            IMinecraft.getInstance().openWrappedScreen(getEditorInstance())
         }
     }
 }
