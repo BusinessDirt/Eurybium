@@ -1,13 +1,13 @@
 package github.businessdirt.eurybium.config.features.dev
 
-import gg.essential.vigilance.Vigilant.CategoryPropertyBuilder
-import github.businessdirt.eurybium.config.ConfigCategory
+import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
-class DebugConfig : ConfigCategory() {
+class DebugConfig {
 
+    @Expose
+    @ConfigEditorBoolean
+    @ConfigOption(name = "Enable Debug", desc = "Enable Test logic")
     var enabled: Boolean = true
-
-    override fun invoke(builder: CategoryPropertyBuilder) {
-        builder.checkbox(::enabled, "Enable Debug", "Enable Test logic")
-    }
 }

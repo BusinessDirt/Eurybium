@@ -1,13 +1,12 @@
 package github.businessdirt.eurybium.config.features.mining
 
-import gg.essential.vigilance.Vigilant.CategoryPropertyBuilder
-import github.businessdirt.eurybium.config.ConfigCategory
+import com.google.gson.annotations.Expose
 import github.businessdirt.eurybium.config.features.mining.glacite.MineshaftConfig
+import io.github.notenoughupdates.moulconfig.annotations.Category
 
-class MiningConfig : ConfigCategory() {
-    val glaciteMineshaft: MineshaftConfig = MineshaftConfig()
+class MiningConfig {
 
-    override fun invoke(builder: CategoryPropertyBuilder) {
-        builder.subcategory("Glacite Mineshaft", glaciteMineshaft)
-    }
+    @Expose
+    @Category(name = "Glacite Mineshaft", desc = "Settings for the Glacite Mineshaft.")
+    var glaciteMineshaft: MineshaftConfig = MineshaftConfig()
 }

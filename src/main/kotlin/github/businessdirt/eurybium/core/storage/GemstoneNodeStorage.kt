@@ -1,8 +1,6 @@
 package github.businessdirt.eurybium.core.storage
 
 import com.google.gson.reflect.TypeToken
-import github.businessdirt.eurybium.core.storage.adapters.BlockPosAdapter
-import github.businessdirt.eurybium.core.storage.adapters.IdentifierAdapter
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 
@@ -10,8 +8,7 @@ typealias GemstoneNode = Map<Identifier, Set<BlockPos>>
 
 class GemstoneNodeStorage(type: String) : Storage<MutableList<GemstoneNode>>(
     "gemstonenodes/$type.json",
-    object : TypeToken<MutableList<GemstoneNode>>() {},
-    listOf(BlockPosAdapter(), IdentifierAdapter())
+    object : TypeToken<MutableList<GemstoneNode>>() {}
 ) {
 
     val size: Int get() = data!!.size

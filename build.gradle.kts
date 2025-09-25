@@ -1,26 +1,40 @@
 import gg.essential.gradle.util.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     idea
     java
     kotlin("jvm")
     kotlin("plugin.power-assert")
+    id("gg.essential.loom")
     id("gg.essential.multi-version")
     id("gg.essential.defaults")
     id("gg.essential.defaults.maven-publish")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+val javaVersion = 21
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion)) // TODO: per version
 }
 
-group = "github.businessdirt"
+loom {
+    val accessWidenerFile = file("src/main/resources/eurybium.accesswidener")
+    if (accessWidenerFile.exists()) {
+        accessWidenerPath = accessWidenerFile
+    }
+}
+
+val shadowImpl: Configuration by configurations.creating {
+    configurations.implementation.get().extendsFrom(this)
+}
+
+val shadowModImpl: Configuration by configurations.creating {
+    configurations.modImplementation.get().extendsFrom(this)
+}
 
 java.withSourcesJar()
-tasks.compileKotlin.setJvmDefault("all")
 loom.noServerRunConfigs()
 
 val devAuthModule = when {
@@ -34,36 +48,46 @@ val devAuthModule = when {
 val fabricVersion: String by project
 
 dependencies {
-    // JUnit Jupiter API + Engine
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-
-    val vigilanceVersion = 312
-    implementation("gg.essential:vigilance:${vigilanceVersion}")
-
-    val universalCraftVersion = 427
-    modImplementation("gg.essential:universalcraft-$platform:$universalCraftVersion")
-
-    val elementaVersion = 710
-    implementation("gg.essential:elementa:$elementaVersion")
-    implementation("gg.essential:elementa-unstable-statev2:$elementaVersion")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
     val devAuthVersion = "1.2.1"
     modRuntimeOnly("me.djtheredstoner:DevAuth-$devAuthModule:$devAuthVersion")
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+    val moulconfigVersion = "4.1.1-beta"
+    shadowModImpl("org.notenoughupdates.moulconfig:modern-${platform.mcVersionStr}:$moulconfigVersion")
+    include("org.notenoughupdates.moulconfig:modern-${platform.mcVersionStr}:$moulconfigVersion")
+
+    val universalCraftVersion = 427
+    shadowModImpl("gg.essential:universalcraft-$platform:$universalCraftVersion")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+
+    shadowImpl("org.reflections:reflections:0.10.2")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    shadowImpl("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
 }
 
 tasks {
     processResources {
-        dependsOn(compileJava)
+        inputs.property("version", version)
         filesMatching("fabric.mod.json") {
             expand(mapOf(
                 "version" to version
             ))
+        }
+    }
+
+    compileJava {
+        dependsOn(processResources)
+    }
+
+    withType(JavaCompile::class.java) {
+        options.encoding = "UTF-8"
+    }
+
+    withType(KotlinCompile::class.java) {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
         }
     }
 
@@ -72,8 +96,17 @@ tasks {
     }
 
     shadowJar {
-        archiveClassifier.set(null as String?)
-        relocate("gg.essential.elementa.unstable", "github.businessdirt.elementa.unstable")
+        archiveClassifier.set("all-dev")
+        configurations = listOf(shadowImpl, shadowModImpl)
+        doLast {
+            configurations.forEach {
+                println("Config: ${ it.files }")
+            }
+        }
+
+        exclude("META-INF/versions/**")
+        mergeServiceFiles()
+        relocate("io.github.notenoughupdates.moulconfig", "github.businessdirt.dependencies.moulconfig")
     }
 
     build {

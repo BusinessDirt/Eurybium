@@ -1,16 +1,14 @@
 package github.businessdirt.eurybium.config.features.gui
 
-import gg.essential.vigilance.Vigilant.CategoryPropertyBuilder
-import github.businessdirt.eurybium.config.ConfigCategory
+import com.google.gson.annotations.Expose
+import github.businessdirt.eurybium.utils.Reference
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
-class GuiConfig : ConfigCategory() {
+class GuiConfig {
+
+    @Expose
+    @ConfigOption(name = "Time Format", desc = "Change ${Reference.MOD_NAME} to use 24h time instead of 12h time.")
+    @ConfigEditorBoolean
     var timeFormat24h: Boolean = true
-
-    override fun invoke(builder: CategoryPropertyBuilder) {
-        builder.checkbox(
-            ::timeFormat24h,
-            "Time Format",
-            "Change Eurybium to use 24h time instead of 12h time."
-        )
-    }
 }

@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.mixins.transformers
+package github.businessdirt.eurybium.mixins.network
 
 import github.businessdirt.eurybium.events.minecraft.packet.PacketReceivedEvent
 import io.netty.channel.ChannelHandlerContext

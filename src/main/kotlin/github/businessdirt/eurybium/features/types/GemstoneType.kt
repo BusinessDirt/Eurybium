@@ -4,6 +4,7 @@ import github.businessdirt.eurybium.core.types.MinecraftColor
 import kotlin.math.round
 
 enum class GemstoneType(val breakingPower: Int, val blockStrength: Int, val color: MinecraftColor) {
+    UNKNOWN(-1, -1, MinecraftColor.RED),
     RUBY(6, 2300, MinecraftColor.RED),
     AMBER(7, 3000, MinecraftColor.GOLD),
     SAPPHIRE(7, 3000, MinecraftColor.BLUE),
@@ -19,6 +20,7 @@ enum class GemstoneType(val breakingPower: Int, val blockStrength: Int, val colo
     ;
 
     val displayName get() = color.getChatColor() + this.name.lowercase().replaceFirstChar(Char::uppercase)
+    fun isValid(): Boolean = this != UNKNOWN
 
     fun ticksToBreak(miningSpeed: Int): Int = round((30F * blockStrength) / miningSpeed).toInt()
 

@@ -1,33 +1,40 @@
 package github.businessdirt.eurybium.config
 
-import gg.essential.vigilance.Vigilant
+import com.google.gson.annotations.Expose
+import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.features.About
 import github.businessdirt.eurybium.config.features.dev.DevConfig
 import github.businessdirt.eurybium.config.features.gui.GuiConfig
 import github.businessdirt.eurybium.config.features.mining.MiningConfig
+import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.utils.Reference
-import net.minecraft.client.MinecraftClient
-import java.io.File
+import io.github.notenoughupdates.moulconfig.Config
+import io.github.notenoughupdates.moulconfig.annotations.Category
+import io.github.notenoughupdates.moulconfig.common.text.StructuredText
 
-class EurybiumConfig : Vigilant(File("./config/" + Reference.MOD_ID + "/config.toml")) {
-    val about: About = About()
-    val gui: GuiConfig = GuiConfig()
-    val mining: MiningConfig = MiningConfig()
-    val dev: DevConfig = DevConfig()
+class EurybiumConfig : Config() {
 
-    init {
-        // Top
-        this.category("About", about)
-        this.category("GUI", gui)
-
-        // Skills
-        this.category("Mining", mining)
-
-        // Bottom
-        this.category("Dev", dev)
+    override fun saveNow() {
+        super.saveNow()
+        EurybiumMod.configManager.saveConfig(ConfigFileType.CONFIG, "close-gui")
     }
 
-    fun display() {
-        MinecraftClient.getInstance().send { MinecraftClient.getInstance().setScreen(this.gui()) }
-    }
+    override fun getTitle(): StructuredText =
+        StructuredText.of("${Reference.MOD_NAME} ${Reference.VERSION}")
+
+    @Expose
+    @Category(name = "About", desc = "Information about ${Reference.MOD_NAME}")
+    var about: About = About()
+
+    @Expose
+    @Category(name = "GUI", desc = "Settings for GUI elements")
+    var gui: GuiConfig = GuiConfig()
+
+    @Expose
+    @Category(name = "Mining", desc = "Features for the mining skill")
+    var mining: MiningConfig = MiningConfig()
+
+    @Expose
+    @Category(name = "Dev", desc = "Developer debug and test tools")
+    var dev: DevConfig = DevConfig()
 }

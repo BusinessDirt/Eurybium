@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.core.rendering
 import com.mojang.blaze3d.systems.RenderSystem
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UMatrixStack
+import gg.essential.universal.UMinecraft.getMinecraft
 import gg.essential.universal.render.URenderPipeline
 import gg.essential.universal.shader.BlendState
 import gg.essential.universal.vertex.UBufferBuilder
@@ -28,7 +29,6 @@ object LineRenderer {
         culling = false
     }.build()
 
-
     /**
      * Draws a simple 3D line between two points in world space.
      *
@@ -43,28 +43,27 @@ object LineRenderer {
         from: Vec3d,
         to: Vec3d,
         color: Color = Color.WHITE,
-        width: Float = 2f
+        width: Float = 2f,
+        useDepth: Boolean = false
     ) {
         matrices.push()
-        CameraTransform.setup(matrices)
+        CameraTransform.offset(matrices)
         RenderSystem.lineWidth(width)
 
         val buffer = UBufferBuilder.create(UGraphics.DrawMode.LINE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR)
         buffer.pos(matrices, from.x, from.y, from.z).color(color).endVertex()
         buffer.pos(matrices, to.x, to.y, to.z).color(color).endVertex()
-        buffer.build()?.drawAndClose(linesPipeline)
+        buffer.build()?.drawAndClose(if(useDepth) linesPipeline else noDepthLinesPipeline)
 
         matrices.pop()
     }
 
-    @HandleEvent
-    fun test(event: WorldRenderAfterEntitiesEvent) {
-        RenderState.enableCull()
-
-        val from: Vec3d = Vec3d(1.0, 148.0, 238.0)
-        val to: Vec3d = Vec3d(2.0, 149.0, 239.0)
-        draw3DLine(event.matrixStack, from, to)
-
-        RenderState.disableCull()
+    fun draw3DLineFromCursor(matrices: UMatrixStack,
+                             to: Vec3d,
+                             color: Color = Color.WHITE,
+                             width: Float = 2f,
+                             useDepth: Boolean = false) {
+        val cameraPos = getMinecraft().cameraEntity?.pos ?: return
+        draw3DLine(matrices, cameraPos, to, color, width, useDepth)
     }
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "eurybium",
-  "version": "${version}",
+  "version": "0.1.0",
   "name": "Eurybium",
   "description": "A simple mod using Essentials UniversalCraft.",
   "authors": ["BusinessDirt"],

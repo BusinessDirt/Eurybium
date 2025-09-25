@@ -1,12 +1,13 @@
 package github.businessdirt.eurybium.config.features.dev
 
-import gg.essential.vigilance.Vigilant.CategoryPropertyBuilder
-import github.businessdirt.eurybium.config.ConfigCategory
+import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
+import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
-class DevConfig : ConfigCategory() {
-    val debug: DebugConfig = DebugConfig()
+class DevConfig {
 
-    override fun invoke(builder: CategoryPropertyBuilder) {
-        builder.subcategory("Debug", debug)
-    }
+    @Expose
+    @Accordion
+    @ConfigOption(name = "Debug", desc = "")
+    var debug: DebugConfig = DebugConfig()
 }
