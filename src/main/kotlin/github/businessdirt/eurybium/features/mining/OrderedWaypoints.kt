@@ -9,7 +9,6 @@ import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.logging.Chat
 import github.businessdirt.eurybium.core.rendering.BlockGlowRenderer
 import github.businessdirt.eurybium.core.scanner.GemstoneNodeScanner
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
@@ -19,7 +18,7 @@ import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderEvent
+import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.ClipboardUtils
 import github.businessdirt.eurybium.utils.MathUtils.distanceSqToPlayer
@@ -45,22 +44,9 @@ object OrderedWaypoints {
 
     private var mineshaftType = MineshaftType.JASP1
     private var lastCloser = 0
-    
-    @HandleEvent
-    fun onHypixelJoinEvent(event: HypixelJoinEvent) {
-        if (EurybiumMod.orderedWaypointsRoutes.routes == null) {
-            EurybiumMod.orderedWaypointsRoutes.routes = mutableMapOf()
-            saveRoutes()
-        }
 
-        if (EurybiumMod.gemstoneNodes.mineshaftNodes == null) {
-            EurybiumMod.gemstoneNodes.mineshaftNodes = mutableMapOf()
-            saveGemstoneNodes()
-        }
-    }
-    
-    fun saveGemstoneNodes() { EurybiumMod.configManager.saveConfig(ConfigFileType.GEMSTONE_NODES, "Save file") }
-    fun saveRoutes() { EurybiumMod.configManager.saveConfig(ConfigFileType.ROUTES, "Save file") }
+    private fun saveGemstoneNodes() { EurybiumMod.configManager.saveConfig(ConfigFileType.GEMSTONE_NODES, "Save file") }
+    private fun saveRoutes() { EurybiumMod.configManager.saveConfig(ConfigFileType.ROUTES, "Save file") }
 
     private fun updateGemstoneNodes() {
         Coroutine.launch("updateGemstoneNodes") {
@@ -72,6 +58,19 @@ object OrderedWaypoints {
                 EurybiumMod.logger.debug("Found $size gemstone nodes!")
             }
 
+            saveGemstoneNodes()
+        }
+    }
+    
+    @HandleEvent
+    fun onHypixelJoinEvent(event: HypixelJoinEvent) {
+        if (EurybiumMod.orderedWaypointsRoutes.routes == null) {
+            EurybiumMod.orderedWaypointsRoutes.routes = mutableMapOf()
+            saveRoutes()
+        }
+
+        if (EurybiumMod.gemstoneNodes.mineshaftNodes == null) {
+            EurybiumMod.gemstoneNodes.mineshaftNodes = mutableMapOf()
             saveGemstoneNodes()
         }
     }
@@ -92,7 +91,7 @@ object OrderedWaypoints {
     }
     
     @HandleEvent
-    fun onWorldRenderLastEvent(event: WorldRenderEvent) {
+    fun onWorldRenderLastEvent(event: WorldRenderLastEvent) {
         if (!config.enabled) return;
 
         for (i in renderWaypoints.indices) {
@@ -294,7 +293,7 @@ object OrderedWaypoints {
                 currentOrderedWaypointIndex = orderedWaypointsList.minBy { waypoint -> waypoint.location.distanceSqToPlayer() }.number - 1
                 renderWaypoints.clear()
                 BlockGlowRenderer.clear()
-                Chat.chat("Loaded ordered waypoints!")
+                EurybiumMod.logger.info("Loaded ordered waypoints!")
             } ?: run {
                 EurybiumMod.logger.error(
                     "There was an error parsing waypoints. " +
@@ -312,7 +311,7 @@ object OrderedWaypoints {
         BlockGlowRenderer.clear()
         currentOrderedWaypointIndex = 0
         lastCloser = 0
-        Chat.chat("Unloaded ordered waypoints.")
+        EurybiumMod.logger.info("Unloaded ordered waypoints.")
     }
 
     private fun skip(amount: Int) {
@@ -321,18 +320,18 @@ object OrderedWaypoints {
         }
 
         incrementIndex(amount)
-        Chat.chat("Skipped $amount ${StringUtils.pluralize(amount, "waypoint")}.")
+        EurybiumMod.logger.info("Skipped $amount ${StringUtils.pluralize(amount, "waypoint")}.")
     }
 
     private fun skipto(number: Int) {
         if (orderedWaypointsList.isEmpty()) {
-            return Chat.chat("There are no waypoints to skip to.")
+            return EurybiumMod.logger.info("There are no waypoints to skip to.")
         }
 
         val newOrderedWaypointIndex = number - 1
         if (0 <= newOrderedWaypointIndex && newOrderedWaypointIndex < orderedWaypointsList.size) {
             currentOrderedWaypointIndex = newOrderedWaypointIndex
-            Chat.chat("Skipped to ${currentOrderedWaypointIndex + 1}.")
+            EurybiumMod.logger.info("Skipped to ${currentOrderedWaypointIndex + 1}.")
         } else {
             EurybiumMod.logger.error("$number is not between 1 and ${orderedWaypointsList.size}.")
         }
@@ -345,7 +344,7 @@ object OrderedWaypoints {
 
         incrementIndex(-amount)
 
-        Chat.chat("Unskipped $amount waypoints.")
+        EurybiumMod.logger.info("Unskipped $amount waypoints.")
     }
 
     private fun delete(number: Int) {
@@ -364,7 +363,7 @@ object OrderedWaypoints {
         orderedWaypointsList.removeAt(number - 1)
         renderWaypoints.clear()
 
-        Chat.chat("Removed waypoint $number.")
+        EurybiumMod.logger.info("Removed waypoint $number.")
     }
 
     private fun add(number: Int) {
@@ -389,7 +388,7 @@ object OrderedWaypoints {
             }
             orderedWaypointsList.add(number - 1, newWaypoint)
         }
-        Chat.chat("Inserted waypoint $number at ${listOf(pos.x, pos.y, pos.z).joinToString(", ")}.")
+        EurybiumMod.logger.info("Inserted waypoint $number at ${listOf(pos.x, pos.y, pos.z).joinToString(", ")}.")
     }
 
     private fun export(format: String) {
@@ -399,7 +398,7 @@ object OrderedWaypoints {
 
             route?.let {
                 ClipboardUtils.copyToClipboard(it)
-                Chat.chat("Route was copied to clipboard.")
+                EurybiumMod.logger.info("Route was copied to clipboard.")
             } ?: run {
                 EurybiumMod.logger.error(
                     "Invalid waypoint format specified.\n" +
@@ -412,7 +411,7 @@ object OrderedWaypoints {
     private fun save(name: String) {
         EurybiumMod.orderedWaypointsRoutes.routes?.set(name, orderedWaypointsList.deepCopy())
         saveRoutes()
-        Chat.chat("Route saved as $name. Do /sho load $name to import it.")
+        EurybiumMod.logger.info("Route saved as $name. Do /eybo load $name to import it.")
     }
 
     private fun erase(name: String) {
@@ -422,7 +421,7 @@ object OrderedWaypoints {
         }
 
         saveRoutes()
-        Chat.chat("Route $name successfully deleted.")
+        EurybiumMod.logger.info("Route $name successfully deleted.")
     }
 
     private fun decideWaypoints() {

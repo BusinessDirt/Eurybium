@@ -1,6 +1,5 @@
 package github.businessdirt.eurybium.mixins.render
 
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderEvent
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.RenderTickCounter
 import org.spongepowered.asm.mixin.Mixin

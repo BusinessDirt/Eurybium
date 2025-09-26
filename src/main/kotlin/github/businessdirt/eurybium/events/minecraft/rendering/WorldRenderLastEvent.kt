@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 
-class WorldRenderEvent(override val context: WorldRenderContext) : RenderingEurybiumEvent(context) {
+class WorldRenderLastEvent(override val context: WorldRenderContext) : RenderingEurybiumEvent(context) {
 
     init {
         CameraTransform.offset(matrixStack)
