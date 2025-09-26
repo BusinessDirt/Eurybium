@@ -13,6 +13,6 @@ class MixinGameRenderer {
 
     @Inject(method = ["renderWorld"], at = [At(value = "constant", args=["stringValue=hand"], shift = At.Shift.BEFORE)])
     fun renderWorld(renderTickCounter: RenderTickCounter, ci: CallbackInfo) {
-        WorldRenderEvent(renderTickCounter.getTickProgress(false)).post()
+        //WorldRenderEvent(renderTickCounter.getTickProgress(false)).post()
     }
 }

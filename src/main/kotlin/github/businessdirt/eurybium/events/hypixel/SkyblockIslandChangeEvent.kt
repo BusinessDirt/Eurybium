@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.events.skyblock
+package github.businessdirt.eurybium.events.hypixel
 
 import github.businessdirt.eurybium.core.events.EurybiumEvent
 import github.businessdirt.eurybium.data.model.IslandType

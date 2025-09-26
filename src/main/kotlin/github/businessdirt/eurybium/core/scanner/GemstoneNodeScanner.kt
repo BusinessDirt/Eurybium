@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.core.scanner
 
+import github.businessdirt.eurybium.config.GemstoneNode
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
 import net.minecraft.util.Identifier
@@ -28,7 +29,7 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
      * @param includeDiagonals if true, uses 26-neighbour connectivity; otherwise uses 6-face connectivity
      * @return list of clusters; each cluster is a Map<Identifier, Set<BlockPos>> containing only positions in that cluster
      */
-    fun clusterBlocks(includeDiagonals: Boolean = false): List<Map<Identifier, Set<BlockPos>>> {
+    fun clusterBlocks(includeDiagonals: Boolean = false): MutableList<GemstoneNode> {
 
         // Build quick lookup from BlockPos -> Identifier. Also detect duplicates.
         val posToId = HashMap<BlockPos, Identifier>(foundBlocks.values.sumOf { it.size })
@@ -41,7 +42,7 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
             }
         }
 
-        if (posToId.isEmpty()) return emptyList()
+        if (posToId.isEmpty()) return mutableListOf()
 
         // Precompute neighbour deltas
         val deltas = if (includeDiagonals) {
@@ -60,7 +61,7 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
         }
 
         val visited = HashSet<BlockPos>(posToId.size)
-        val clusters = mutableListOf<Map<Identifier, Set<BlockPos>>>()
+        val clusters = mutableListOf<GemstoneNode>()
 
         for (start in posToId.keys) {
             if (!visited.add(start)) continue // already part of a found cluster
@@ -87,8 +88,8 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
                 }
             }
 
-            // freeze the sets/maps if you prefer immutability at the API boundary
-            clusters.add(clusterMap.mapValues { it.value.toSet() })
+            //clusters.add(clusterMap.mapValues { it.value.toSet() })
+            clusters.add(clusterMap)
         }
 
         return clusters

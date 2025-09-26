@@ -12,6 +12,7 @@ plugins {
     id("gg.essential.defaults")
     id("gg.essential.defaults.maven-publish")
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.google.devtools.ksp")
 }
 
 val javaVersion = 21
@@ -24,6 +25,11 @@ loom {
     if (accessWidenerFile.exists()) {
         accessWidenerPath = accessWidenerFile
     }
+}
+
+sourceSets.main {
+    resources.destinationDirectory.set(kotlin.destinationDirectory)
+    output.setResourcesDir(kotlin.destinationDirectory)
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -49,6 +55,9 @@ val fabricVersion: String by project
 
 dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+
+    ksp("dev.zacsweers.autoservice:auto-service-ksp:1.2.0")
+    implementation("com.google.auto.service:auto-service-annotations:1.1.1")
 
     val devAuthVersion = "1.2.1"
     modRuntimeOnly("me.djtheredstoner:DevAuth-$devAuthModule:$devAuthVersion")

@@ -6,9 +6,8 @@ import github.businessdirt.eurybium.data.ScoreboardData
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.SecondPassedEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
-import github.businessdirt.eurybium.events.skyblock.MineshaftEnteredEvent
+import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
-import kotlin.math.pow
 
 object MineshaftDetection {
 
@@ -39,22 +38,5 @@ object MineshaftDetection {
         EurybiumMod.logger.debug("Found a {} mineshaft! [{}]", type.name, areaName)
 
         MineshaftEnteredEvent(type).post()
-    }
-
-    /**
-     * Normalizes the price of the gemstone by block strength and the amount of corpses
-     * normalized = gemstonePrice * corpseMultiplier^corpseCount
-     * @param gemstonePrice price of the gemstone
-     * @param corpseCount the corpses in the mineshaft
-     * @param corpseMultiplier the scaling or worth of a corpse
-     * @return the normalized price
-     */
-    private fun normalizeGemstonePrice(
-        gemstonePrice: Double,
-        blockStrength: Int,
-        corpseCount: Int,
-        corpseMultiplier: Float
-    ): Double {
-        return gemstonePrice / blockStrength * corpseMultiplier.toDouble().pow(corpseCount.toDouble())
     }
 }

@@ -6,6 +6,11 @@ enum class CommandCategory(val color: String, val categoryName: String, val desc
         "Main Command",
         "Most useful commands of SkyHanni"
     ),
+    USERS_ACTIVE(
+        "§e",
+        "Normal Command",
+        "Normal Command for everyone to use",
+    ),
     DEVELOPER_TEST(
         "§5",
         "Developer Test Commands",

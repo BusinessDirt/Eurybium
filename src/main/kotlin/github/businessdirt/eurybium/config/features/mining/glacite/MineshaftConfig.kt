@@ -16,11 +16,6 @@ class MineshaftConfig {
     var detectMineshaft: Boolean = false
 
     @Expose
-    @ConfigOption(name = "Mineshaft Waypoints", desc = "General waypoints inside the Mineshaft.")
-    @Accordion
-    var mineshaftWaypoints: MineshaftWaypointsConfig = MineshaftWaypointsConfig()
-
-    @Expose
     @ConfigOption(name = "Mineshaft Mining", desc = "Features related to Mineshaft Mining.")
     @Accordion
     var mineshaftMining: MineshaftMining = MineshaftMining()

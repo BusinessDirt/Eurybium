@@ -11,8 +11,13 @@ import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.ClientJoinEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
-import github.businessdirt.eurybium.events.skyblock.ScoreboardAreaChangedEvent
-import github.businessdirt.eurybium.events.skyblock.SkyblockIslandChangeEvent
+import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
+import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
+import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
+import github.businessdirt.eurybium.events.hypixel.SkyblockIslandChangeEvent
+import github.businessdirt.eurybium.events.hypixel.SkyblockJoinEvent
+import github.businessdirt.eurybium.events.hypixel.SkyblockLeaveEvent
+import github.businessdirt.eurybium.utils.SkyBlockUtils
 import github.businessdirt.eurybium.utils.StringUtils.removeColor
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -57,10 +62,27 @@ object HypixelData {
     fun onClientJoinEvent(event: ClientJoinEvent) {
         val address = event.connection.address.toString()
         val matcher: Matcher = SERVER_NAME_CONNECTION_PATTERN.matcher(address)
+
+        val wasOnHypixel = SkyBlockUtils.onHypixel()
         if (matcher.find()) {
             when {
                 matcher.group("prefix") == "alpha." -> hypixelAlpha = true
                 else -> hypixelLive = true
+            }
+        }
+        val nowOnHypixel = SkyBlockUtils.onHypixel()
+
+        when {
+            !wasOnHypixel && nowOnHypixel -> {
+                HypixelJoinEvent().post()
+            }
+
+            wasOnHypixel && !nowOnHypixel -> {
+                if (skyBlock) {
+                    skyBlock = false
+                    SkyblockLeaveEvent().post()
+                }
+                HypixelLeaveEvent().post()
             }
         }
     }
@@ -70,7 +92,12 @@ object HypixelData {
         if (!connectedToHypixel) return
 
         val displayName = ScoreboardData.objectiveTitle.removeColor()
-        skyBlock = SCOREBOARD_TITLE_PATTERN.matcher(displayName).find()
+        val inSkyBlock = SCOREBOARD_TITLE_PATTERN.matcher(displayName).find()
+
+        if (inSkyBlock) SkyblockJoinEvent().post()
+        else SkyblockLeaveEvent().post()
+
+        skyBlock = inSkyBlock
         if (!skyBlock) return
 
         for (line in event.added) {

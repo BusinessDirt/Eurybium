@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.features.types
 import github.businessdirt.eurybium.core.types.MinecraftColor
 
 enum class MineshaftType(val color: MinecraftColor, val rawName: String) {
+    UNKNOWN(MinecraftColor.WHITE, "Unknown"),
     TOPA1(MinecraftColor.YELLOW, "Topaz"),
     SAPP1(MinecraftColor.BLUE, "Sapphire"),
     AMET1(MinecraftColor.DARK_PURPLE, "Amethyst"),
@@ -29,4 +30,6 @@ enum class MineshaftType(val color: MinecraftColor, val rawName: String) {
     ;
 
     val displayName: String = color.getChatColor() + rawName
+
+    val typeIndex: String = if (rawName.endsWith("Crystal")) "Crystal" else rawName
 }

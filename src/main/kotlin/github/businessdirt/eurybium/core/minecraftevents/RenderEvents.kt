@@ -1,21 +1,15 @@
 package github.businessdirt.eurybium.core.minecraftevents
 
 import github.businessdirt.eurybium.core.events.EventCallback
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderAfterEntitiesEvent
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEvent
+import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderEvent
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 
 object RenderEvents {
 
     @EventCallback
     fun registerWorldRenderEvents() {
-        WorldRenderEvents.AFTER_ENTITIES.register(WorldRenderEvents.AfterEntities { context ->
-            WorldRenderAfterEntitiesEvent(context).post()
-        })
-
         WorldRenderEvents.LAST.register(WorldRenderEvents.Last { context ->
-            WorldRenderLastEvent(context).post()
+            WorldRenderEvent(context).post()
         })
-
     }
 }

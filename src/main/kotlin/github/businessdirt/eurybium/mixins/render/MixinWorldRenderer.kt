@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.mixins.render
 
-import github.businessdirt.eurybium.core.rendering.BlockOutlineRenderer
+import github.businessdirt.eurybium.core.rendering.BlockGlowRenderer
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Frustum
 import net.minecraft.client.render.VertexConsumerProvider
@@ -29,7 +29,7 @@ class MixinWorldRenderer {
         tickProgress: Float,
         ci: CallbackInfo
     ) {
-        BlockOutlineRenderer.render(matrixStack, camera)
+        BlockGlowRenderer.render(matrixStack, camera)
     }
 
     @ModifyArg(method = ["render"], at = At(
@@ -37,12 +37,12 @@ class MixinWorldRenderer {
         target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V"
     ), index = 6)
     fun render(renderEntityOutline: Boolean): Boolean {
-        return renderEntityOutline || BlockOutlineRenderer.shouldRender()
+        return renderEntityOutline || BlockGlowRenderer.shouldRender()
     }
 
     @Inject(method = ["getEntitiesToRender"], at = [At("RETURN")], cancellable = true)
     fun getEntitiesToRender(camera: Camera, frustum: Frustum, output: List<Entity>, cir: CallbackInfoReturnable<Boolean>) {
-        if (BlockOutlineRenderer.shouldRender()) {
+        if (BlockGlowRenderer.shouldRender()) {
             cir.returnValue = true
         }
     }

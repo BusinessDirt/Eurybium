@@ -4,7 +4,7 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
-import github.businessdirt.eurybium.events.skyblock.MineshaftEnteredEvent
+import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.features.types.GemstoneType
 import kotlin.math.pow
 

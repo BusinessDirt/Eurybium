@@ -7,22 +7,23 @@ import gg.essential.universal.UMinecraft.getMinecraft
 import gg.essential.universal.render.URenderPipeline
 import gg.essential.universal.shader.BlendState
 import gg.essential.universal.vertex.UBufferBuilder
-import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderAfterEntitiesEvent
 import github.businessdirt.eurybium.utils.Reference
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.RenderLayer
+import net.minecraft.client.render.Tessellator
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
 
 object LineRenderer {
 
     private val linesPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/lines",
-        UGraphics.DrawMode.LINES, UGraphics.CommonVertexFormats.POSITION_COLOR
+        UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
     ).apply {
         blendState = BlendState.ALPHA
     }.build()
 
     private val noDepthLinesPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/no_depth_lines",
-        UGraphics.DrawMode.LINES, UGraphics.CommonVertexFormats.POSITION_COLOR
+        UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
     ).apply {
         depthTest = URenderPipeline.DepthTest.Always
         blendState = BlendState.ALPHA
@@ -44,26 +45,27 @@ object LineRenderer {
         to: Vec3d,
         color: Color = Color.WHITE,
         width: Float = 2f,
-        useDepth: Boolean = false
+        depth: Boolean = false
     ) {
-        matrices.push()
-        CameraTransform.offset(matrices)
-        RenderSystem.lineWidth(width)
+        val cameraDir = (to.subtract(from)).normalize()
+        val cameraRight = cameraDir.crossProduct(Vec3d(0.0, 1.0, 0.0)).normalize()
+        val cameraUp = cameraRight.crossProduct(cameraDir).normalize()
 
-        val buffer = UBufferBuilder.create(UGraphics.DrawMode.LINE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR)
-        buffer.pos(matrices, from.x, from.y, from.z).color(color).endVertex()
-        buffer.pos(matrices, to.x, to.y, to.z).color(color).endVertex()
-        buffer.build()?.drawAndClose(if(useDepth) linesPipeline else noDepthLinesPipeline)
-
-        matrices.pop()
+        val buffer = UBufferBuilder.create(UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR)
+        lineToQuad(from, to, cameraRight, cameraUp, width).forEach { buffer.pos(matrices, it.x, it.y, it.z).color(color).endVertex() }
+        buffer.build()?.drawAndClose(if (depth) linesPipeline else noDepthLinesPipeline)
     }
 
-    fun draw3DLineFromCursor(matrices: UMatrixStack,
-                             to: Vec3d,
-                             color: Color = Color.WHITE,
-                             width: Float = 2f,
-                             useDepth: Boolean = false) {
-        val cameraPos = getMinecraft().cameraEntity?.pos ?: return
-        draw3DLine(matrices, cameraPos, to, color, width, useDepth)
+    fun lineToQuad(from: Vec3d, to: Vec3d, cameraRight: Vec3d, cameraUp: Vec3d, width: Float): List<Vec3d> {
+        val halfWidth = (width / 500).toDouble()
+        val rightOffset = cameraRight.multiply(halfWidth)
+        val upOffset = cameraUp.multiply(halfWidth)
+
+        return listOf(
+            from.subtract(rightOffset).subtract(upOffset), // bottom-left
+            from.add(rightOffset).subtract(upOffset),      // bottom-right
+            to.add(rightOffset).add(upOffset),            // top-right
+            to.subtract(rightOffset).add(upOffset)        // top-left
+        )
     }
 }

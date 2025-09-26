@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.utils
 
+import github.businessdirt.eurybium.utils.MathUtils.addSeparators
 import java.util.regex.Pattern
 import kotlin.math.min
 
@@ -91,5 +92,12 @@ object StringUtils {
         while (message.startsWith("§r")) message = message.substring(2)
         while (message.endsWith("§r")) message = message.substring(0, message.length - 2)
         return message
+    }
+
+    fun pluralize(number: Int, singular: String, plural: String? = null, withNumber: Boolean = false): String {
+        val pluralForm = plural ?: "${singular}s"
+        var str = if (number == 1 || number == -1) singular else pluralForm
+        if (withNumber) str = "${number.addSeparators()} $str"
+        return str
     }
 }
