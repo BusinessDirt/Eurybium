@@ -1,9 +1,9 @@
 package github.businessdirt.eurybium.core.scanner
 
 import github.businessdirt.eurybium.config.GemstoneNode
+import github.businessdirt.eurybium.core.rendering.GlowingBlock
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 
 private val GEMSTONE_MINECRAFT_BLOCKS: Set<Block> = setOf(
@@ -29,67 +29,37 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
      * @param includeDiagonals if true, uses 26-neighbour connectivity; otherwise uses 6-face connectivity
      * @return list of clusters; each cluster is a Map<Identifier, Set<BlockPos>> containing only positions in that cluster
      */
-    fun clusterBlocks(includeDiagonals: Boolean = false): MutableList<GemstoneNode> {
+    fun clusterBlocks(): MutableList<GemstoneNode> {
+        val deltas = listOf(
+            BlockPos(1, 0, 0), BlockPos(-1, 0, 0),
+            BlockPos(0, 1, 0), BlockPos(0, -1, 0),
+            BlockPos(0, 0, 1), BlockPos(0, 0, -1)
+        )
 
-        // Build quick lookup from BlockPos -> Identifier. Also detect duplicates.
-        val posToId = HashMap<BlockPos, Identifier>(foundBlocks.values.sumOf { it.size })
-        for ((id, poses) in foundBlocks) {
-            for (pos in poses) {
-                val prev = posToId.putIfAbsent(pos, id)
-                if (prev != null) {
-                    throw IllegalArgumentException("BlockPos $pos appears for both $prev and $id")
-                }
-            }
-        }
-
-        if (posToId.isEmpty()) return mutableListOf()
-
-        // Precompute neighbour deltas
-        val deltas = if (includeDiagonals) {
-            val list = mutableListOf<Triple<Int, Int, Int>>()
-            for (dx in -1..1) for (dy in -1..1) for (dz in -1..1) {
-                if (dx == 0 && dy == 0 && dz == 0) continue
-                list += Triple(dx, dy, dz)
-            }
-            list
-        } else {
-            listOf(
-                Triple(1, 0, 0), Triple(-1, 0, 0),
-                Triple(0, 1, 0), Triple(0, -1, 0),
-                Triple(0, 0, 1), Triple(0, 0, -1)
-            )
-        }
-
-        val visited = HashSet<BlockPos>(posToId.size)
+        val visited = HashSet<BlockPos>(foundBlocks.size)
         val clusters = mutableListOf<GemstoneNode>()
 
-        for (start in posToId.keys) {
+        for (start in foundBlocks) {
             if (!visited.add(start)) continue // already part of a found cluster
 
             // BFS queue
-            val queue = ArrayDeque<BlockPos>()
-            queue.add(start)
-
-            // cluster accumulator: Identifier -> positions in this cluster
-            val clusterMap = mutableMapOf<Identifier, MutableSet<BlockPos>>()
+            val queue = ArrayDeque<BlockPos>().apply { add(start) }
+            val gemstoneNode: GemstoneNode = mutableSetOf()
 
             while (queue.isNotEmpty()) {
-                val p = queue.removeFirst()
-                // add to cluster map
-                val id = posToId[p]!! // guaranteed to exist
-                clusterMap.computeIfAbsent(id) { mutableSetOf() }.add(p)
+                val position = queue.removeFirst()
+                gemstoneNode.add(GlowingBlock(position))
 
                 // check neighbours
-                for ((dx, dy, dz) in deltas) {
-                    val np = BlockPos(p.x + dx, p.y + dy, p.z + dz)
-                    if (posToId.containsKey(np) && visited.add(np)) {
-                        queue.add(np)
+                for (delta in deltas) {
+                    val neighbour = position.add(delta)
+                    if (neighbour in foundBlocks && visited.add(neighbour)) {
+                        queue.add(neighbour)
                     }
                 }
             }
 
-            //clusters.add(clusterMap.mapValues { it.value.toSet() })
-            clusters.add(clusterMap)
+            clusters.add(gemstoneNode)
         }
 
         return clusters

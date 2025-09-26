@@ -8,15 +8,14 @@ import net.minecraft.block.Block
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.max
 import kotlin.math.min
 
 open class BlockScanner(val blockSet: Set<Block>) {
 
     // Stores all found blocks persistently
-    val foundBlocks: MutableMap<Identifier, MutableSet<BlockPos>> = mutableMapOf()
-
-    private val mutex = Mutex()
+    val foundBlocks: MutableSet<BlockPos> = mutableSetOf()
 
     suspend fun find() = coroutineScope {
         val world = UMinecraft.getMinecraft().world ?: return@coroutineScope
@@ -35,45 +34,38 @@ open class BlockScanner(val blockSet: Set<Block>) {
         val chunkStartZ = minZ shr 4
         val chunkEndZ = maxZ shr 4
 
-        val jobs = mutableListOf<Deferred<Unit>>()
+        val results = ConcurrentLinkedQueue<BlockPos>()
+        val dispatcher = Dispatchers.Default.limitedParallelism(4)
 
         // Iterate over all chunks in range
-        for (chunkX in chunkStartX..chunkEndX) {
-            for (chunkZ in chunkStartZ..chunkEndZ) {
-                jobs += async(Dispatchers.Default) {
-                    val localFound: MutableMap<Identifier, MutableSet<BlockPos>> = mutableMapOf()
+        (chunkStartX .. chunkEndX).flatMap { cx ->
+            (chunkStartZ .. chunkEndZ).map { cz ->
+                async(dispatcher) {
+                    val localFound = mutableListOf<BlockPos>()
 
-                    val startX = chunkX shl 4
+                    val startX = cx shl 4
                     val endX = startX + 15
-                    val startZ = chunkZ shl 4
+                    val startZ = cz shl 4
                     val endZ = startZ + 15
 
                     for (x in max(startX, minX)..min(endX, maxX)) {
                         for (y in minY..maxY) {
                             for (z in max(startZ, minZ)..min(endZ, maxZ)) {
                                 val blockPos = BlockPos(x, y, z)
-                                val blockState = world.getBlockState(blockPos)
+                                val block = world.getBlockState(blockPos).block
 
-                                if (blockState.block in blockSet) {
-                                    val id = Registries.BLOCK.getId(blockState.block)
-                                    localFound.getOrPut(id) { mutableSetOf() }.add(blockPos)
-                                }
+                                if (block in blockSet) localFound.add(blockPos)
                             }
+
                         }
-                        yield() // cooperative multitasking
+                        yield()
                     }
 
-                    // Append this chunk's results to the global list
-                    mutex.withLock {
-                        localFound.forEach { (id, blockPositions) ->
-                            foundBlocks.getOrPut(id) { mutableSetOf() }.addAll(blockPositions)
-                        }
-                    }
+                    results.addAll(localFound)
                 }
             }
-        }
+        }.awaitAll()
 
-        // Wait for all chunk jobs
-        jobs.awaitAll()
+        foundBlocks.addAll(results)
     }
 }

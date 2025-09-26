@@ -1,10 +1,11 @@
 package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
+import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
-import github.businessdirt.eurybium.core.rendering.BoxRenderer
-import github.businessdirt.eurybium.core.rendering.CameraTransform
-import github.businessdirt.eurybium.core.rendering.LineRenderer
+import github.businessdirt.eurybium.core.rendering.*
+import github.businessdirt.eurybium.features.types.MineshaftType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.util.math.BlockPos
@@ -48,5 +49,21 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
         matrixStack.push()
         BoxRenderer.drawOutlinedBoundingBox(matrixStack, location, color, lineWidth.toFloat(), depth)
         matrixStack.pop()
+    }
+
+    fun drawWaypointGlowing(location: BlockPos, color: ChromaColour, mineshaftType: MineshaftType = MineshaftType.UNKNOWN) {
+        if (mineshaftType == MineshaftType.UNKNOWN) {
+            GlowingBlockRenderer.blocks.add(color, GlowingBlock(location))
+            return
+        }
+
+        val nearestNode: Collection<GlowingBlock>? = EurybiumMod.gemstoneNodes.mineshaftNodes!![mineshaftType.typeIndex]!!
+            .minByOrNull { node ->
+                node.minOfOrNull { it.position.getSquaredDistance(location.toCenterPos()) }
+                    ?: Double.MAX_VALUE
+            }
+
+        if (nearestNode != null)
+            GlowingBlockRenderer.blocks.addAll(color, nearestNode)
     }
 }

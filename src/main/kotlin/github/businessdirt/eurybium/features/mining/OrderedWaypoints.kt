@@ -9,7 +9,7 @@ import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.rendering.BlockGlowRenderer
+import github.businessdirt.eurybium.core.rendering.GlowingBlockRenderer
 import github.businessdirt.eurybium.core.scanner.GemstoneNodeScanner
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.data.model.waypoints.WaypointFormat
@@ -36,13 +36,12 @@ object OrderedWaypoints {
     private val scanner = GemstoneNodeScanner()
 
     private var currentOrderedWaypointIndex = 0
-    private var lastOrderedWaypointIndex = -1
     private val renderWaypoints: MutableList<Int> = mutableListOf()
 
     private var orderedWaypointsList = Waypoints<EurybiumWaypoint>()
     private val mineshaftNodes get() = EurybiumMod.gemstoneNodes.mineshaftNodes
 
-    private var mineshaftType = MineshaftType.JASP1
+    private var mineshaftType = MineshaftType.JASP1 // TODO: set to unknown
     private var lastCloser = 0
 
     private fun saveGemstoneNodes() { EurybiumMod.configManager.saveConfig(ConfigFileType.GEMSTONE_NODES, "Save file") }
@@ -54,7 +53,7 @@ object OrderedWaypoints {
 
             with(mineshaftNodes!!.getOrPut(mineshaftType.typeIndex) { mutableListOf() }) {
                 clear()
-                addAll(scanner.clusterBlocks(false))
+                addAll(scanner.clusterBlocks())
                 EurybiumMod.logger.debug("Found $size gemstone nodes!")
             }
 
@@ -107,53 +106,18 @@ object OrderedWaypoints {
                 continue
             }
 
+            val location = orderedWaypointsList[renderWaypoints[i]].location
             when (config.renderMode) {
                 OrderedWaypointsConfig.RenderMode.FILL -> {
-                    event.drawWaypointFilled(
-                        orderedWaypointsList[renderWaypoints[i]].location,
-                        wpColor,
-                        true,
-                    )
+                    event.drawWaypointFilled(location, wpColor, true)
                 }
 
                 OrderedWaypointsConfig.RenderMode.OUTLINE -> {
-                    event.drawWaypointOutlined(
-                        orderedWaypointsList[renderWaypoints[i]].location,
-                        wpColor,
-                        config.blockOutlineThickness.toInt(),
-                        false,
-                    )
+                    event.drawWaypointOutlined(location, wpColor, config.blockOutlineThickness.toInt(), false,)
                 }
 
                 OrderedWaypointsConfig.RenderMode.GLOW -> {
-                    if (currentOrderedWaypointIndex != lastOrderedWaypointIndex && mineshaftType != MineshaftType.UNKNOWN) {
-                        val nodes: MutableMap<Identifier, MutableSet<BlockPos>> = mutableMapOf()
-                        for (i in renderWaypoints) {
-                            val position = orderedWaypointsList[i]
-                            var nearestDistance = Double.MAX_VALUE
-                            var nearestNode: GemstoneNode? = null
-
-                            for (node in mineshaftNodes!![mineshaftType.typeIndex]!!) {
-                                val dist = node.values
-                                    .flatten()
-                                    .minOfOrNull { it.getSquaredDistance(position.location.toCenterPos()) } ?: continue
-
-                                if (dist < nearestDistance) {
-                                    nearestDistance = dist
-                                    nearestNode = node
-                                }
-                            }
-
-                            // Assign pos to the nearest node
-                            nearestNode?.forEach { (id, positions) ->
-                                nodes.getOrPut(id) { mutableSetOf() }
-                                    .addAll(positions)
-                            }
-                        }
-
-                        BlockGlowRenderer.clear()
-                        BlockGlowRenderer.renderBlockOutlines(nodes)
-                    }
+                    event.drawWaypointGlowing(location, wpColor, mineshaftType)
                 }
             }
         }
@@ -172,7 +136,6 @@ object OrderedWaypoints {
             )
         }
 
-        lastOrderedWaypointIndex = currentOrderedWaypointIndex
         decideWaypoints()
     }
     
@@ -257,16 +220,6 @@ object OrderedWaypoints {
             description = "Scans the world for gemstone blocks"
             simpleCallback { updateGemstoneNodes() }
         }
-
-        event.register("eurybiumrendergemstoneoutline") {
-            category = CommandCategory.DEVELOPER_TEST
-            description = "Renders a GemstoneNode"
-            argCallback("node", BrigadierArguments.int()) { node ->
-                val cluster = EurybiumMod.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.get(node) ?: return@argCallback
-                BlockGlowRenderer.clear()
-                BlockGlowRenderer.renderBlockOutlines(cluster)
-            }
-        }
     }
 
     private fun getRouteNames() = EurybiumMod.orderedWaypointsRoutes.routes?.keys.orEmpty()
@@ -289,10 +242,9 @@ object OrderedWaypoints {
 
             res?.let {
                 orderedWaypointsList = it.deepCopy()
-                orderedWaypointsList.sortedByDescending { waypoint -> waypoint.number }
+                orderedWaypointsList.sortedBy { waypoint -> waypoint.number }
                 currentOrderedWaypointIndex = orderedWaypointsList.minBy { waypoint -> waypoint.location.distanceSqToPlayer() }.number - 1
                 renderWaypoints.clear()
-                BlockGlowRenderer.clear()
                 EurybiumMod.logger.info("Loaded ordered waypoints!")
             } ?: run {
                 EurybiumMod.logger.error(
@@ -308,7 +260,6 @@ object OrderedWaypoints {
     private fun unload() {
         orderedWaypointsList.clear()
         renderWaypoints.clear()
-        BlockGlowRenderer.clear()
         currentOrderedWaypointIndex = 0
         lastCloser = 0
         EurybiumMod.logger.info("Unloaded ordered waypoints.")
