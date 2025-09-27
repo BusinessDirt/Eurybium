@@ -15,6 +15,7 @@ import github.businessdirt.eurybium.data.model.waypoints.Waypoints
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
+import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
@@ -39,7 +40,7 @@ object OrderedWaypoints {
     private var orderedWaypointsList = Waypoints<EurybiumWaypoint>()
     private val mineshaftNodes get() = EurybiumMod.gemstoneNodes.mineshaftNodes
 
-    private var mineshaftType = MineshaftType.JASP1 // TODO: set to unknown
+    private var mineshaftType = MineshaftType.UNKNOWN
     private var lastCloser = 0
 
     private fun saveGemstoneNodes() { EurybiumMod.configManager.saveConfig(ConfigFileType.GEMSTONE_NODES, "Save file") }
@@ -80,7 +81,7 @@ object OrderedWaypoints {
             return
         }
 
-        if (mineshaftNodes!![mineshaftType.typeIndex]?.isEmpty() == true && config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW) {
+        if (mineshaftNodes!![mineshaftType.typeIndex]?.isEmpty() == true) {
             EurybiumMod.logger.debug("Entered mineshaft of type '$mineshaftType' but no cached gemstone nodes were found.")
             EurybiumMod.logger.debug("Launching Coroutine to find gemstone nodes...")
             updateGemstoneNodes()
@@ -122,7 +123,7 @@ object OrderedWaypoints {
         val traceWaypoint = if (renderWaypoints.size == 2) orderedWaypointsList[renderWaypoints[0]]
         else orderedWaypointsList[renderWaypoints[2]]
 
-        val traceLocation = if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW)
+        val traceLocation = if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW && mineshaftType != MineshaftType.UNKNOWN)
             traceWaypoint.getNearestNode(mineshaftType)?.getCenterPos() ?: Vec3d.ZERO
         else traceWaypoint.location.toCenterPos()
 
@@ -134,6 +135,8 @@ object OrderedWaypoints {
     @HandleEvent
     fun onWorldChangeEvent(event: WorldChangeEvent) {
         currentOrderedWaypointIndex = 0
+        mineshaftType = MineshaftType.UNKNOWN
+        unload(false)
     }
     
     @HandleEvent
@@ -249,12 +252,12 @@ object OrderedWaypoints {
         }
     }
 
-    private fun unload() {
+    private fun unload(sendMessage: Boolean = true) {
         orderedWaypointsList.clear()
         renderWaypoints.clear()
         currentOrderedWaypointIndex = 0
         lastCloser = 0
-        EurybiumMod.logger.info("Unloaded ordered waypoints.")
+        if (sendMessage) EurybiumMod.logger.info("Unloaded ordered waypoints.")
     }
 
     private fun skip(amount: Int) {

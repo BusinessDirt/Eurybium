@@ -2,14 +2,14 @@ package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
 import github.businessdirt.eurybium.core.rendering.*
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.features.types.MineshaftType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
-import net.minecraft.util.math.BlockPos
+import net.minecraft.entity.Entity
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
 class WorldRenderLastEvent(override val context: WorldRenderContext) : RenderingEurybiumEvent(context) {
@@ -39,7 +39,7 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
     fun drawWaypointFilled(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
-        depth: Boolean = true
+        depth: Boolean = true,
     ) {
         matrixStack.push()
         BoxRenderer.drawFilledBoundingBox(matrixStack, waypoint.location, color, depth)
@@ -50,7 +50,7 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
         lineWidth: Int,
-        depth: Boolean
+        depth: Boolean,
     ) {
         matrixStack.push()
         BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth)
@@ -60,7 +60,7 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
     fun drawWaypointGlowing(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
-        mineshaftType: MineshaftType = MineshaftType.UNKNOWN
+        mineshaftType: MineshaftType = MineshaftType.UNKNOWN,
     ) {
         if (mineshaftType == MineshaftType.UNKNOWN ||
             EurybiumMod.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.isEmpty() == true

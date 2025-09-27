@@ -5,35 +5,33 @@ import io.github.notenoughupdates.moulconfig.annotations.*
 
 class MineshaftMining {
 
-    @Transient
-    @ConfigOption(name = "Description", desc = "These features are related to the Mineshaft Mining as described in the Mining Cult Discord server. §eRequires 'Mineshaft Detection' to be enabled.")
     @ConfigEditorInfoText
-    var extensiveDescription: Unit? = null
+    @ConfigOption(name = "Description", desc = "These features are related to the Mineshaft Mining as described in the Mining Cult Discord server. §eRequires 'Mineshaft Detection' to be enabled.")
+    @Transient var extensiveDescription: Unit? = null
 
-    @Expose
+    @ConfigEditorBoolean
     @ConfigOption(name = "Detect Viable Mineshaft", desc = "Detects if a mineshaft has enough corpses for it to be 'profitable'.")
-    @ConfigEditorBoolean
-    var detectViableMineshafts: Boolean = false
+    @Expose var detectViableMineshafts: Boolean = false
 
-    @Expose
-    @ConfigOption(name = "Auto load Waypoints", desc = "Automatically loads waypoints when entering a mineshaft.")
     @ConfigEditorBoolean
-    var autoLoadWaypoints: Boolean = false
+    @ConfigOption(name = "Auto load Waypoints", desc = "Automatically loads ordered waypoints when entering a mineshaft. They need to be saved as an ordered waypoint route with the name being the mineshaft name. (JASP1, etc.) For Crystal mineshafts it is always 'CRYSTAL'")
+    @Expose var autoLoadWaypoints: Boolean = false
 
-    @Transient
-    @ConfigOption(name = "Thresholds", desc = "Set the minimum amount of corpses needed for the mineshaft to be considered viable (also for fiestas). Set the value to 5 to 'disable' the shaft.")
+    @ConfigEditorText
+    @ConfigOption(name = "Auto load Mineshaft spawning waypoints", desc = "Automatically loads a route when entering the Dwarven Base Camp. The specified route will need to be saved as an ordered waypoint route.")
+    @Expose var autoLoadSpawnMineshaft: String = ""
+
     @ConfigEditorInfoText()
-    var thresholdDescription: Unit? = null
+    @ConfigOption(name = "Thresholds", desc = "Set the minimum amount of corpses needed for the mineshaft to be considered viable (also for fiestas). Set the value to 5 to 'disable' the shaft.")
+    @Transient var thresholdDescription: Unit? = null
 
-    @Expose
+    @Accordion
     @ConfigOption(name = "Corpse Thresholds", desc = "")
-    @Accordion
-    var corpseThresholds: CorpseThresholds = CorpseThresholds(4f, 3f, 3f, 3f, 2f, 2f, 4f, 0f, 5f, 5f, 5f, 3f)
+    @Expose var corpseThresholds: CorpseThresholds = CorpseThresholds(4f, 3f, 3f, 3f, 2f, 2f, 4f, 0f, 5f, 5f, 5f, 3f)
 
-    @Expose
-    @ConfigOption(name = "Fiesta Corpse Thresholds", desc = "")
     @Accordion
-    var fiestaCorpseThresholds: CorpseThresholds = CorpseThresholds(4f, 1f, 1f, 2f, 1f, 5f, 3f, 0f, 5f, 5f, 5f, 5f)
+    @ConfigOption(name = "Fiesta Corpse Thresholds", desc = "")
+    @Expose var fiestaCorpseThresholds: CorpseThresholds = CorpseThresholds(4f, 1f, 1f, 2f, 1f, 5f, 3f, 0f, 5f, 5f, 5f, 5f)
 
 
     class CorpseThresholds(

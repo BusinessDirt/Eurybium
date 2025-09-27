@@ -226,7 +226,7 @@ enum class TabWidget(pattern: String) {
         "(?:§.)*Dungeon Stats"
     ),
     FROZEN_CORPSES( // language=RegExp
-        "§b§lFrozen Corpses:"
+        "(§b§l)*Frozen Corpses:"
     ),
     SCRAP( // language=RegExp
         "Scrap: (?:§.)*(?<amount>\\d)(?:§.)*/(?:§.)*\\d"

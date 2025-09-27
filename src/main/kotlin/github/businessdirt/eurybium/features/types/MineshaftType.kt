@@ -32,4 +32,12 @@ enum class MineshaftType(val color: MinecraftColor, val rawName: String) {
     val displayName: String = color.getChatColor() + rawName
 
     val typeIndex: String = if (rawName.endsWith("Crystal")) "Crystal" else rawName
+
+    val isGemstone: Boolean get() = when(this) {
+            TITA1 -> false
+            TUNG1 -> false
+            UMBE1 -> false
+            FAIR1 -> false
+            else -> true
+        }
 }

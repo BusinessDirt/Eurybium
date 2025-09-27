@@ -124,7 +124,6 @@ object HypixelData {
         val guesting: Boolean = GUEST_PATTERN.matcher(ScoreboardData.objectiveTitle).find()
 
         val foundIsland = TabWidget.AREA.matchFirstLine { group("island").removeColor() } ?: return
-        Chat.chat(foundIsland)
 
         var newIsland = IslandType.getByName(foundIsland) ?: IslandType.UNKNOWN
         if (guesting) newIsland = newIsland.guestVariant()
