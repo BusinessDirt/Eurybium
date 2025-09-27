@@ -5,10 +5,9 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
-import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
-import github.businessdirt.eurybium.features.mining.OrderedWaypoints
+import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
 
 object MineshaftMining {
