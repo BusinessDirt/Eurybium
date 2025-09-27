@@ -28,7 +28,7 @@ object BaseGsonBuilder {
         .registerTypeAdapter(OrderedWaypointsConfig.RenderMode::class.java, EurybiumTypeAdapters.WAYPOINTS_RENDER_MODE.nullSafe())
         .registerTypeAdapter(Identifier::class.java, EurybiumTypeAdapters.IDENTIFIER.nullSafe())
         .registerTypeAdapter(BlockPos::class.java, EurybiumTypeAdapters.BLOCK_POS.nullSafe())
-        .registerTypeAdapter(ChromaColour::class.java, LegacyStringChromaColourTypeAdapter(false).nullSafe())
+        .registerTypeAdapter(ChromaColour::class.java, LegacyStringChromaColourTypeAdapter(true).nullSafe())
         .enableComplexMapKeySerialization()
 
     fun lenientGson(): GsonBuilder = gson()

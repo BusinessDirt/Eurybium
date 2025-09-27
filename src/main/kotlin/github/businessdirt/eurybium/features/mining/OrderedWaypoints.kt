@@ -377,34 +377,34 @@ object OrderedWaypoints {
 
         val currentWaypoint = orderedWaypointsList.getOrNull(currentOrderedWaypointIndex)
 
-        var distanceTo1 = Double.POSITIVE_INFINITY
+        var distanceToCurrent = Double.POSITIVE_INFINITY
         if (currentWaypoint != null) {
-            distanceTo1 = currentWaypoint.location.distanceToPlayer()
+            distanceToCurrent = currentWaypoint.distanceToPlayer(config.renderMode, mineshaftType)
             renderWaypoints.add(currentWaypoint.number - 1)
         }
 
         val nextWaypoint = orderedWaypointsList.getOrNull(currentOrderedWaypointIndex + 1)
             ?: orderedWaypointsList.first()
 
-        val distanceTo2 = nextWaypoint.location.distanceToPlayer()
+        val distanceToNext = nextWaypoint.distanceToPlayer(config.renderMode, mineshaftType)
         if (nextWaypoint.number - 1 !in renderWaypoints) renderWaypoints.add(nextWaypoint.number - 1)
 
-        val index = nextWaypoint.number % orderedWaypointsList.size
+        val index = (nextWaypoint.number - 1) % orderedWaypointsList.size
         if (index !in renderWaypoints) renderWaypoints.add(index)
 
         if (
             lastCloser == currentOrderedWaypointIndex &&
-            distanceTo1 > distanceTo2 &&
-            distanceTo2 < config.waypointRange
+            distanceToCurrent > distanceToNext &&
+            distanceToNext < config.waypointRange
         ) {
             return incrementIndex(1)
         }
 
-        if (distanceTo1 < config.waypointRange.toDouble()) {
+        if (distanceToCurrent < config.waypointRange.toDouble()) {
             lastCloser = currentOrderedWaypointIndex
         }
 
-        if (distanceTo2 < config.waypointRange.toDouble()) {
+        if (distanceToNext < config.waypointRange.toDouble()) {
             incrementIndex(1)
         }
     }
