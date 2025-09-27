@@ -5,6 +5,7 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
 import github.businessdirt.eurybium.core.rendering.*
+import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.features.types.MineshaftType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
@@ -36,34 +37,29 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
     }
 
     fun drawWaypointFilled(
-        location: BlockPos,
+        waypoint: EurybiumWaypoint,
         color: ChromaColour,
         depth: Boolean = true
     ) {
         matrixStack.push()
-        BoxRenderer.drawFilledBoundingBox(matrixStack, location, color, depth)
+        BoxRenderer.drawFilledBoundingBox(matrixStack, waypoint.location, color, depth)
         matrixStack.pop()
     }
 
-    fun drawWaypointOutlined(location: BlockPos, color: ChromaColour, lineWidth: Int, depth: Boolean) {
+    fun drawWaypointOutlined(waypoint: EurybiumWaypoint, color: ChromaColour, lineWidth: Int, depth: Boolean) {
         matrixStack.push()
-        BoxRenderer.drawOutlinedBoundingBox(matrixStack, location, color, lineWidth.toFloat(), depth)
+        BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth)
         matrixStack.pop()
     }
 
-    fun drawWaypointGlowing(location: BlockPos, color: ChromaColour, mineshaftType: MineshaftType = MineshaftType.UNKNOWN) {
-        if (mineshaftType == MineshaftType.UNKNOWN) {
-            GlowingBlockRenderer.blocks.add(color, GlowingBlock(location))
+    fun drawWaypointGlowing(waypoint: EurybiumWaypoint, color: ChromaColour, mineshaftType: MineshaftType = MineshaftType.UNKNOWN) {
+        if (mineshaftType == MineshaftType.UNKNOWN ||
+            EurybiumMod.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.isEmpty() == true
+        ) {
+            GlowingBlockRenderer.blocks.add(color, GlowingBlock(waypoint.location))
             return
         }
 
-        val nearestNode: Collection<GlowingBlock>? = EurybiumMod.gemstoneNodes.mineshaftNodes!![mineshaftType.typeIndex]!!
-            .minByOrNull { node ->
-                node.minOfOrNull { it.position.getSquaredDistance(location.toCenterPos()) }
-                    ?: Double.MAX_VALUE
-            }
-
-        if (nearestNode != null)
-            GlowingBlockRenderer.blocks.addAll(color, nearestNode)
+        GlowingBlockRenderer.blocks.addAll(color, waypoint.getNearestNode(mineshaftType))
     }
 }

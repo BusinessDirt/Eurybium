@@ -5,11 +5,9 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.commands.SuggestionProviders
 import github.businessdirt.eurybium.commands.brigadier.BrigadierArguments
-import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.rendering.GlowingBlockRenderer
 import github.businessdirt.eurybium.core.scanner.GemstoneNodeScanner
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.data.model.waypoints.WaypointFormat
@@ -25,7 +23,6 @@ import github.businessdirt.eurybium.utils.MathUtils.distanceSqToPlayer
 import github.businessdirt.eurybium.utils.MathUtils.distanceToPlayer
 import github.businessdirt.eurybium.utils.StringUtils
 import github.businessdirt.eurybium.utils.concurrent.Coroutine
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.math.floor
@@ -106,18 +103,18 @@ object OrderedWaypoints {
                 continue
             }
 
-            val location = orderedWaypointsList[renderWaypoints[i]].location
+            val waypoint = orderedWaypointsList[renderWaypoints[i]]
             when (config.renderMode) {
                 OrderedWaypointsConfig.RenderMode.FILL -> {
-                    event.drawWaypointFilled(location, wpColor, true)
+                    event.drawWaypointFilled(waypoint, wpColor, true)
                 }
 
                 OrderedWaypointsConfig.RenderMode.OUTLINE -> {
-                    event.drawWaypointOutlined(location, wpColor, config.blockOutlineThickness.toInt(), false,)
+                    event.drawWaypointOutlined(waypoint, wpColor, config.blockOutlineThickness.toInt(), false,)
                 }
 
                 OrderedWaypointsConfig.RenderMode.GLOW -> {
-                    event.drawWaypointGlowing(location, wpColor, mineshaftType)
+                    event.drawWaypointGlowing(waypoint, wpColor, mineshaftType)
                 }
             }
         }
