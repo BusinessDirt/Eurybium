@@ -73,7 +73,7 @@ object OrderedWaypoints {
         }
     }
 
-    @HandleEvent
+    @HandleEvent(priority = HandleEvent.HIGHEST)
     fun onMineshaftEnteredEvent(event: MineshaftEnteredEvent) {
         mineshaftType = event.type
         if (mineshaftType == MineshaftType.UNKNOWN) {

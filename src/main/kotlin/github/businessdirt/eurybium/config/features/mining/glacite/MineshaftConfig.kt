@@ -13,5 +13,5 @@ class MineshaftConfig {
 
     @Accordion
     @ConfigOption(name = "Mineshaft Mining", desc = "Features related to Mineshaft Mining.")
-    @Expose var mineshaftMining: MineshaftMining = MineshaftMining()
+    @Expose var mineshaftMining: MineshaftMiningConfig = MineshaftMiningConfig()
 }

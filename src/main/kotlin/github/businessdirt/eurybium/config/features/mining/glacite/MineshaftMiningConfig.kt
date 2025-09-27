@@ -3,7 +3,7 @@ package github.businessdirt.eurybium.config.features.mining.glacite
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.*
 
-class MineshaftMining {
+class MineshaftMiningConfig {
 
     @ConfigEditorInfoText
     @ConfigOption(name = "Description", desc = "These features are related to the Mineshaft Mining as described in the Mining Cult Discord server. §eRequires 'Mineshaft Detection' to be enabled.")

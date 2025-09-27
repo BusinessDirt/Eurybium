@@ -3,24 +3,41 @@ package github.businessdirt.eurybium.features.mining.glacitemineshaft
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.TabWidget
+import github.businessdirt.eurybium.events.SecondPassedEvent
 import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
+import github.businessdirt.eurybium.features.types.GemstoneType
 import github.businessdirt.eurybium.features.types.MineshaftType
+import java.util.regex.Pattern
 
 object MineshaftMining {
 
     private val config get() = EurybiumMod.config.mining.glaciteMineshaft.mineshaftMining
+    private val corpseRegex = Pattern.compile("§(?<cc>[0-9A-Za-z])(?<rarity>[^:]+):\\s*(?<status>.+)")
+
     private var mineshaftType: MineshaftType = MineshaftType.UNKNOWN
+    private var lapisCorpseCount = 0
+    private var gotChecked = false
 
     @HandleEvent
     fun onTabWidgetUpdateEvent(event: TabWidgetUpdateEvent) {
         if (!config.detectViableMineshafts || mineshaftType == MineshaftType.UNKNOWN) return
 
         if (event.widget == TabWidget.FROZEN_CORPSES) {
-            println(event.lines)
+            lapisCorpseCount = 0
+            event.widget.lines.map { line ->
+                val matcher = corpseRegex.matcher(line)
+                if (matcher.find()) {
+                    val rarity = matcher.group("rarity")
+                    if (rarity != null && rarity == "Lapis") lapisCorpseCount++
+                }
+            }
+
+            EurybiumMod.logger.debug("Found $lapisCorpseCount Lapis corpses.")
         }
     }
 
@@ -48,5 +65,37 @@ object MineshaftMining {
     @HandleEvent
     fun onWorldChangeEvent(event: WorldChangeEvent) {
         mineshaftType = MineshaftType.UNKNOWN
+    }
+
+    @HandleEvent(onlyOnIsland = IslandType.MINESHAFT)
+    fun onSecondPassedEvent(event: SecondPassedEvent) {
+        if (mineshaftType == MineshaftType.UNKNOWN || gotChecked) return
+        if (!mineshaftType.isGemstone) {
+            EurybiumMod.logger.info("Not a gemstone mineshaft. Loot the Lapis corpses and §cLEAVE§e.")
+            return
+        }
+
+        // TODO: fiesta
+        val isViable = when(GemstoneType.fromMineshaftType(mineshaftType)) {
+            GemstoneType.RUBY -> lapisCorpseCount >= config.corpseThresholds.ruby
+            GemstoneType.AMBER -> lapisCorpseCount >= config.corpseThresholds.amber
+            GemstoneType.SAPPHIRE -> lapisCorpseCount >= config.corpseThresholds.sapphire
+            GemstoneType.JADE -> lapisCorpseCount >= config.corpseThresholds.jade
+            GemstoneType.AMETHYST -> lapisCorpseCount >= config.corpseThresholds.amethyst
+            GemstoneType.OPAL -> lapisCorpseCount >= config.corpseThresholds.opal
+            GemstoneType.TOPAZ -> lapisCorpseCount >= config.corpseThresholds.topaz
+            GemstoneType.JASPER -> lapisCorpseCount >= config.corpseThresholds.jasper
+            GemstoneType.ONYX -> lapisCorpseCount >= config.corpseThresholds.onyx
+            GemstoneType.AQUAMARINE -> lapisCorpseCount >= config.corpseThresholds.aquamarine
+            GemstoneType.CITRINE -> lapisCorpseCount >= config.corpseThresholds.citrine
+            GemstoneType.PERIDOT -> lapisCorpseCount >= config.corpseThresholds.peridot
+            else -> throw RuntimeException("This should never have happened. mineshaft=$mineshaftType, gemstone=${GemstoneType.fromMineshaftType(mineshaftType)}")
+        }
+
+        var template = "This mineshaft has $lapisCorpseCount Lapis corpses. Loot them and "
+        template += if (isViable) "§cMINE§e the gemstones." else "§cLEAVE§e."
+        EurybiumMod.logger.info(template)
+
+        gotChecked = true
     }
 }
