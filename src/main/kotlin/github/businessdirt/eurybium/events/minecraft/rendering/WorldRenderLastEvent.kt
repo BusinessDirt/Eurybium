@@ -46,13 +46,22 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
         matrixStack.pop()
     }
 
-    fun drawWaypointOutlined(waypoint: EurybiumWaypoint, color: ChromaColour, lineWidth: Int, depth: Boolean) {
+    fun drawWaypointOutlined(
+        waypoint: EurybiumWaypoint,
+        color: ChromaColour,
+        lineWidth: Int,
+        depth: Boolean
+    ) {
         matrixStack.push()
         BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth)
         matrixStack.pop()
     }
 
-    fun drawWaypointGlowing(waypoint: EurybiumWaypoint, color: ChromaColour, mineshaftType: MineshaftType = MineshaftType.UNKNOWN) {
+    fun drawWaypointGlowing(
+        waypoint: EurybiumWaypoint,
+        color: ChromaColour,
+        mineshaftType: MineshaftType = MineshaftType.UNKNOWN
+    ) {
         if (mineshaftType == MineshaftType.UNKNOWN ||
             EurybiumMod.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.isEmpty() == true
         ) {
@@ -60,6 +69,7 @@ class WorldRenderLastEvent(override val context: WorldRenderContext) : Rendering
             return
         }
 
-        GlowingBlockRenderer.blocks.addAll(color, waypoint.getNearestNode(mineshaftType))
+        val gemstoneNode = waypoint.getNearestNode(mineshaftType) ?: return
+        GlowingBlockRenderer.blocks.addAll(color, gemstoneNode.blocks)
     }
 }

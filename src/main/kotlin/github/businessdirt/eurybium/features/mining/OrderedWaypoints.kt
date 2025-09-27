@@ -24,6 +24,7 @@ import github.businessdirt.eurybium.utils.MathUtils.distanceToPlayer
 import github.businessdirt.eurybium.utils.StringUtils
 import github.businessdirt.eurybium.utils.concurrent.Coroutine
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import java.util.*
 import kotlin.math.floor
 
@@ -91,7 +92,7 @@ object OrderedWaypoints {
         if (!config.enabled) return;
 
         for (i in renderWaypoints.indices) {
-            val wpColor = when (i) {
+            val waypointColor = when (i) {
                 0 -> config.previousWaypointColor
                 1 -> config.currentWaypointColor
                 2 -> config.nextWaypointColor
@@ -105,33 +106,27 @@ object OrderedWaypoints {
 
             val waypoint = orderedWaypointsList[renderWaypoints[i]]
             when (config.renderMode) {
-                OrderedWaypointsConfig.RenderMode.FILL -> {
-                    event.drawWaypointFilled(waypoint, wpColor, true)
-                }
+                OrderedWaypointsConfig.RenderMode.FILL ->
+                    event.drawWaypointFilled(waypoint, waypointColor, true)
 
-                OrderedWaypointsConfig.RenderMode.OUTLINE -> {
-                    event.drawWaypointOutlined(waypoint, wpColor, config.blockOutlineThickness.toInt(), false,)
-                }
+                OrderedWaypointsConfig.RenderMode.OUTLINE ->
+                    event.drawWaypointOutlined(waypoint, waypointColor, config.blockOutlineThickness.toInt(), false)
 
-                OrderedWaypointsConfig.RenderMode.GLOW -> {
-                    event.drawWaypointGlowing(waypoint, wpColor, mineshaftType)
-                }
+                OrderedWaypointsConfig.RenderMode.GLOW ->
+                    event.drawWaypointGlowing(waypoint, waypointColor, mineshaftType)
             }
         }
 
         if (renderWaypoints.size <= 1) return decideWaypoints()
 
-        val traceWP = if (renderWaypoints.size == 2) orderedWaypointsList[renderWaypoints[0]]
+        val traceWaypoint = if (renderWaypoints.size == 2) orderedWaypointsList[renderWaypoints[0]]
         else orderedWaypointsList[renderWaypoints[2]]
-        val traceLineColor = config.traceLineColor
-        if (config.traceLine) {
-            event.drawLineToEye(
-                traceWP.location.toCenterPos(),
-                traceLineColor,
-                config.traceLineThickness.toInt(),
-                depth = true,
-            )
-        }
+
+        val traceLocation = if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW)
+            traceWaypoint.getNearestNode(mineshaftType)?.getCenterPos() ?: Vec3d.ZERO
+        else traceWaypoint.location.toCenterPos()
+
+        if (config.traceLine) event.drawLineToEye(traceLocation, config.traceLineColor, config.traceLineThickness.toInt(), depth = true)
 
         decideWaypoints()
     }

@@ -2,7 +2,7 @@ package github.businessdirt.eurybium.data.model.waypoints
 
 import com.google.gson.annotations.Expose
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.core.rendering.GlowingBlock
+import github.businessdirt.eurybium.config.GemstoneNode
 import github.businessdirt.eurybium.features.types.MineshaftType
 import net.minecraft.util.math.BlockPos
 
@@ -16,7 +16,7 @@ class EurybiumWaypoint(
 
     override fun copy() = EurybiumWaypoint(location, number, options)
 
-    fun getNearestNode(mineshaftType: MineshaftType): Collection<GlowingBlock>? {
+    fun getNearestNode(mineshaftType: MineshaftType): GemstoneNode? {
         val nodes = EurybiumMod.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex) ?: return null
 
         nearestNodeIndex?.let { idx ->
@@ -29,8 +29,11 @@ class EurybiumWaypoint(
         var bestDist = Double.MAX_VALUE
 
         for ((i, node) in nodes.withIndex()) {
-            val dist = node.minOfOrNull { it.position.getSquaredDistance(location.toCenterPos()) }
-                ?: Double.MAX_VALUE
+            if (node.centerNodeIndex !in node.blocks.indices) continue
+
+            val centerBlock = node.blocks.elementAt(node.centerNodeIndex)
+            val dist = centerBlock.position.getSquaredDistance(location.toCenterPos())
+
             if (dist < bestDist) {
                 bestDist = dist
                 bestIndex = i

@@ -44,11 +44,11 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
 
             // BFS queue
             val queue = ArrayDeque<BlockPos>().apply { add(start) }
-            val gemstoneNode: GemstoneNode = mutableSetOf()
+            val gemstoneNode = GemstoneNode()
 
             while (queue.isNotEmpty()) {
                 val position = queue.removeFirst()
-                gemstoneNode.add(GlowingBlock(position))
+                gemstoneNode.blocks.add(GlowingBlock(position))
 
                 // check neighbours
                 for (delta in deltas) {
@@ -57,6 +57,15 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
                         queue.add(neighbour)
                     }
                 }
+            }
+
+            if (gemstoneNode.blocks.isNotEmpty()) {
+                val centerVec = gemstoneNode.centerVec()
+
+                // find closest block to the average position
+                gemstoneNode.centerNodeIndex = gemstoneNode.blocks.withIndex()
+                    .minByOrNull { (_, block) -> block.position.getSquaredDistance(centerVec) }
+                    ?.index ?: -1
             }
 
             clusters.add(gemstoneNode)
