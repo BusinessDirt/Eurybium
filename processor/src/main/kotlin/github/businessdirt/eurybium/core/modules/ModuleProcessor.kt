@@ -14,6 +14,7 @@ class ModuleProcessor(
     private val logger: KSPLogger,
     private val modVersion: String,
     private val modName: String,
+    private val modId: String,
     private val mcVersion: String,
 ) : SymbolProcessor {
 
@@ -54,17 +55,11 @@ class ModuleProcessor(
             it.write("object Reference {\n")
             it.write("    const val MOD_VERSION = \"$modVersion\"\n")
             it.write("    const val MOD_NAME = \"$modName\"\n")
-            it.write("    const val MOD_ID = \"${modName.toModId()}\"\n")
+            it.write("    const val MOD_ID = \"${modId}\"\n")
+            it.write("    const val MC_VERSION = \"${mcVersion}\"\n")
             it.write("}\n")
         }
-        logger.warn("Generated Reference file with MOD_VERSION=$modVersion, MOD_NAME=$modName, MOD_ID=${modName.toModId()} for MC_VERSION=$mcVersion")
-    }
-
-    private fun String.toModId(): String {
-        return this.replace(Regex("([a-z])([A-Z])"), "$1-$2")   // split camelCase / PascalCase
-            .replace(Regex("\\s+"), "-")                        // spaces → dashes
-            .replace(Regex("[_.]+"), "-")                       // underscores/dots → dashes
-            .lowercase()
+        logger.warn("Generated Reference file with MOD_VERSION=$modVersion, MOD_NAME=$modName, MOD_ID=${modId} for MC_VERSION=$mcVersion")
     }
 
     private fun validateSymbol(symbol: KSAnnotated): KSClassDeclaration? {

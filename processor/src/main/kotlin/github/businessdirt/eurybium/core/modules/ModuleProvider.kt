@@ -11,6 +11,7 @@ class ModuleProvider : SymbolProcessorProvider {
             environment.logger,
             environment.options["eurybium.modVersion"] ?: "UNKNOWN",
             environment.options["eurybium.modName"] ?: "UNKNOWN",
+            environment.options["eurybium.modId"] ?: "UNKNOWN",
             environment.options["eurybium.mcVersion"] ?: "UNKNOWN"
         )
     }

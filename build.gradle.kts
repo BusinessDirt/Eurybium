@@ -90,10 +90,16 @@ dependencies {
     }
 }
 
+val modId = rootProject.name.replace(Regex("([a-z])([A-Z])"), "$1-$2")      // split camelCase / PascalCase
+    .replace(Regex("\\s+"), "-")                                            // spaces → dashes
+    .replace(Regex("[_.]+"), "-")                                           // underscores/dots → dashes
+    .lowercase()
+
 afterEvaluate {
     tasks.named("kspKotlin", KspTaskJvm::class) {
         this.options.add(SubpluginOption("apoption", "eurybium.modVersion=$version"))
         this.options.add(SubpluginOption("apoption", "eurybium.modName=${rootProject.name}"))
+        this.options.add(SubpluginOption("apoption", "eurybium.modId=${modId}"))
         this.options.add(SubpluginOption("apoption", "eurybium.mcVersion=${platform.mcVersionStr}"))
     }
 }
@@ -103,7 +109,9 @@ tasks {
         inputs.property("version", version)
         filesMatching("fabric.mod.json") {
             expand(mapOf(
-                "version" to version
+                "mod_id" to modId,
+                "mod_version" to version,
+                "mod_name" to rootProject.name,
             ))
         }
     }
