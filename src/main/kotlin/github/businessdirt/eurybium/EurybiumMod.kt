@@ -10,7 +10,7 @@ import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.core.logging.ChatFormatter
 import github.businessdirt.eurybium.core.logging.ChatLogger
 import github.businessdirt.eurybium.core.modules.EurybiumModule
-import `package github`.businessdirt.eurybium.core.modules.LoadedModules
+import github.businessdirt.eurybium.core.modules.LoadedModules
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.SecondPassedEvent
 import github.businessdirt.eurybium.utils.Reference
