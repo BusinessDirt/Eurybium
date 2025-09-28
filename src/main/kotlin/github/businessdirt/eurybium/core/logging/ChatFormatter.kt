@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.core.logging
 
 import org.apache.logging.log4j.message.FormattedMessage
 
+@Suppress("unused")
 object ChatFormatter {
     private var infoChatPrefix: String? = null
     private var debugChatPrefix: String? = null

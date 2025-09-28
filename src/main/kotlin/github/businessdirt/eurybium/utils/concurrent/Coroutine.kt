@@ -9,6 +9,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("unused")
 object Coroutine {
 
     private val globalJob: Job = Job(null)
@@ -50,7 +51,6 @@ object Coroutine {
      * Launches a coroutine in the current scope.
      * This coroutine will catch any exceptions thrown by the provided function.
      * The function provided here must not rely on the CoroutineScope's context.
-     * @param function The function to execute in the coroutine.
      */
     fun launchNoScope(
         name: String,

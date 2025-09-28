@@ -4,6 +4,7 @@ import gg.essential.universal.UMatrixStack
 import gg.essential.universal.UMinecraft.getMinecraft
 import org.joml.Quaternionf
 
+@Suppress("unused")
 object CameraTransform {
     /**
      * Applies the camera offset to the given matrices.

@@ -14,10 +14,9 @@ import kotlin.reflect.KMutableProperty0
 /**
  * Creates a chat logger that logs to a [Logger] and the in-game chat
  *
- * @param clazz the class, which will be used to instantiate the logger
- * @param debug an optional check for debug messages to be sent to the in-game chat.
  * This will not affect the normal log
  */
+@Suppress("unused")
 class ChatLogger() {
     private var logger: Logger? = null
     private var debug: KMutableProperty0<Boolean>? = null

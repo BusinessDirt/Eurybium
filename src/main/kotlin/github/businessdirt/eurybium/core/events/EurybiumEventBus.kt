@@ -3,7 +3,6 @@ package github.businessdirt.eurybium.core.events
 import java.lang.invoke.LambdaMetafactory
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.function.Consumer
 
@@ -17,26 +16,6 @@ object EurybiumEventBus {
         instance.javaClass.declaredMethods.forEach {
             registerHandleEventMethod(it, instance)
         }
-    }
-
-    /**
-     * Registers a method annotated with `EventCallback` to its minecraft callback
-     * @param method the method to register
-     * @param instance the object the method belongs to
-     */
-    private fun registerEventCallbackMethod(method: Method, instance: Any) {
-        runCatching { method.invoke(instance) }
-            .onFailure { e ->
-                throw when (e) {
-                    is IllegalAccessException -> RuntimeException(
-                        "Could not access method '${method.name}' in class '${method.declaringClass.simpleName}': ${e.message}", e
-                    )
-                    is InvocationTargetException -> RuntimeException(
-                        "Method '${method.name}' in class '${method.declaringClass.simpleName}' threw an exception: ${e.cause?.message ?: e.message}", e
-                    )
-                    else -> e
-                }
-            }
     }
 
     /**
@@ -111,9 +90,9 @@ object EurybiumEventBus {
         var currentClass = clazz
         while (currentClass.superclass != null) {
             val superClass = currentClass.superclass
-            if (superClass == EurybiumEvent::class.java) break;
-            if (superClass == RenderingEurybiumEvent::class.java) break;
-            if (superClass == CancellableEurybiumEvent::class.java) break;
+            if (superClass == EurybiumEvent::class.java) break
+            if (superClass == RenderingEurybiumEvent::class.java) break
+            if (superClass == CancellableEurybiumEvent::class.java) break
             classes.add(superClass)
             currentClass = superClass
         }

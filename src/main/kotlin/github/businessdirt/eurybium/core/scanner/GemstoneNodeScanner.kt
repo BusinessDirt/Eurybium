@@ -26,7 +26,6 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
     /**
      * Groups blocks into connected clusters (connected components).
      *
-     * @param includeDiagonals if true, uses 26-neighbour connectivity; otherwise uses 6-face connectivity
      * @return list of clusters; each cluster is a Map<Identifier, Set<BlockPos>> containing only positions in that cluster
      */
     fun clusterBlocks(): MutableList<GemstoneNode> {
@@ -62,7 +61,7 @@ class GemstoneNodeScanner : BlockScanner(GEMSTONE_MINECRAFT_BLOCKS) {
             if (gemstoneNode.blocks.isNotEmpty()) {
                 val centerVec = gemstoneNode.centerVec()
 
-                // find closest block to the average position
+                // find the closest block to the average position
                 gemstoneNode.centerNodeIndex = gemstoneNode.blocks.withIndex()
                     .minByOrNull { (_, block) -> block.position.getSquaredDistance(centerVec) }
                     ?.index ?: -1

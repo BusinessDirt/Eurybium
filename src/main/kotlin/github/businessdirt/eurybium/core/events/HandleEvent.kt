@@ -32,6 +32,7 @@ annotation class HandleEvent(
      */
     val receiveCancelled: Boolean = false
 ) {
+    @Suppress("unused")
     companion object {
         const val HIGHEST = -2
         const val HIGH = -1

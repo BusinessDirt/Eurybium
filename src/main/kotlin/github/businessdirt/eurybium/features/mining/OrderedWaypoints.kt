@@ -94,7 +94,7 @@ object OrderedWaypoints {
     
     @HandleEvent
     fun onWorldRenderLastEvent(event: WorldRenderLastEvent) {
-        if (!config.enabled) return;
+        if (!config.enabled) return
 
         for (i in renderWaypoints.indices) {
             val waypointColor = when (i) {

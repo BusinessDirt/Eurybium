@@ -6,6 +6,7 @@ import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.data.HypixelData
 import github.businessdirt.eurybium.data.model.IslandType
 
+@Suppress("unused")
 object SkyBlockUtils {
     fun onHypixel(): Boolean = HypixelData.connectedToHypixel && getPlayer() != null
 

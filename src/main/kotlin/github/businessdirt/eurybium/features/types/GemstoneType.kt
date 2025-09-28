@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.features.types
 import github.businessdirt.eurybium.core.types.MinecraftColor
 import kotlin.math.round
 
+@Suppress("unused")
 enum class GemstoneType(val breakingPower: Int, val blockStrength: Int, val color: MinecraftColor) {
     UNKNOWN(-1, -1, MinecraftColor.RED),
     RUBY(6, 2300, MinecraftColor.RED),

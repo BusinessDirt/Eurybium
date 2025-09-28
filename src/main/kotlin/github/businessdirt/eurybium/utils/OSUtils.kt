@@ -24,7 +24,7 @@ object OSUtils {
     private fun File.lastModifiedTime(): SimpleTimeMark = try {
         val attributes = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
         SimpleTimeMark(attributes.lastModifiedTime().toMillis())
-    } catch (e: IOException) {
+    } catch (_: IOException) {
         EurybiumMod.logger.error("Error reading last modified attribute (file=$this, path=${this.absolutePath})")
         SimpleTimeMark.now()
     }

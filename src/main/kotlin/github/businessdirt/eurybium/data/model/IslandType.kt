@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.data.model
 
 import github.businessdirt.eurybium.utils.SkyBlockUtils
 
+@Suppress("unused")
 enum class IslandType(val displayName: String) {
     PRIVATE_ISLAND("Private Island"),
     PRIVATE_ISLAND_GUEST("Private Island Guest"),

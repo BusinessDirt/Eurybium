@@ -6,6 +6,7 @@ import github.businessdirt.eurybium.utils.Scheduler
 import github.businessdirt.eurybium.utils.SkyBlockUtils
 import kotlin.concurrent.fixedRateTimer
 
+@Suppress("unused")
 class SecondPassedEvent(private val totalSeconds: Int) : EurybiumEvent() {
     fun repeatSeconds(i: Int): Boolean = this.totalSeconds % i == 0
 

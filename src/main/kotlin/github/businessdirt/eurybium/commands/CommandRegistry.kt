@@ -8,9 +8,10 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 
 @EurybiumModule
 object CommandRegistry {
+
     @HandleEvent
     fun onPostModInitializationEvent(event: PostModInitializationEvent) {
-        ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             CommandRegistrationEvent(dispatcher).post()
         }
     }

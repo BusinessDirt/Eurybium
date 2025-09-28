@@ -10,6 +10,7 @@ import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+@Suppress("unused")
 @JvmInline
 value class SimpleTimeMark(private val millis: Long) : Comparable<SimpleTimeMark> {
     operator fun minus(other: SimpleTimeMark): Duration =

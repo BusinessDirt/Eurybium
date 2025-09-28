@@ -8,6 +8,7 @@ import kotlin.time.Duration
 
 typealias Task = () -> Unit
 
+@Suppress("unused")
 object Scheduler {
 
     private val tasks = mutableListOf<Pair<() -> Any, SimpleTimeMark>>()

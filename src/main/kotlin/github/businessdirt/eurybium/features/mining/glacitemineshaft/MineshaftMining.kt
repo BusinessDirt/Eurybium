@@ -14,13 +14,11 @@ import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.features.types.GemstoneType
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.StringUtils.removeColor
-import java.util.regex.Pattern
 
 @EurybiumModule
 object MineshaftMining {
 
     private val config get() = EurybiumMod.config.mining.glaciteMineshaft.mineshaftMining
-    private val corpseRegex = Pattern.compile("§(?<cc>[0-9A-Za-z])(?<rarity>[^:]+):\\s*(?<status>.+)")
 
     private var mineshaftType: MineshaftType = MineshaftType.UNKNOWN
     private var lapisCorpseCount = 0

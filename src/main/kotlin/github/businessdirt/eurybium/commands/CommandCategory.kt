@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.commands
 
+@Suppress("unused")
 enum class CommandCategory(val color: String, val categoryName: String, val description: String) {
     MAIN(
         "§6",

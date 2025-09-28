@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package github.businessdirt.eurybium.core.rendering
 
 import com.mojang.blaze3d.systems.RenderSystem

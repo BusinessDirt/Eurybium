@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 /**
  * Use @[HandleEvent]
  */
+@Suppress("unused")
 abstract class EurybiumEvent {
     var isCancelled: Boolean = false
         private set

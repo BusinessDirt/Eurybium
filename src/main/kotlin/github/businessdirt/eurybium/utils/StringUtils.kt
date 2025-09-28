@@ -1,23 +1,15 @@
 package github.businessdirt.eurybium.utils
 
 import github.businessdirt.eurybium.utils.MathUtils.addSeparators
-import java.util.regex.Pattern
 import kotlin.math.min
 
 object StringUtils {
-    private val MINECRAFT_COLOR_CODES_PATTERN: Pattern = Pattern.compile("(?i)(§[0-9a-fklmnor])+")
     private val COLOR_CHARS = mutableSetOf<Char?>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
     private val FORMATTING_CHARS = mutableSetOf<Char?>('k', 'l', 'm', 'n', 'o', 'r')
 
     fun String.optionalAn(): String {
+        @Suppress("SpellCheckingInspection")
         return if ("aeiou".contains(this.trim { it <= ' ' }[0].toString().lowercase())) "an" else "a"
-    }
-
-    fun String.lastColorCode(): String {
-        val matcher = MINECRAFT_COLOR_CODES_PATTERN.matcher(this)
-        var last: String? = null
-        while (matcher.find()) last = matcher.group()
-        return this
     }
 
     fun String.hasWhitespace(): Boolean {
@@ -43,7 +35,6 @@ object StringUtils {
     /**
      * Removes color and optionally formatting codes from the given string, leaving plain text.
      *
-     * @param input           The input string with Minecraft color/formatting codes
      * @param keepFormatting  If true, keeps non-color formatting codes (bold, italic, etc.)
      * @return A string with color codes removed (and optionally formatting codes)
      */
@@ -60,7 +51,7 @@ object StringUtils {
             cleanedString.append(this, readIndex, nextFormattingSequence)
 
             // Get the formatting code character after §
-            val formattingCode = if (nextFormattingSequence + 1 < this.length) this.get(nextFormattingSequence + 1)
+            val formattingCode = if (nextFormattingSequence + 1 < this.length) this[nextFormattingSequence + 1]
                 .lowercaseChar() else 0.toChar()
 
             if (keepFormatting && FORMATTING_CHARS.contains(formattingCode)) {
@@ -90,7 +81,7 @@ object StringUtils {
     fun String.stripLeadingAndTrailingColorResetFormatting(): String {
         var message = this
         while (message.startsWith("§r")) message = message.substring(2)
-        while (message.endsWith("§r")) message = message.substring(0, message.length - 2)
+        while (message.endsWith("§r")) message = message.dropLast(2)
         return message
     }
 

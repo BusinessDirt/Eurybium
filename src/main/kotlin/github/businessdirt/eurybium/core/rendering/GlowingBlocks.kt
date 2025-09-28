@@ -34,6 +34,7 @@ class GlowingBlock(@Expose val position: BlockPos) {
     }
 }
 
+@Suppress("unused")
 class BatchedGlowingBlockMap {
 
     private val map: MutableMap<ChromaColour, MutableSet<GlowingBlock>> = mutableMapOf()

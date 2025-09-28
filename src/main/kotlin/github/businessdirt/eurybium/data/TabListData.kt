@@ -43,7 +43,7 @@ object TabListData {
         tabListCache.forEach(EurybiumMod.logger::debug)
     }
 
-    @HandleEvent()
+    @HandleEvent
     fun onPacketReceivedEvent(event: PacketReceivedEvent) {
         if (event.packet !is PlayerListS2CPacket) return
 
@@ -58,7 +58,7 @@ object TabListData {
         }
     }
 
-    @HandleEvent()
+    @HandleEvent
     fun onCommandRegistrationEvent(event: CommandRegistrationEvent) {
         event.register("eurybiumlogtablist") {
             description = "Logs the tab list data to the console"

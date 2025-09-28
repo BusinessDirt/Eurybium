@@ -16,6 +16,7 @@ import java.time.Instant
  * the remaining listeners will be called (if any), and
  * [ChatMessageCancelledEvent] will be triggered instead of [ChatMessageReceivedEvent].
  */
+@Suppress("unused")
 class AllowChatMessageEvent(
     val message: Text,
     val signedMessage: SignedMessage?,
@@ -33,6 +34,7 @@ class AllowChatMessageEvent(
  * If mods want to modify the message, they should use [AllowChatMessageEvent]
  * and manually add the new message to the chat hud using [ChatHud.addMessage(message)][net.minecraft.client.gui.hud.ChatHud.addMessage]
  */
+@Suppress("unused")
 class ChatMessageReceivedEvent(
     val message: Text,
     val signedMessage: SignedMessage?,
@@ -44,6 +46,7 @@ class ChatMessageReceivedEvent(
 /**
  * An event triggered when receiving a chat message is cancelled with [AllowChatMessageEvent].
  */
+@Suppress("unused")
 class ChatMessageCancelledEvent(
     val message: Text,
     val signedMessage: SignedMessage?,

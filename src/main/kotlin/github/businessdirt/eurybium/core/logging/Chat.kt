@@ -8,6 +8,7 @@ import net.minecraft.text.HoverEvent.ShowText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 
+@Suppress("unused")
 object Chat {
     /**
      * Sends a message to the [net.minecraft.client.gui.hud.ChatHud] and optionally replaces an old message if

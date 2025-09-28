@@ -19,6 +19,7 @@ import net.minecraft.text.Text
  * To toggle overlay, return cancel the event and call
  * [ClientPlayerEntity.sendMessage(message, overlay)][net.minecraft.client.network.ClientPlayerEntity.sendMessage].
  */
+@Suppress("unused")
 class AllowGameMessageEvent(val message: Text, val overlay: Boolean) : CancellableEurybiumEvent()
 
 /**
@@ -31,6 +32,7 @@ class AllowGameMessageEvent(val message: Text, val overlay: Boolean) : Cancellab
  * Overlay is whether the message will be displayed in the action bar.
  * Use [AllowGameMessageEvent] to toggle overlay.
  */
+@Suppress("unused")
 class GameMessageReceivedEvent(val message: Text, val overlay: Boolean) : EurybiumEvent()
 
 /**
@@ -44,6 +46,7 @@ class GameMessageReceivedEvent(val message: Text, val overlay: Boolean) : Eurybi
  * Overlay is whether the message will be displayed in the action bar.
  * Use [AllowGameMessageEvent] to toggle overlay.
  */
+@Suppress("unused")
 class ModifyGameMessageEvent(val message: Text, val overlay: Boolean) : EurybiumEvent()
 
 /**
@@ -52,4 +55,5 @@ class ModifyGameMessageEvent(val message: Text, val overlay: Boolean) : Eurybium
  *
  * Overlay is whether the message would have been displayed in the action bar.
  */
+@Suppress("unused")
 class GameMessageCancelledEvent(val message: Text, val overlay: Boolean) : EurybiumEvent()

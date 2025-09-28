@@ -32,7 +32,7 @@ interface CommandData {
     fun addBuilder(builders: MutableList<CommandData>) {
         val comparator =
             Comparator.comparing(Function { obj: CommandData -> obj.category })
-                .thenComparing({ obj: CommandData -> obj.name })
+                .thenComparing { obj: CommandData -> obj.name }
 
         for (i in builders.indices) {
             val command = builders[i]

@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 
+@Suppress("unused")
 class SimpleStringTypeAdapter<T>(
     val serializer: T.() -> String,
     val deserializer: String.() -> T

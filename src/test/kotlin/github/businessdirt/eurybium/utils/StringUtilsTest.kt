@@ -11,6 +11,7 @@ import java.util.*
 import java.util.function.IntFunction
 import java.util.stream.Stream
 
+@Suppress("SpellCheckingInspection")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class StringUtilsTest {
     @ParameterizedTest

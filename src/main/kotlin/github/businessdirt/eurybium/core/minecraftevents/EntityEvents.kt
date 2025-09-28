@@ -7,7 +7,7 @@ import github.businessdirt.eurybium.events.utils.PreModInitializationEvent
 @EurybiumModule
 object EntityEvents {
 
-    @HandleEvent()
+    @HandleEvent
     fun register(event: PreModInitializationEvent) {
     }
 }

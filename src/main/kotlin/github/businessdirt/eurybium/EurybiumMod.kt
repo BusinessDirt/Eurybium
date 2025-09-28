@@ -10,7 +10,7 @@ import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.core.logging.ChatFormatter
 import github.businessdirt.eurybium.core.logging.ChatLogger
 import github.businessdirt.eurybium.core.modules.EurybiumModule
-import github.businessdirt.eurybium.core.modules.LoadedModules
+import `package github`.businessdirt.eurybium.core.modules.LoadedModules
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.SecondPassedEvent
 import github.businessdirt.eurybium.utils.Reference
@@ -19,9 +19,6 @@ import org.apache.logging.log4j.core.config.Configurator
 
 @EurybiumModule
 object EurybiumMod {
-
-    const val MOD_ID: String = "eurybium"
-    const val MOD_NAME: String = "Eurybium"
 
     val modules: MutableList<Any> = ArrayList()
 

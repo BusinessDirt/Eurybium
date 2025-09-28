@@ -24,7 +24,7 @@ object ClientEvents {
     var totalTicks: Long = 0
         private set
 
-    @HandleEvent()
+    @HandleEvent
     fun registerPlayConnectionEvents(event: PreModInitializationEvent) {
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { handler: ClientPlayNetworkHandler, sender: PacketSender, client: MinecraftClient ->
             ClientJoinEvent(handler.getConnection()).post()
@@ -35,14 +35,14 @@ object ClientEvents {
         })
     }
 
-    @HandleEvent()
+    @HandleEvent
     fun registerWorldEvents(event: PreModInitializationEvent) {
         ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register(ClientWorldEvents.AfterClientWorldChange { client: MinecraftClient, world: ClientWorld ->
             WorldChangeEvent(world).post()
         })
     }
 
-    @HandleEvent()
+    @HandleEvent
     fun registerTickEvents(event: PreModInitializationEvent) {
         ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient ->
             if (MinecraftClient.getInstance().player == null) return@EndTick
@@ -53,7 +53,7 @@ object ClientEvents {
         })
     }
 
-    @HandleEvent()
+    @HandleEvent
     fun registerMessageEvents(event: PreModInitializationEvent) {
         ClientReceiveMessageEvents.ALLOW_CHAT.register(ClientReceiveMessageEvents.AllowChat { message: Text, signedMessage: SignedMessage?, sender: GameProfile?, params: MessageType.Parameters, receptionTimestamp: Instant ->
             !AllowChatMessageEvent(message, signedMessage, sender, params, receptionTimestamp).post()

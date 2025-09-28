@@ -21,7 +21,7 @@ class MineshaftMiningConfig {
     @ConfigOption(name = "Auto load Mineshaft spawning waypoints", desc = "Automatically loads a route when entering the Dwarven Base Camp. The specified route will need to be saved as an ordered waypoint route.")
     @Expose var autoLoadSpawnMineshaft: String = ""
 
-    @ConfigEditorInfoText()
+    @ConfigEditorInfoText
     @ConfigOption(name = "Thresholds", desc = "Set the minimum amount of corpses needed for the mineshaft to be considered viable (also for fiestas). Set the value to 5 to 'disable' the shaft.")
     @Transient var thresholdDescription: Unit? = null
 

@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.core.types
 
 import java.awt.Color
 
+@Suppress("unused")
 enum class MinecraftColor(val chatColorCode: Char, private val color: Color, private val coloredLabel: String) {
     BLACK('0', Color(0, 0, 0), "§0Black"),
     DARK_BLUE('1', Color(0, 0, 170), "§1Dark Blue"),

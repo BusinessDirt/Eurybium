@@ -116,7 +116,7 @@ object ScoreboardData {
                     if (team == null) name
                     else team.color.toString() + team.prefix.string + name + team.suffix.string
                 }
-        } catch (e: NullPointerException) {
+        } catch (_: NullPointerException) {
             emptyList()
         }
     }

@@ -22,7 +22,7 @@ object ClipboardUtils {
 
     fun readFromClipboard(step: Int = 0): String? {
         var shouldRetry = false
-        val clipboard = net.minecraft.client.util.Clipboard().getClipboard(0) { _, _ -> shouldRetry = true }
+        val clipboard = Clipboard().getClipboard(0) { _, _ -> shouldRetry = true }
         if (shouldRetry) {
             if (step == 3) {
                 EurybiumMod.logger.error("Cannot read from clipboard. Clipboard can not be accessed after 3 retries")

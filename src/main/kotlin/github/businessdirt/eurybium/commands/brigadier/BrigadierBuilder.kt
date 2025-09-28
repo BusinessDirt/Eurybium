@@ -20,6 +20,7 @@ typealias ArgumentCommandBuilder<S, T> = BrigadierBuilder<S, RequiredArgumentBui
  * S is a CommandSource like [FabricClientCommandSource][net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource]
  * B is the concrete ArgumentBuilder type like [LiteralArgumentBuilder] or [RequiredArgumentBuilder]
  */
+@Suppress("unused")
 open class BrigadierBuilder<S : CommandSource, B : ArgumentBuilder<S, B>>(
     builder: ArgumentBuilder<S, B>,
     private val hasGreedyArg: Boolean = false
