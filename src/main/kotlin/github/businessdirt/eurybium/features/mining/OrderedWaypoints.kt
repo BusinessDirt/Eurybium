@@ -21,7 +21,6 @@ import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEv
 import github.businessdirt.eurybium.features.mining.glacitemineshaft.MineshaftMining
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.ClipboardUtils
-import github.businessdirt.eurybium.utils.MathUtils.distanceSqToPlayer
 import github.businessdirt.eurybium.utils.StringUtils
 import github.businessdirt.eurybium.utils.concurrent.Coroutine
 import net.minecraft.util.math.BlockPos

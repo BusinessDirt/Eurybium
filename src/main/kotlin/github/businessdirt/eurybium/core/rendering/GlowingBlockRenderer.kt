@@ -4,7 +4,6 @@ import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
-import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderAfterEntitiesEvent
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack

@@ -2,7 +2,6 @@ package github.businessdirt.eurybium.config.features.mining
 
 import com.google.gson.annotations.Expose
 import github.businessdirt.eurybium.config.features.mining.glacite.MineshaftConfig
-import github.businessdirt.eurybium.features.mining.OrderedWaypoints
 import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption

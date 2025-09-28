@@ -8,8 +8,6 @@ import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.features.types.MineshaftType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
-import net.minecraft.entity.Entity
-import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
 class WorldRenderLastEvent(override val context: WorldRenderContext) : RenderingEurybiumEvent(context) {

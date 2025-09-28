@@ -8,15 +8,10 @@ import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.ScoreboardUpdateEvent
 import github.businessdirt.eurybium.events.TabWidgetUpdateEvent
+import github.businessdirt.eurybium.events.hypixel.*
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.ClientJoinEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
-import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
-import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
-import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
-import github.businessdirt.eurybium.events.hypixel.SkyblockIslandChangeEvent
-import github.businessdirt.eurybium.events.hypixel.SkyblockJoinEvent
-import github.businessdirt.eurybium.events.hypixel.SkyblockLeaveEvent
 import github.businessdirt.eurybium.utils.SkyBlockUtils
 import github.businessdirt.eurybium.utils.StringUtils.removeColor
 import java.util.regex.Matcher

@@ -8,8 +8,6 @@ import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfi
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.MathUtils.distanceToPlayer
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
-import kotlin.math.min
 
 class EurybiumWaypoint(
     @Expose val location: BlockPos,

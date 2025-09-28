@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.core.events
 
 import github.businessdirt.eurybium.data.model.IslandType
-import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

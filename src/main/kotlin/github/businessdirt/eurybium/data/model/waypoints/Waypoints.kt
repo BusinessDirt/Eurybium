@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.data.model.waypoints
 
 import com.google.gson.annotations.Expose
-import java.util.function.IntFunction
 
 interface Copyable<T> {
     fun copy(): T

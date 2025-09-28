@@ -2,11 +2,7 @@ package github.businessdirt.eurybium.core.scanner
 
 import gg.essential.universal.UMinecraft
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.minecraft.block.Block
-import net.minecraft.registry.Registries
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.max

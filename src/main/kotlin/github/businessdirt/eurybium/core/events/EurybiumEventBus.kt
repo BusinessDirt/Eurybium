@@ -1,13 +1,10 @@
 package github.businessdirt.eurybium.core.events
 
-import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.modules.EurybiumModule
 import java.lang.invoke.LambdaMetafactory
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 import java.util.function.Consumer
 
 object EurybiumEventBus {

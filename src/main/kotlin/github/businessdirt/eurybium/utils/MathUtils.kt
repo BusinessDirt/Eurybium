@@ -4,7 +4,7 @@ import gg.essential.universal.UMinecraft.getMinecraft
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.text.NumberFormat
-import java.util.Locale
+import java.util.*
 
 object MathUtils {
 

@@ -1,6 +1,5 @@
 package github.businessdirt.eurybium.core.events
 
-import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.core.minecraftevents.ClientEvents
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.utils.SkyBlockUtils
