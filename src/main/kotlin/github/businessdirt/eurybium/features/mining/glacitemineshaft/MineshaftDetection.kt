@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.features.mining.glacitemineshaft
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.data.ScoreboardData
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.SecondPassedEvent
@@ -9,6 +10,8 @@ import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
 
+
+@EurybiumModule
 object MineshaftDetection {
 
     private val config get() = EurybiumMod.config.mining.glaciteMineshaft

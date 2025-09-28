@@ -1,34 +1,33 @@
 package github.businessdirt.eurybium.core.rendering
 
-import com.mojang.blaze3d.systems.RenderSystem
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UMatrixStack
-import gg.essential.universal.UMinecraft.getMinecraft
 import gg.essential.universal.render.URenderPipeline
 import gg.essential.universal.shader.BlendState
 import gg.essential.universal.vertex.UBufferBuilder
 import github.businessdirt.eurybium.utils.Reference
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.RenderLayer
-import net.minecraft.client.render.Tessellator
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
 
 object LineRenderer {
 
-    private val linesPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/lines",
-        UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
-    ).apply {
-        blendState = BlendState.ALPHA
-    }.build()
+    private val linesPipeline: URenderPipeline by lazy {
+        URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/lines",
+            UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
+        ).apply {
+            blendState = BlendState.ALPHA
+        }.build()
+    }
 
-    private val noDepthLinesPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/no_depth_lines",
-        UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
-    ).apply {
-        depthTest = URenderPipeline.DepthTest.Always
-        blendState = BlendState.ALPHA
-        culling = false
-    }.build()
+    private val noDepthLinesPipeline: URenderPipeline by lazy {
+        URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/no_depth_lines",
+            UGraphics.DrawMode.QUADS, UGraphics.CommonVertexFormats.POSITION_COLOR
+        ).apply {
+            depthTest = URenderPipeline.DepthTest.Always
+            blendState = BlendState.ALPHA
+            culling = false
+        }.build()
+    }
 
     /**
      * Draws a simple 3D line between two points in world space.

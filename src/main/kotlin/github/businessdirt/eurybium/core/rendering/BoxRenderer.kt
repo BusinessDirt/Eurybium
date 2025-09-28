@@ -14,19 +14,23 @@ import java.awt.Color
 
 object BoxRenderer {
 
-    val boxPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/box",
-        UGraphics.DrawMode.TRIANGLE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR
-    ).apply {
-        blendState = BlendState.ALPHA
-    }.build()
+    val boxPipeline: URenderPipeline by lazy{
+        URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/box",
+            UGraphics.DrawMode.TRIANGLE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR
+        ).apply {
+            blendState = BlendState.ALPHA
+        }.build()
+    }
 
-    val noDepthBoxPipeline = URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/no_depth_box",
-        UGraphics.DrawMode.TRIANGLE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR
-    ).apply {
-        depthTest = URenderPipeline.DepthTest.Always
-        blendState = BlendState.ALPHA
-        culling = false
-    }.build()
+    val noDepthBoxPipeline: URenderPipeline by lazy {
+        URenderPipeline.builderWithDefaultShader("${Reference.MOD_ID}:pipeline/no_depth_box",
+            UGraphics.DrawMode.TRIANGLE_STRIP, UGraphics.CommonVertexFormats.POSITION_COLOR
+        ).apply {
+            depthTest = URenderPipeline.DepthTest.Always
+            blendState = BlendState.ALPHA
+            culling = false
+        }.build()
+    }
 
     fun drawOutlinedBoundingBox(matrixStack: UMatrixStack, block: BlockPos, c: ChromaColour, width: Float, depth: Boolean = true) {
         RenderSystem.lineWidth(width)

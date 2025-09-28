@@ -22,6 +22,7 @@ pluginManagement {
     }
 }
 
+include("processor")
 rootProject.name = "Eurybium"
 rootProject.buildFileName = "root.gradle.kts"
 
@@ -34,4 +35,3 @@ listOf(
         buildFileName = "../../build.gradle.kts"
     }
 }
-

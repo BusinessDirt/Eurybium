@@ -8,6 +8,7 @@ import github.businessdirt.eurybium.commands.brigadier.BrigadierArguments
 import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.core.scanner.GemstoneNodeScanner
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.data.model.waypoints.WaypointFormat
@@ -15,13 +16,11 @@ import github.businessdirt.eurybium.data.model.waypoints.Waypoints
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
-import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEvent
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.ClipboardUtils
 import github.businessdirt.eurybium.utils.MathUtils.distanceSqToPlayer
-import github.businessdirt.eurybium.utils.MathUtils.distanceToPlayer
 import github.businessdirt.eurybium.utils.StringUtils
 import github.businessdirt.eurybium.utils.concurrent.Coroutine
 import net.minecraft.util.math.BlockPos
@@ -29,6 +28,7 @@ import net.minecraft.util.math.Vec3d
 import java.util.*
 import kotlin.math.floor
 
+@EurybiumModule
 object OrderedWaypoints {
     private val config get() = EurybiumMod.config.mining.orderedWaypoints
 

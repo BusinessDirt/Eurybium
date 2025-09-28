@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.features.mining.glacitemineshaft
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.SecondPassedEvent
@@ -14,6 +15,7 @@ import github.businessdirt.eurybium.features.types.GemstoneType
 import github.businessdirt.eurybium.features.types.MineshaftType
 import java.util.regex.Pattern
 
+@EurybiumModule
 object MineshaftMining {
 
     private val config get() = EurybiumMod.config.mining.glaciteMineshaft.mineshaftMining

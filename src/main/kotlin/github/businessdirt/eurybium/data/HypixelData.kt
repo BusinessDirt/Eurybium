@@ -2,7 +2,7 @@ package github.businessdirt.eurybium.data
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.logging.Chat
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.TabWidget
@@ -22,6 +22,7 @@ import github.businessdirt.eurybium.utils.StringUtils.removeColor
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+@EurybiumModule
 object HypixelData {
     val SERVER_NAME_CONNECTION_PATTERN: Pattern = Pattern.compile("(?<prefix>.+\\.)?hypixel\\.net")
     val ISLAND_NAME_PATTERN: Pattern = Pattern.compile("(?:§.)*(?:Area|Dungeon): (?:§.)*(?<island>.*)")

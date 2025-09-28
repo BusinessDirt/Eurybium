@@ -4,14 +4,13 @@ import gg.essential.universal.UMinecraft.getMinecraft
 import gg.essential.universal.USound
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.events.minecraft.AllowGameMessageEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import java.util.regex.Pattern
 
+@EurybiumModule
 object PickaxeAbilityCooldown {
-
-    private val abilityPattern = Pattern.compile("(?<ability>[a-zA-Z]) is now available!")
 
     @HandleEvent
     fun onAllowGameMessageEvent(event: AllowGameMessageEvent) {

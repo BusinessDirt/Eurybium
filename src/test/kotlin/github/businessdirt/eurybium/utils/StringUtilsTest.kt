@@ -35,7 +35,7 @@ internal class StringUtilsTest {
     @TestFactory
     @DisplayName("Removing color codes from strings should work")
     fun testRemoveColor(): Stream<DynamicTest> {
-        val data = arrayOf<Array<String>>(
+        val data = arrayOf(
             arrayOf(
                 "§8- §c§aApex Dra§agon§a 486M§c❤",
                 "- Apex Dragon 486M❤",
@@ -47,7 +47,7 @@ internal class StringUtilsTest {
             arrayOf("", "", "Edge case: empty")
         )
 
-        return Arrays.stream(data).map<DynamicTest> { testData ->
+        return Arrays.stream(data).map { testData ->
             DynamicTest.dynamicTest(testData[2]) {
                 Assertions.assertEquals(testData[1], testData[0].removeColor())
             }
@@ -55,6 +55,7 @@ internal class StringUtilsTest {
     }
 
     companion object {
+        @JvmStatic
         fun testHasWhitespaceSource(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of("test data1", true, "Single whitespace"),
@@ -64,6 +65,7 @@ internal class StringUtilsTest {
             )
         }
 
+        @JvmStatic
         fun testOptionalAnSource(): Stream<Arguments> {
             val anTests = "aeiouAEIOU".chars().mapToObj(IntFunction { c: Int ->
                 Arguments.of(

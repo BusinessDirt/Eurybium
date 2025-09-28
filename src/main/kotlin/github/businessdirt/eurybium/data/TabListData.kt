@@ -6,6 +6,7 @@ import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.commands.brigadier.BrigadierArguments
 import github.businessdirt.eurybium.core.comparators.PlayerListEntryComparator
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.data.model.TabWidget
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.TabListUpdateEvent
@@ -13,6 +14,7 @@ import github.businessdirt.eurybium.events.minecraft.packet.PacketReceivedEvent
 import github.businessdirt.eurybium.utils.StringUtils.stripLeadingAndTrailingColorResetFormatting
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
 
+@EurybiumModule
 object TabListData {
 
     private var tabListCache: MutableList<String> = mutableListOf()

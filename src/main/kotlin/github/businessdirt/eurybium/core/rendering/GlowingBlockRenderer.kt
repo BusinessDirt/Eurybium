@@ -2,14 +2,14 @@ package github.businessdirt.eurybium.core.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.ColorHelper
 
+@EurybiumModule
 object GlowingBlockRenderer {
 
     private var renderLayer: RenderLayer? = null

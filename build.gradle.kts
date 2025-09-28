@@ -1,5 +1,7 @@
+import com.google.devtools.ksp.gradle.KspTaskJvm
 import gg.essential.gradle.util.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -54,8 +56,19 @@ val devAuthModule = when {
 val fabricVersion: String by project
 
 dependencies {
+    include(modRuntimeOnly("gg.essential:loader-fabric:1.2.3")!!)
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
+    modCompileOnly("gg.essential:essential-${platform}:1.3.9.1") {
+        exclude(module = "asm")
+        exclude(module = "asm-commons")
+        exclude(module = "asm-tree")
+        exclude(module = "gson")
+        exclude(module = "kotlinx-coroutines-core-jvm")
+        exclude(module = "universalcraft-${platform}")
+    }
+
+    ksp(project(":processor"))?.let { compileOnly(it) }
     ksp("dev.zacsweers.autoservice:auto-service-ksp:1.2.0")
     implementation("com.google.auto.service:auto-service-annotations:1.1.1")
 
@@ -67,11 +80,10 @@ dependencies {
     include("org.notenoughupdates.moulconfig:modern-${platform.mcVersionStr}:$moulconfigVersion")
 
     val universalCraftVersion = 427
-    shadowModImpl("gg.essential:universalcraft-$platform:$universalCraftVersion")
+    modImplementation(include("gg.essential:universalcraft-$platform:$universalCraftVersion")!!)
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
 
-    shadowImpl("org.reflections:reflections:0.10.2")
     shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     shadowImpl("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
 }

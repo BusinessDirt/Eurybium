@@ -1,8 +1,10 @@
 package github.businessdirt.eurybium.core.minecraftevents
 
 import com.mojang.authlib.GameProfile
-import github.businessdirt.eurybium.core.events.EventCallback
+import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.events.minecraft.*
+import github.businessdirt.eurybium.events.utils.PreModInitializationEvent
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
@@ -16,13 +18,14 @@ import net.minecraft.network.message.SignedMessage
 import net.minecraft.text.Text
 import java.time.Instant
 
+@EurybiumModule
 object ClientEvents {
 
     var totalTicks: Long = 0
         private set
 
-    @EventCallback
-    fun registerPlayConnectionEvents() {
+    @HandleEvent()
+    fun registerPlayConnectionEvents(event: PreModInitializationEvent) {
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { handler: ClientPlayNetworkHandler, sender: PacketSender, client: MinecraftClient ->
             ClientJoinEvent(handler.getConnection()).post()
         })
@@ -32,15 +35,15 @@ object ClientEvents {
         })
     }
 
-    @EventCallback
-    fun registerWorldEvents() {
+    @HandleEvent()
+    fun registerWorldEvents(event: PreModInitializationEvent) {
         ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register(ClientWorldEvents.AfterClientWorldChange { client: MinecraftClient, world: ClientWorld ->
             WorldChangeEvent(world).post()
         })
     }
 
-    @EventCallback
-    fun registerTickEvents() {
+    @HandleEvent()
+    fun registerTickEvents(event: PreModInitializationEvent) {
         ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient ->
             if (MinecraftClient.getInstance().player == null) return@EndTick
             if (MinecraftClient.getInstance().world == null) return@EndTick
@@ -50,8 +53,8 @@ object ClientEvents {
         })
     }
 
-    @EventCallback
-    fun registerMessageEvents() {
+    @HandleEvent()
+    fun registerMessageEvents(event: PreModInitializationEvent) {
         ClientReceiveMessageEvents.ALLOW_CHAT.register(ClientReceiveMessageEvents.AllowChat { message: Text, signedMessage: SignedMessage?, sender: GameProfile?, params: MessageType.Parameters, receptionTimestamp: Instant ->
             !AllowChatMessageEvent(message, signedMessage, sender, params, receptionTimestamp).post()
         })

@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.data
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.ScoreboardUpdateEvent
@@ -17,6 +18,7 @@ import net.minecraft.scoreboard.ScoreboardCriterion
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 import kotlin.time.Duration
 
+@EurybiumModule
 object ScoreboardData {
 
     var sidebarLinesFormatted: List<String> = emptyList()

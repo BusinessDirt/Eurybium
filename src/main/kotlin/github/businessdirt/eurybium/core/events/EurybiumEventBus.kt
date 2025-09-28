@@ -1,8 +1,7 @@
 package github.businessdirt.eurybium.core.events
 
-import org.reflections.Reflections
-import org.reflections.scanners.Scanners
-import org.reflections.util.ConfigurationBuilder
+import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.core.modules.EurybiumModule
 import java.lang.invoke.LambdaMetafactory
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
@@ -15,45 +14,11 @@ object EurybiumEventBus {
     private val listeners: MutableMap<Class<out EurybiumEvent>, MutableList<EurybiumEventListener>> = mutableMapOf()
     private val handlers: MutableMap<Class<out EurybiumEvent>, EurybiumEventHandler> = mutableMapOf()
 
-    fun init() {
-        val reflections = Reflections(
-            ConfigurationBuilder()
-                .forPackage("github.businessdirt.eurybium")
-                .setScanners(Scanners.MethodsAnnotated)
-        )
+    fun init(instances: List<Any>) = instances.forEach(::register)
 
-        invokeAnnotatedMethods(reflections, EventCallback::class.java, ::registerEventCallbackMethod)
-        invokeAnnotatedMethods(reflections, HandleEvent::class.java, ::registerHandleEventMethod)
-    }
-
-    /**
-     * Invokes a function on every method with an annotation in a give package
-     */
-    private fun invokeAnnotatedMethods(
-        reflections: Reflections,
-        annotation: Class<out Annotation>,
-        invoker: (Method, Any) -> Unit
-    ) {
-        reflections.getMethodsAnnotatedWith(annotation).forEach { method ->
-            runCatching {
-                method.isAccessible = true
-                invoker.invoke(method, try {
-                    method.declaringClass.getField("INSTANCE").get(null)
-                } catch (_: NoSuchFieldException) {
-                    method.declaringClass.getDeclaredConstructor().newInstance()
-                })
-            }.onFailure { e ->
-                throw when (e) {
-                    is NoSuchMethodException -> RuntimeException(
-                        "Class '${method.declaringClass.simpleName}' has no default constructor " +
-                                "(required for invoking @${annotation.simpleName} on method '${method.name}')", e
-                    )
-                    else -> RuntimeException(
-                        "Failed to invoke @${annotation.simpleName} on method " +
-                                "'${method.declaringClass.simpleName}.${method.name}': ${e.message}", e
-                    )
-                }
-            }
+    fun register(instance: Any) {
+        instance.javaClass.declaredMethods.forEach {
+            registerHandleEventMethod(it, instance)
         }
     }
 
@@ -85,9 +50,6 @@ object EurybiumEventBus {
     private fun registerHandleEventMethod(method: Method, instance: Any) {
         val (options, eventTypes) = getEventData(method) ?: return
         eventTypes.forEach { eventType ->
-            require(Modifier.isPublic(method.modifiers)) { "Method " + method.name + "() in " + instance.javaClass.name + " is not public. Make sure to set it to public." }
-            require(method.parameterCount == 1) { "Method " + method.name + "() must have 1 parameter" }
-
             val name = buildListenerName(method)
             val invoker = createConsumerFromMethod(instance, method)
             listeners.getOrPut(eventType) { mutableListOf() }
