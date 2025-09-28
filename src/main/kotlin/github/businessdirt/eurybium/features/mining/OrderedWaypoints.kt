@@ -18,6 +18,7 @@ import github.businessdirt.eurybium.events.hypixel.HypixelJoinEvent
 import github.businessdirt.eurybium.events.hypixel.MineshaftEnteredEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.minecraft.rendering.WorldRenderLastEvent
+import github.businessdirt.eurybium.features.mining.glacitemineshaft.MineshaftMining
 import github.businessdirt.eurybium.features.types.MineshaftType
 import github.businessdirt.eurybium.utils.ClipboardUtils
 import github.businessdirt.eurybium.utils.MathUtils.distanceSqToPlayer
@@ -54,6 +55,10 @@ object OrderedWaypoints {
                 clear()
                 addAll(scanner.clusterBlocks())
                 EurybiumMod.logger.debug("Found $size gemstone nodes!")
+            }
+
+            if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW) {
+                MineshaftMining.loadMineshaftWaypoints()
             }
 
             saveGemstoneNodes()
@@ -238,7 +243,7 @@ object OrderedWaypoints {
             res?.let {
                 orderedWaypointsList = it.deepCopy()
                 orderedWaypointsList.sortedBy { waypoint -> waypoint.number }
-                currentOrderedWaypointIndex = orderedWaypointsList.minBy { waypoint -> waypoint.location.distanceSqToPlayer() }.number - 1
+                currentOrderedWaypointIndex = 0
                 renderWaypoints.clear()
                 EurybiumMod.logger.info("Loaded ordered waypoints!")
             } ?: run {

@@ -8,7 +8,10 @@ class ModuleProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
         return ModuleProcessor(
             environment.codeGenerator,
-            environment.logger
+            environment.logger,
+            environment.options["eurybium.modVersion"] ?: "UNKNOWN",
+            environment.options["eurybium.modName"] ?: "UNKNOWN",
+            environment.options["eurybium.mcVersion"] ?: "UNKNOWN"
         )
     }
 }

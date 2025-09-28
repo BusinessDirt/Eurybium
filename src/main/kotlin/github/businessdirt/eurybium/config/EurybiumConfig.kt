@@ -20,7 +20,7 @@ class EurybiumConfig : Config() {
     }
 
     override fun getTitle(): StructuredText =
-        StructuredText.of("${Reference.MOD_NAME} ${Reference.VERSION}")
+        StructuredText.of("${Reference.MOD_NAME} ${Reference.MOD_VERSION}")
 
     @Expose
     @Category(name = "About", desc = "Information about ${Reference.MOD_NAME}")

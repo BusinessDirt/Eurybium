@@ -11,13 +11,23 @@ import java.io.OutputStreamWriter
 
 class ModuleProcessor(
     private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger
+    private val logger: KSPLogger,
+    private val modVersion: String,
+    private val modName: String,
+    private val mcVersion: String,
 ) : SymbolProcessor {
+
+    companion object {
+        private val processedVersions = mutableSetOf<String>()
+    }
 
     private var eurybiumEvent: KSType? = null
     private var warnings = mutableListOf<String>()
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (!processedVersions.add(mcVersion) || modVersion == "UNKNOWN") return emptyList()
+        generateVersionConstants()
+
         eurybiumEvent = resolver.getClassDeclarationByName("github.businessdirt.eurybium.core.events.EurybiumEvent")?.asStarProjectedType()
 
         val symbols = resolver.getSymbolsWithAnnotation(EurybiumModule::class.qualifiedName!!).toList()
@@ -29,6 +39,32 @@ class ModuleProcessor(
         }
 
         return emptyList()
+    }
+
+    private fun generateVersionConstants() {
+
+        val file = codeGenerator.createNewFile(
+            Dependencies(false),
+            "github.businessdirt.eurybium.utils",
+            "Reference",
+        )
+
+        OutputStreamWriter(file).use {
+            it.write("package github.businessdirt.eurybium.utils\n\n")
+            it.write("object Reference {\n")
+            it.write("    const val MOD_VERSION = \"$modVersion\"\n")
+            it.write("    const val MOD_NAME = \"$modName\"\n")
+            it.write("    const val MOD_ID = \"${modName.toModId()}\"\n")
+            it.write("}\n")
+        }
+        logger.warn("Generated Reference file with MOD_VERSION=$modVersion, MOD_NAME=$modName, MOD_ID=${modName.toModId()} for MC_VERSION=$mcVersion")
+    }
+
+    private fun String.toModId(): String {
+        return this.replace(Regex("([a-z])([A-Z])"), "$1-$2")   // split camelCase / PascalCase
+            .replace(Regex("\\s+"), "-")                        // spaces → dashes
+            .replace(Regex("[_.]+"), "-")                       // underscores/dots → dashes
+            .lowercase()
     }
 
     private fun validateSymbol(symbol: KSAnnotated): KSClassDeclaration? {

@@ -9,5 +9,5 @@ class DebugConfig {
     @Expose
     @ConfigEditorBoolean
     @ConfigOption(name = "Enable Debug", desc = "Enable Test logic")
-    var enabled: Boolean = true
+    var enabled: Boolean = false
 }

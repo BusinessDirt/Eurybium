@@ -20,6 +20,9 @@ import org.apache.logging.log4j.core.config.Configurator
 @EurybiumModule
 object EurybiumMod {
 
+    const val MOD_ID: String = "eurybium"
+    const val MOD_NAME: String = "Eurybium"
+
     val modules: MutableList<Any> = ArrayList()
 
     val logger: ChatLogger = ChatLogger()

@@ -70,7 +70,7 @@ object EurybiumEventBus {
                 MethodType.methodType(Nothing::class.javaPrimitiveType, method.parameterTypes[0]),
             ).target.bindTo(instance).invokeExact() as Consumer<Any>
         } catch (e: Throwable) {
-            throw IllegalArgumentException("Method ${instance.javaClass.name}#${method.name} is not a valid consumer", e)
+            throw IllegalArgumentException("Method ${instance.javaClass.name}::${method.name} is not a valid consumer", e)
         }
     }
 
@@ -91,6 +91,7 @@ object EurybiumEventBus {
         require(EurybiumEvent::class.java.isAssignableFrom(eventType)) {
             "Method " + method.name + "() must be a subclass of " + EurybiumEvent::class.java.getSimpleName()
         }
+
         return options to listOf(eventType as Class<out EurybiumEvent>)
     }
 

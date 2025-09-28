@@ -84,8 +84,18 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
 
-    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     shadowImpl("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+}
+
+afterEvaluate {
+    tasks.named("kspKotlin", KspTaskJvm::class) {
+        this.options.add(SubpluginOption("apoption", "eurybium.modVersion=$version"))
+        this.options.add(SubpluginOption("apoption", "eurybium.modName=${rootProject.name}"))
+        this.options.add(SubpluginOption("apoption", "eurybium.mcVersion=${platform.mcVersionStr}"))
+    }
 }
 
 tasks {

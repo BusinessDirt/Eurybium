@@ -13,6 +13,7 @@ import github.businessdirt.eurybium.events.hypixel.ScoreboardAreaChangedEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.features.types.GemstoneType
 import github.businessdirt.eurybium.features.types.MineshaftType
+import github.businessdirt.eurybium.utils.StringUtils.removeColor
 import java.util.regex.Pattern
 
 @EurybiumModule
@@ -32,20 +33,15 @@ object MineshaftMining {
         if (event.widget == TabWidget.FROZEN_CORPSES) {
             lapisCorpseCount = 0
             event.widget.lines.map { line ->
-                val matcher = corpseRegex.matcher(line)
-                if (matcher.find()) {
-                    val rarity = matcher.group("rarity")
-                    if (rarity != null && rarity == "Lapis") lapisCorpseCount++
-                }
+                if (line.removeColor().contains("Lapis"))
+                    lapisCorpseCount++
             }
 
             EurybiumMod.logger.debug("Found $lapisCorpseCount Lapis corpses.")
         }
     }
 
-    @HandleEvent
-    fun onMineshaftEnteredEvent(event: MineshaftEnteredEvent) {
-        mineshaftType = event.type
+    fun loadMineshaftWaypoints() {
         if (config.autoLoadWaypoints && mineshaftType.isGemstone) {
             val name = if (mineshaftType.name.endsWith("2")) "CRYSTAL"
             else mineshaftType.name
@@ -54,6 +50,12 @@ object MineshaftMining {
                 getMinecraft().player?.networkHandler?.sendCommand("eybo load $name")
             }
         }
+    }
+
+    @HandleEvent
+    fun onMineshaftEnteredEvent(event: MineshaftEnteredEvent) {
+        mineshaftType = event.type
+        loadMineshaftWaypoints()
     }
 
     @HandleEvent

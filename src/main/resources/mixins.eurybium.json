@@ -3,7 +3,6 @@
   "package": "github.businessdirt.eurybium.mixins",
   "mixins": [
     "network.MixinClientConnection",
-    "render.MixinGameRenderer",
     "render.MixinWorldRenderer"
   ],
   "client": [

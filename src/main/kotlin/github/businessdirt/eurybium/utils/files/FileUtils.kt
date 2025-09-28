@@ -16,6 +16,6 @@ object FileUtils {
 
         val directory = File(parent, "backup/$year/$month")
 
-        return File(directory, "$year-$month-$day-${Reference.VERSION}-$fileName.json")
+        return File(directory, "$year-$month-$day-${Reference.MOD_VERSION}-$fileName.json")
     }
 }
