@@ -107,13 +107,17 @@ object ScoreboardData {
         val scoreboard = MinecraftClient.getInstance().world?.scoreboard ?: return emptyList()
         val sidebarObjective = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR) ?: return emptyList()
 
-        return scoreboard.getScoreboardEntries(sidebarObjective)
-            .sortedByDescending { it.value }
-            .map { entry ->
-                val name = entry.owner
-                val team = scoreboard.getScoreHolderTeam(name)
-                if (team == null) name
-                else team.color.toString() + team.prefix.string + name + team.suffix.string
-            }
+        return try {
+            scoreboard.getScoreboardEntries(sidebarObjective)
+                .sortedByDescending { it.value }
+                .map { entry ->
+                    val name = entry.owner
+                    val team = scoreboard.getScoreHolderTeam(name)
+                    if (team == null) name
+                    else team.color.toString() + team.prefix.string + name + team.suffix.string
+                }
+        } catch (e: NullPointerException) {
+            emptyList()
+        }
     }
 }
