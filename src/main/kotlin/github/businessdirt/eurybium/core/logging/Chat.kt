@@ -33,7 +33,7 @@ object Chat {
         prefix: String = "§e",
         id: MessageSignatureData? = null,
     ) {
-        val rawText = newColoredInfoChatMessage(prefix, message)
+        val rawText = if (prefix != "") newColoredInfoChatMessage(prefix, message) else message
         val clickable: Text = Text.literal(rawText).setStyle(Style.EMPTY.withClickEvent {
             onClick()
             null

@@ -26,7 +26,7 @@ class EurybiumEventHandler private constructor(
             } catch (throwable: Throwable) {
                 val errorName = throwable::class.simpleName ?: "error"
                 val aOrAn = errorName.optionalAn()
-                EurybiumMod.logger.error("Caught $aOrAn $errorName in ${listener.name} at $name: ${throwable.stackTraceToString()}")
+                EurybiumMod.logger.error(throwable, "Caught $aOrAn $errorName in ${listener.name} at $name.")
                 onError?.invoke(throwable)
             }
             if (event.isCancelled && !this.canReceiveCancelled) break

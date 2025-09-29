@@ -12,7 +12,7 @@ object ClipboardUtils {
                 Clipboard().setClipboard(getMinecraft().window.handle, text)
             } catch (e: Exception) {
                 if (step == 3) {
-                    EurybiumMod.logger.error("Error while trying to access the clipboard. ${e.stackTraceToString()}")
+                    EurybiumMod.logger.error(e, "Error while trying to access the clipboard.")
                 } else {
                     copyToClipboard(text, step + 1)
                 }

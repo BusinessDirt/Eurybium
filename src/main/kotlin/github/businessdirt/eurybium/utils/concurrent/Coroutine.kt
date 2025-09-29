@@ -75,9 +75,9 @@ object Coroutine {
                 // Don't notify the user about cancellation exceptions - these are to be expected at times
                 val jobState = coroutineContext[Job]?.toString() ?: "unknown job"
                 val cancellationCause = coroutineContext[Job]?.getCancellationException()
-                EurybiumMod.logger.debug("Job $jobState was cancelled with cause: $cancellationCause", e)
+                EurybiumMod.logger.debug("Job $jobState was cancelled with cause: $cancellationCause\n ${e.stackTraceToString()}")
             } catch (e: Throwable) {
-                EurybiumMod.logger.error("Asynchronous exception caught: ${e.stackTraceToString()}")
+                EurybiumMod.logger.error(e, "Asynchronous exception caught.")
             }
         }
 
