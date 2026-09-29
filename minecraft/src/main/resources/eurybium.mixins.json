@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "github.businessdirt.eurybium.minecraft.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["MinecraftMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

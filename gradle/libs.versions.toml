@@ -1,0 +1,22 @@
+[versions]
+kotlin = "2.4.20"
+ksp = "2.3.12"
+loom = "1.18.2"
+fabric-loader = "0.19.5"
+fabric-kotlin = "1.14.1+kotlin.2.4.20"
+devauth = "1.2.2"
+junit = "5.14.4"
+
+[libraries]
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
+devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
+ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+loom = { id = "net.fabricmc.fabric-loom", version.ref = "loom" }

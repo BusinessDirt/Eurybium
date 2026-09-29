@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "eurybium",
+  "version": "${version}",
+  "name": "Eurybium",
+  "description": "A modular Hypixel SkyBlock client mod.",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["github.businessdirt.eurybium.minecraft.EurybiumClient"]
+  },
+  "mixins": ["eurybium.mixins.json"],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "fabric-language-kotlin": ">=${fabric_kotlin}",
+    "fabric-api": ">=${fabric_api}",
+    "universalcraft": "*",
+    "minecraft": "${minecraft}",
+    "java": ">=25"
+  }
+}
