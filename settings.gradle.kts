@@ -11,9 +11,12 @@ plugins {
 }
 
 rootProject.name = "Eurybium"
-include("core", "compat-api", "processors", "minecraft")
+include("processors", "minecraft")
 
-val targets = providers.gradleProperty("minecraft_targets").get().split(',').map(String::trim)
+val targets = providers.gradleProperty("minecraft_targets").get()
+    .split(',')
+    .map(String::trim)
+
 stonecutter {
     create(":minecraft") {
         versions(targets)

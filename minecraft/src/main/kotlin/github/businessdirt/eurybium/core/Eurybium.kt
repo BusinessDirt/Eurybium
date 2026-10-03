@@ -3,7 +3,7 @@ package github.businessdirt.eurybium.core
 import github.businessdirt.eurybium.api.ClientPlatform
 import github.businessdirt.eurybium.generated.BuildInfo
 
-/** Shared application lifecycle. This module has no Minecraft or Fabric dependencies. */
+/** Application lifecycle. Platform services are injected so it can be tested without a client. */
 class Eurybium(private val platform: ClientPlatform) {
     private var started = false
     private var clientTicks = 0L

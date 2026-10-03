@@ -2,17 +2,21 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.loom)
 }
 
-val targetProperties = providers.fileContents(layout.projectDirectory.file("gradle.properties")).asText.map { text ->
+val targetProperties: Properties = providers.fileContents(layout.projectDirectory.file("gradle.properties")).asText.map { text ->
     Properties().apply { load(text.reader()) }
 }.get()
+
 fun targetProperty(name: String): String = requireNotNull(targetProperties.getProperty(name)) {
     "Missing $name in ${project.projectDir}/gradle.properties"
 }
 
 val minecraftVersion = targetProperty("minecraft_version")
+// MoulConfig artifacts follow the Minecraft release series (26.1.2 -> modern-26.1).
+val moulconfigTarget = minecraftVersion.split('.').take(2).joinToString(".")
 val minecraftRange = targetProperty("minecraft_range")
 val fabricApiVersion = targetProperty("fabric_api_version")
 val universalcraftTarget = targetProperty("universalcraft_target")
@@ -22,9 +26,17 @@ base.archivesName = "eurybium"
 version = "${rootProject.version}+mc$minecraftVersion"
 
 repositories {
+    maven("https://maven.notenoughupdates.org/releases/") {
+        content { includeGroup("org.notenoughupdates.moulconfig") }
+    }
+    maven("https://repo.hypixel.net/repository/Hypixel/") {
+        content { includeGroup("net.hypixel") }
+    }
+
     maven("https://repo.essential.gg/repository/maven-public") {
         content { includeGroup("gg.essential") }
     }
+
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1") {
         content { includeGroup("me.djtheredstoner") }
     }
@@ -35,8 +47,15 @@ dependencies {
     implementation(libs.fabric.loader)
     implementation(libs.fabric.kotlin)
     implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
-    implementation(project(":core"))
-    implementation(project(":compat-api"))
+    implementation("org.notenoughupdates.moulconfig:modern-$moulconfigTarget:${libs.versions.moulconfig.get()}")
+    implementation(libs.hypixel.mod.api)
+    ksp(project(":processors"))
+    // SOURCE-retained annotations are needed when compiling, but not at runtime.
+    compileOnly(project(":processors"))
+    testImplementation(kotlin("test"))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.launcher)
 
     val universalcraft = "gg.essential:universalcraft-$universalcraftTarget:$universalcraftVersion"
     implementation(universalcraft)
@@ -66,21 +85,20 @@ val metadata = mapOf(
     "fabric_kotlin" to libs.versions.fabric.kotlin.get(),
     "fabric_api" to fabricApiVersion,
 )
+
 tasks.processResources {
     inputs.properties(metadata)
     filesMatching("fabric.mod.json") { expand(metadata) }
 }
 
-// Embed only our plain JVM modules. Kotlin is supplied by Fabric Language Kotlin.
-val sharedProjects = listOf(project(":core"), project(":compat-api"))
+ksp {
+    arg("eurybium.version", rootProject.version.toString())
+}
+
+// Tests consume the metadata generated for main; do not generate a second copy.
+tasks.matching { it.name == "kspTestKotlin" }.configureEach { enabled = false }
+
 tasks.jar {
-    sharedProjects.forEach { shared ->
-        val sharedJar = shared.tasks.named<Jar>("jar")
-        dependsOn(sharedJar)
-        from(sharedJar.map { zipTree(it.archiveFile) }) {
-            exclude("META-INF/MANIFEST.MF")
-        }
-    }
     duplicatesStrategy = DuplicatesStrategy.FAIL
     destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }

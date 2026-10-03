@@ -6,8 +6,11 @@ fabric-loader = "0.19.5"
 fabric-kotlin = "1.14.1+kotlin.2.4.20"
 devauth = "1.2.2"
 junit = "5.14.4"
+moulconfig = "4.7.2"
+hypixel-mod-api = "1.0.2"
 
 [libraries]
+hypixel-mod-api = { module = "net.hypixel:mod-api", version.ref = "hypixel-mod-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
