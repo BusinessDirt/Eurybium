@@ -49,3 +49,4 @@ bin/
 .devauth/
 .gradle-user-home/
 **/.stonecutter/
+/minecraft/versions/26.1.2/logs/latest.log

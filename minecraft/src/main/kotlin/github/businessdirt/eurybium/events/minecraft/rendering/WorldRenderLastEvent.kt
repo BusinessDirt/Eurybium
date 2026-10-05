@@ -7,9 +7,9 @@ import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.world.phys.Vec3
 
-class WorldRenderLastEvent(override val context: LevelRenderContext) : RenderingEurybiumEvent(context) {
+class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent(context) {
 
-    /**fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
+    fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
         matrixStack.push()
         LineRenderer.draw3DLine(matrixStack, p1, p2, color.getEffectiveColour(), lineWidth.toFloat(), depth)
         matrixStack.pop()
@@ -27,7 +27,7 @@ class WorldRenderLastEvent(override val context: LevelRenderContext) : Rendering
         )
     }
 
-    fun drawWaypointFilled(
+    /**fun drawWaypointFilled(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
         depth: Boolean = true,
