@@ -19,7 +19,7 @@ class EurybiumEventHandler private constructor(
     )
 
     fun post(event: EurybiumEvent, onError: ((Throwable) -> Unit)?): Boolean {
-        if (this.listeners.isEmpty()) return false
+        if (this.listeners.isEmpty()) return event.isCancelled
 
         for (listener in this.listeners) {
             if (!listener.shouldInvoke(event)) continue

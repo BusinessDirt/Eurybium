@@ -31,6 +31,8 @@ object EurybiumEventBus {
             }
 
             listeners.getOrPut(eventType) { mutableListOf() }.add(EurybiumEventListener(function.fullyQualifiedName, invoker, options))
+            // Cached handlers also include superclass listeners; refresh every affected hierarchy.
+            handlers.clear()
 
             EurybiumMod.logger.atDebug().log("Registering event listener ${function.fullyQualifiedName}")
         }

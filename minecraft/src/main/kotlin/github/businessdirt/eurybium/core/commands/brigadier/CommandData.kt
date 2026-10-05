@@ -22,11 +22,11 @@ interface CommandData {
     }
 
     fun hasUniqueName(builders: List<CommandData>) {
-        val allNames = this.allNames()
-        builders.stream().filter { builder: CommandData -> allNames.contains(builder.name) }
-            .forEach { builder: CommandData ->
-                throw RuntimeException("The command '" + builder.name + "' has already been registered!")
-            }
+        val names = allNames()
+        require(names.distinct().size == names.size) { "The command '$name' repeats a name or alias!" }
+        val existingNames = builders.flatMap { it.allNames() }.toSet()
+        val duplicate = names.firstOrNull { it in existingNames }
+        require(duplicate == null) { "The command '$duplicate' has already been registered!" }
     }
 
     fun addBuilder(builders: MutableList<CommandData>) {
@@ -39,7 +39,7 @@ interface CommandData {
             val comparison = comparator.compare(this, command)
 
             if (comparison < 0) {
-                builders.add(i, command)
+                builders.add(i, this)
                 return
             }
         }

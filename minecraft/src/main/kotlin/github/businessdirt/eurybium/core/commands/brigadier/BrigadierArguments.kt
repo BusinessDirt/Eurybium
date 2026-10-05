@@ -10,10 +10,10 @@ object BrigadierArguments {
     fun long(min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE): LongArgumentType =
         LongArgumentType.longArg(min, max)
 
-    fun double(min: Double = Double.MIN_VALUE, max: Double = Double.MAX_VALUE): DoubleArgumentType =
+    fun double(min: Double = -Double.MAX_VALUE, max: Double = Double.MAX_VALUE): DoubleArgumentType =
         DoubleArgumentType.doubleArg(min, max)
 
-    fun float(min: Float = Float.MIN_VALUE, max: Float = Float.MAX_VALUE): FloatArgumentType =
+    fun float(min: Float = -Float.MAX_VALUE, max: Float = Float.MAX_VALUE): FloatArgumentType =
         FloatArgumentType.floatArg(min, max)
 
     fun bool(): BoolArgumentType = BoolArgumentType.bool()
