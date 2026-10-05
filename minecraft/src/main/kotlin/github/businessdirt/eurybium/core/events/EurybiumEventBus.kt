@@ -1,96 +1,97 @@
 package github.businessdirt.eurybium.core.events
 
-import java.lang.invoke.MethodHandles
-import java.lang.reflect.Method
+import github.businessdirt.eurybium.core.utils.ReflectionUtils
+import github.businessdirt.eurybium.core.utils.ReflectionUtils.fullyQualifiedName
 import java.util.function.Consumer
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KType
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.superclasses
+import kotlin.reflect.jvm.isAccessible
 
 object EurybiumEventBus {
-    private val listeners: MutableMap<Class<out EurybiumEvent>, MutableList<EurybiumEventListener>> = mutableMapOf()
-    private val handlers: MutableMap<Class<out EurybiumEvent>, EurybiumEventHandler> = mutableMapOf()
+    private val listeners: MutableMap<KClass<out EurybiumEvent>, MutableList<EurybiumEventListener>> = mutableMapOf()
+    private val handlers: MutableMap<KClass<out EurybiumEvent>, EurybiumEventHandler> = mutableMapOf()
 
     fun init(instances: List<Any>) = instances.forEach(::register)
 
     @Synchronized
     fun register(instance: Any) {
-        handlers.clear()
-        instance.javaClass.declaredMethods.forEach {
-            registerHandleEventMethod(it, instance)
-        }
-    }
+        instance::class.declaredFunctions.forEach { function ->
+            function.isAccessible = true
+            if (function.visibility != KVisibility.PUBLIC) throw MethodNotPublicException(function)
 
-    /**
-     * Registers a method annotated with `HandleEvent` to an event listener
-     * @param method the method to register
-     * @param instance the object the method belongs to
-     */
-    private fun registerHandleEventMethod(method: Method, instance: Any) {
-        val (options, eventTypes) = getEventData(method) ?: return
-        eventTypes.forEach { eventType ->
-            val name = buildListenerName(method)
-            val invoker = createConsumerFromMethod(instance, method)
-            listeners.getOrPut(eventType) { mutableListOf() }
-                .add(EurybiumEventListener(name, invoker, options))
-        }
-    }
+            val (options, eventTypes) = getEventData(function)
+            eventTypes.forEach { eventType ->
+                val invoker: Consumer<EurybiumEvent> = when (function.parameters.size) {
+                    0 -> ReflectionUtils.createZeroParameterEventConsumer(instance, function)
+                    1 -> ReflectionUtils.createSingleParameterEventConsumer(instance, function)
+                    else -> throw IllegalArgumentException("Unsupported parameter count ${function.parameters.size}")
+                }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun createConsumerFromMethod(instance: Any, method: Method): Consumer<Any> {
-        try {
-            require(method.returnType == Void.TYPE) { "Event listeners must return Unit" }
-            val lookup = MethodHandles.privateLookupIn(method.declaringClass, MethodHandles.lookup())
-            val handle = lookup.unreflect(method).bindTo(instance)
-            return Consumer { event -> handle.invoke(event) }
-        } catch (e: Throwable) {
-            throw IllegalArgumentException("Method ${instance.javaClass.name}::${method.name} is not a valid consumer", e)
+                listeners.getOrPut(eventType) { mutableListOf() }.add(EurybiumEventListener(function.fullyQualifiedName, invoker, options))
+            }
         }
     }
 
     @Synchronized
-    fun getEventHandler(event: Class<EurybiumEvent>): EurybiumEventHandler = handlers.getOrPut(event) {
-        EurybiumEventHandler(event, getEventClasses(event).mapNotNull { listeners[it] }.flatten())
+    fun getEventHandler(event: KClass<out EurybiumEvent>): EurybiumEventHandler = handlers.getOrPut(event) {
+        EurybiumEventHandler(event, event.eventClassHierarchy().mapNotNull { listeners[it] }.flatten())
     }
 
 
     @Suppress("UNCHECKED_CAST")
-    private fun getEventData(method: Method): Pair<HandleEvent, List<Class<out EurybiumEvent>>>? {
-        val options = method.getAnnotation(HandleEvent::class.java) ?: return null
+    private fun getEventData(function: KFunction<*>): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> {
+        val options = requireNotNull(function.findAnnotation<HandleEvent>())
 
-        require(method.parameterCount == 1) {
-            "Method " + method.name + "() must have 1 parameter"
+        return when (function.parameters.size) {
+            0 -> handleZeroParameterFunction(options)
+            1 -> handleSingleParameterFunction(function, options)
+            else -> throw ParameterException(function, "must have either 0 or 1 parameters")
         }
-
-        val eventType = method.parameterTypes.first()
-        require(EurybiumEvent::class.java.isAssignableFrom(eventType)) {
-            "Method " + method.name + "() must be a subclass of " + EurybiumEvent::class.java.getSimpleName()
-        }
-
-        return options to listOf(eventType as Class<out EurybiumEvent>)
     }
 
-    private fun buildListenerName(method: Method): String {
-        val paramTypesString = method.parameterTypes.joinTo(
-            StringBuilder(),
-            prefix = "(",
-            postfix = ")",
-            separator = ", ",
-            transform = { it.simpleName }
-        ).toString()
+    private fun handleZeroParameterFunction(options: HandleEvent): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> =
+        when (options.eventTypes.size) {
+            0 -> options to listOf(options.eventType)
+            else -> options to options.eventTypes.toList()
+        }
 
-        return "${method.declaringClass.getName()}::${method.name}$paramTypesString"
+    private fun handleSingleParameterFunction(function: KFunction<*>, options: HandleEvent): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> {
+        val paramType: KType = function.parameters[0].type
+        val eventClass = paramType.classifier as? KClass<*>
+            ?: throw ParameterException(function, "parameter must be a class")
+
+        if (!EurybiumEvent::class.isSuperclassOf(eventClass)) throw ParameterException(
+            function, "must be a subtype of " + EurybiumEvent::class.java.name
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        return options to listOf(eventClass as KClass<out EurybiumEvent>)
     }
 
-    private fun getEventClasses(clazz: Class<*>): List<Class<*>> {
-        val classes = mutableListOf<Class<*>>()
-        classes.add(clazz)
+    /**
+     * Returns the class hierarchy for this event class up to, but excluding,
+     * the base framework classes ([EurybiumEvent] and [CancellableEurybiumEvent]).
+     */
+    private fun KClass<*>.eventClassHierarchy(): List<KClass<*>> {
+        val hierarchy = mutableListOf<KClass<*>>()
+        var current: KClass<*>? = this
 
-        var currentClass = clazz
-        while (currentClass.superclass != null) {
-            val superClass = currentClass.superclass
-            if (superClass == EurybiumEvent::class.java) break
-            if (superClass == CancellableEurybiumEvent::class.java) break
-            classes.add(superClass)
-            currentClass = superClass
+        while (current != null && current != Any::class) {
+            if (current == EurybiumEvent::class
+                || current == CancellableEurybiumEvent::class) break
+
+            hierarchy.add(current)
+
+            // Find the next concrete superclass, ignoring interfaces and Any
+            current = current.superclasses.firstOrNull { it != Any::class && !it.java.isInterface }
         }
-        return classes
+
+        return hierarchy
     }
 }

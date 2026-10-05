@@ -13,7 +13,7 @@ abstract class EurybiumEvent {
     fun post(onError: (Throwable) -> Unit = {}): Boolean = prePost(onError)
 
     private fun prePost(onError: ((Throwable) -> Unit)?): Boolean {
-        return EurybiumEventBus.getEventHandler(this.javaClass).post(this, onError)
+        return EurybiumEventBus.getEventHandler(this::class).post(this, onError)
     }
 
     interface Cancellable {

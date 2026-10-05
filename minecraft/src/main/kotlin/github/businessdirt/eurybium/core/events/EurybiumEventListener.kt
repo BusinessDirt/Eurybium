@@ -10,7 +10,7 @@ typealias EventPredicate = (event: EurybiumEvent) -> Boolean
 
 class EurybiumEventListener(
     val name: String,
-    val invoker: Consumer<Any>,
+    val invoker: Consumer<EurybiumEvent>,
     options: HandleEvent,
     extraPredicates: List<EventPredicate> = listOf()
 ) {

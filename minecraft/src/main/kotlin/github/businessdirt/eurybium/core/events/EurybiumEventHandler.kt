@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.core.events
 import github.businessdirt.eurybium.core.utils.StringUtils.optionalAn
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import kotlin.reflect.KClass
 
 class EurybiumEventHandler private constructor(
     val name: String,
@@ -10,8 +11,8 @@ class EurybiumEventHandler private constructor(
     private val canReceiveCancelled: Boolean
 ) {
 
-    constructor(event: Class<EurybiumEvent>, listeners: List<EurybiumEventListener>) : this(
-        (event.name.split(".").lastOrNull() ?: event.name).replace("$", "."),
+    constructor(event: KClass<out EurybiumEvent>, listeners: List<EurybiumEventListener>) : this(
+        (event.simpleName?.split(".")?.lastOrNull() ?: event.simpleName)?.replace("$", ".") ?: "Unknown",
         listeners.sortedBy { it.priority }.toList(),
         listeners.any { it.canReceiveCancelled }
     )

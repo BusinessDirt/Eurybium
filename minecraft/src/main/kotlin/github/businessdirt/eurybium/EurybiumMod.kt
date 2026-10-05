@@ -1,40 +1,29 @@
 package github.businessdirt.eurybium
 
 import github.businessdirt.eurybium.commands.CommandCategory
-import github.businessdirt.eurybium.core.events.EurybiumEventBus
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.modules.LoadedModules
+import github.businessdirt.eurybium.core.events.HandleEvent.Companion.HIGHEST
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.ModInitializationEvent
+import github.businessdirt.eurybium.events.PostModInitializationEvent
+import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
 
 @EurybiumModule
 object EurybiumMod {
 
-    /**
-     * Runs before the [github.businessdirt.eurybium.core.events.EurybiumEventBus] is initialized.
-     */
-    fun preInit() {
-        EurybiumEventBus.init(LoadedModules.modules)
-
-        Configurator.setLevel("com.mojang.authlib.yggdrasil", Level.FATAL)
+    @HandleEvent(eventType = PreModInitializationEvent::class, priority = HIGHEST)
+    private fun onPreModInitializationEvent() {
         //logger.initialize(EurybiumMod::class.java, config.dev.debug::enabled)
     }
 
-    @HandleEvent
-    fun onPreModInitializationEvent(event: ModInitializationEvent) {
-        //logger.initialize(EurybiumMod::class.java, config.dev.debug::enabled)
-    }
-
-    @HandleEvent
-    fun onModInitializationEvent(event: ModInitializationEvent) {
+    @HandleEvent(eventType = ModInitializationEvent::class, priority = HIGHEST)
+    private fun onModInitializationEvent() {
         //SecondPassedEvent.schedule()
     }
 
-    @HandleEvent
-    fun onPostModInitializationEvent(event: ModInitializationEvent) {
+    @HandleEvent(eventType = PostModInitializationEvent::class, priority = HIGHEST)
+    private fun onPostModInitializationEvent() {
 
     }
 
