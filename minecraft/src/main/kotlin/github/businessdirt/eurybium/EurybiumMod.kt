@@ -1,5 +1,7 @@
 package github.businessdirt.eurybium
 
+import github.businessdirt.eurybium.config.EurybiumConfig
+import github.businessdirt.eurybium.config.manager.ConfigManager
 import github.businessdirt.eurybium.core.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.*
@@ -12,6 +14,9 @@ object EurybiumMod {
 
     val logger: Logger = LogManager.getLogger(EurybiumMod::class.java)
 
+    lateinit var configManager: ConfigManager
+    var config: EurybiumConfig = EurybiumConfig()
+
     @HandleEvent(eventType = PreModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onPreModInitializationEvent() {
         //logger.initialize(EurybiumMod::class.java, config.dev.debug::enabled)
@@ -19,7 +24,8 @@ object EurybiumMod {
 
     @HandleEvent(eventType = ModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onModInitializationEvent() {
-        //SecondPassedEvent.schedule()
+        configManager = ConfigManager()
+        configManager.initialize()
     }
 
     @HandleEvent(eventType = PostModInitializationEvent::class, priority = Int.MIN_VALUE)
@@ -38,9 +44,7 @@ object EurybiumMod {
             category = CommandCategory.MAIN
             aliases = mutableListOf("eyb")
             description = "Opens the main Eurybium config"
-            simpleCallback {
-                //configManager.openConfigGui()
-            }
+            simpleCallback(configManager::openConfigGui)
         }
     }
 }

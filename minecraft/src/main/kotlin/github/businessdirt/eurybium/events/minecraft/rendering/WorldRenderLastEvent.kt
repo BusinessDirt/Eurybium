@@ -2,15 +2,14 @@ package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
-import github.businessdirt.eurybium.core.rendering.*
-import github.businessdirt.eurybium.features.types.MineshaftType
+import github.businessdirt.eurybium.core.rendering.LineRenderer
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.world.phys.Vec3
 
 class WorldRenderLastEvent(override val context: LevelRenderContext) : RenderingEurybiumEvent(context) {
 
-    fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
+    /**fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
         matrixStack.push()
         LineRenderer.draw3DLine(matrixStack, p1, p2, color.getEffectiveColour(), lineWidth.toFloat(), depth)
         matrixStack.pop()
@@ -63,5 +62,5 @@ class WorldRenderLastEvent(override val context: LevelRenderContext) : Rendering
 
         val gemstoneNode = waypoint.getNearestNode(mineshaftType) ?: return
         GlowingBlockRenderer.blocks.addAll(color, gemstoneNode.blocks)
-    }
+    }**/
 }

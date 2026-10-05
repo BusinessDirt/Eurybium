@@ -126,7 +126,7 @@ object HypixelData {
         val previous = skyBlockIsland
         skyBlockIsland = next
 
-        SkyblockIslandChangeEvent(previous, next).post()
+        SkyBlockIslandChangeEvent(previous, next).post()
     }
 
     private fun leaveSkyBlock() {
