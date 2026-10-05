@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium
 
-import github.businessdirt.eurybium.commands.CommandCategory
+import github.businessdirt.eurybium.core.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.*
 import github.businessdirt.eurybium.processors.EurybiumModule

@@ -1,10 +1,9 @@
 package github.businessdirt.eurybium.core.rendering
 
-import github.businessdirt.eurybium.config.GemstoneNodeData
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.PreModInitializationEvent
-import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
+import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart
@@ -15,17 +14,14 @@ import net.minecraft.resources.Identifier
 
 @EurybiumModule
 object GlowingBlockRenderer {
+
     val blocks = BatchedGlowingBlockMap()
-    val gemstoneNodes = GemstoneNodeData()
+
     private data class PreparedBlock(val position: BlockPos, val parts: List<BlockStateModelPart>, val color: Int)
     private var prepared: List<PreparedBlock> = emptyList()
-    private var registered = false
-    fun shouldRender() = blocks.isNotEmpty() || prepared.isNotEmpty()
 
-    @HandleEvent
-    fun register(event: PreModInitializationEvent) {
-        if (registered) return
-        registered = true
+    @HandleEvent(eventType = PreModInitializationEvent::class)
+    private fun onPreModInitializationEvent() {
         // Requests made during the previous drawing phase are prepared without retaining live world objects.
         LevelRenderEvents.END_EXTRACTION.register { context ->
             prepared = buildList {
@@ -37,6 +33,7 @@ object GlowingBlockRenderer {
             blocks.clear()
             if (prepared.isNotEmpty()) context.levelState().haveGlowingEntities = true
         }
+
         LevelRenderEvents.COLLECT_SUBMITS.register { context ->
             val camera = context.levelState().cameraRenderState.pos
             val matrices = context.poseStack()
@@ -52,8 +49,6 @@ object GlowingBlockRenderer {
         }
     }
 
-    @HandleEvent
-    fun onWorldChange(event: WorldChangeEvent) { blocks.clear(); prepared = emptyList() }
-    @HandleEvent
-    fun onDisconnect(event: ClientDisconnectEvent) { blocks.clear(); prepared = emptyList() }
+    @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ])
+    private fun onWorldClearEvents() { blocks.clear(); prepared = emptyList() }
 }

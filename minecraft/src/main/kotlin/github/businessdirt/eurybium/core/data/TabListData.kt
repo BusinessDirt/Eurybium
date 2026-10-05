@@ -16,8 +16,8 @@ object TabListData {
     var tabListCache: List<String> = emptyList()
         private set
 
-    @HandleEvent(priority = HandleEvent.HIGH)
-    fun onTick(event: TickEvent) {
+    @HandleEvent(eventType = TickEvent::class, priority = HandleEvent.HIGH)
+    private fun onTickEvent() {
         val client = Minecraft.getInstance()
         val entries = client.connection?.listedOnlinePlayers.orEmpty()
             .sortedWith(compareByDescending<PlayerInfo> { it.tabListOrder }
@@ -25,27 +25,30 @@ object TabListData {
                 .thenBy { it.team?.name.orEmpty() }
                 .thenBy { it.profile.name().lowercase() })
             .take(80)
+
         val lines = entries.map {
             client.gui.tabList.getNameForDisplay(it).legacyString()
                 .stripLeadingAndTrailingColorResetFormatting().trim()
         }
+
         if (lines != tabListCache) {
             tabListCache = lines
             TabListUpdateEvent(lines).post()
         }
+
         // Re-evaluate widgets when SkyBlock state changes even if tab lines stay identical.
         TabWidget.onTabListUpdate(lines)
     }
 
-    @HandleEvent
-    fun onWorldChange(event: WorldChangeEvent) { clear() }
-    @HandleEvent
-    fun onDisconnect(event: ClientDisconnectEvent) { clear() }
+    @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ])
+    private fun onTabListClearEvents() = clear()
 
     private fun clear() {
         val changed = tabListCache.isNotEmpty()
         tabListCache = emptyList()
+
         if (changed) TabListUpdateEvent(emptyList()).post()
+
         TabWidget.onTabListUpdate(emptyList())
     }
 }

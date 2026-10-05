@@ -1,6 +1,6 @@
-package github.businessdirt.eurybium.commands.brigadier
+package github.businessdirt.eurybium.core.commands.brigadier
 
-import github.businessdirt.eurybium.commands.CommandCategory
+import github.businessdirt.eurybium.core.commands.CommandCategory
 import java.util.function.Function
 
 interface CommandData {

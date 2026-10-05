@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.commands.brigadier
+package github.businessdirt.eurybium.core.commands.brigadier
 
 @JvmRecord
 data class BrigadierArgument<T>(val argumentName: String, val clazz: Class<T>) {

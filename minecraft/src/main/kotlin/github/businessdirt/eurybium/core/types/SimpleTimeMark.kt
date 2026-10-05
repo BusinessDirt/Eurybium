@@ -45,10 +45,9 @@ value class SimpleTimeMark(private val millis: Long) : Comparable<SimpleTimeMark
     }
 
     fun formattedDate(pattern: String): String {
-        val newPattern = pattern
         val instant = Instant.ofEpochMilli(millis)
         val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        val formatter = DateTimeFormatter.ofPattern(newPattern.trim())
+        val formatter = DateTimeFormatter.ofPattern(pattern.trim())
         return localDateTime.format(formatter)
     }
 

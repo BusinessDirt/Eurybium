@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.utils
+package github.businessdirt.eurybium.core.utils
 
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType

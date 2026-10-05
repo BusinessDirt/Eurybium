@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.core.minecraftevents
+package github.businessdirt.eurybium.minecraft.hooks
 
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
@@ -7,7 +7,8 @@ import github.businessdirt.eurybium.events.PreModInitializationEvent
 @EurybiumModule
 object EntityEvents {
 
-    @HandleEvent
-    fun register(event: PreModInitializationEvent) {
+    @HandleEvent(eventType = PreModInitializationEvent::class)
+    private fun onPreModInitializationEvent() {
+
     }
 }

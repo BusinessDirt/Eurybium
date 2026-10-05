@@ -1,12 +1,12 @@
-package github.businessdirt.eurybium.commands.brigadier
+package github.businessdirt.eurybium.core.commands.brigadier
 
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.suggestion.SuggestionProvider
-import github.businessdirt.eurybium.utils.BrigadierUtils.isGreedy
-import github.businessdirt.eurybium.utils.BrigadierUtils.toSuggestionProvider
+import github.businessdirt.eurybium.core.utils.BrigadierUtils.isGreedy
+import github.businessdirt.eurybium.core.utils.BrigadierUtils.toSuggestionProvider
 import github.businessdirt.eurybium.core.utils.StringUtils.hasWhitespace
 import github.businessdirt.eurybium.core.utils.StringUtils.splitFirstWhitespace
 import github.businessdirt.eurybium.core.utils.StringUtils.splitLastWhitespace

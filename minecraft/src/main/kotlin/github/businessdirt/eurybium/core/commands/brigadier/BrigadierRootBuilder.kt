@@ -1,9 +1,9 @@
-package github.businessdirt.eurybium.commands.brigadier
+package github.businessdirt.eurybium.core.commands.brigadier
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.CommandNode
-import github.businessdirt.eurybium.commands.CommandCategory
+import github.businessdirt.eurybium.core.commands.CommandCategory
 import net.minecraft.commands.SharedSuggestionProvider
 
 class BrigadierRootBuilder<S : SharedSuggestionProvider>(override val name: String) : CommandData, BrigadierBuilder<S, LiteralArgumentBuilder<S>>(

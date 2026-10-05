@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.commands
+package github.businessdirt.eurybium.core.commands
 
 import github.businessdirt.eurybium.core.events.HandleEvent
 import github.businessdirt.eurybium.events.CommandRegistrationEvent

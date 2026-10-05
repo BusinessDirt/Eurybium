@@ -1,8 +1,8 @@
 package github.businessdirt.eurybium.events
 
 import com.mojang.brigadier.CommandDispatcher
-import github.businessdirt.eurybium.commands.brigadier.BrigadierRootBuilder
-import github.businessdirt.eurybium.commands.brigadier.CommandData
+import github.businessdirt.eurybium.core.commands.brigadier.BrigadierRootBuilder
+import github.businessdirt.eurybium.core.commands.brigadier.CommandData
 import github.businessdirt.eurybium.core.events.EurybiumEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 

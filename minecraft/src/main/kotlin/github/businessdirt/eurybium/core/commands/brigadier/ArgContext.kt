@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.commands.brigadier
+package github.businessdirt.eurybium.core.commands.brigadier
 
 import com.mojang.brigadier.context.CommandContext
 

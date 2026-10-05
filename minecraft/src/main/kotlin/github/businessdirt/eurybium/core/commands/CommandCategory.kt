@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.commands
+package github.businessdirt.eurybium.core.commands
 
 @Suppress("unused")
 enum class CommandCategory(val color: String, val categoryName: String, val description: String) {

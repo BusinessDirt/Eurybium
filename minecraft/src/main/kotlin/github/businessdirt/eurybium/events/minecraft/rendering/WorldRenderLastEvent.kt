@@ -3,7 +3,6 @@ package github.businessdirt.eurybium.events.minecraft.rendering
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
 import github.businessdirt.eurybium.core.rendering.*
-import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.features.types.MineshaftType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
