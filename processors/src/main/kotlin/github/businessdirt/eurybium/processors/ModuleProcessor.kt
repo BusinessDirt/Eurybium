@@ -79,7 +79,7 @@ class ModuleProcessor(
         val sources = symbols.mapNotNull { it.containingFile }.toTypedArray()
         val dependencies = Dependencies(true, *sources)
 
-        val file = codeGenerator.createNewFile(dependencies, "package github.businessdirt.eurybium.core.modules", "LoadedModules")
+        val file = codeGenerator.createNewFile(dependencies, "github.businessdirt.eurybium.core.modules", "LoadedModules")
 
         OutputStreamWriter(file).use {
             it.write("package github.businessdirt.eurybium.core.modules\n\n")

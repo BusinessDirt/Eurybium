@@ -1,7 +1,6 @@
-package github.businessdirt.eurybium.minecraft
+package github.businessdirt.eurybium.api.platform
 
 import gg.essential.universal.UChat
-import github.businessdirt.eurybium.api.ClientPlatform
 import net.fabricmc.loader.api.FabricLoader
 import org.slf4j.LoggerFactory
 

@@ -47,7 +47,9 @@ dependencies {
     implementation(libs.fabric.loader)
     implementation(libs.fabric.kotlin)
     implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
-    implementation("org.notenoughupdates.moulconfig:modern-$moulconfigTarget:${libs.versions.moulconfig.get()}")
+    val moulconfig = "org.notenoughupdates.moulconfig:modern-$moulconfigTarget:${libs.versions.moulconfig.get()}"
+    implementation(moulconfig)
+    include(moulconfig)
     implementation(libs.hypixel.mod.api)
     ksp(project(":processors"))
     // SOURCE-retained annotations are needed when compiling, but not at runtime.

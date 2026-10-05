@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.api
+package github.businessdirt.eurybium.api.platform
 
 /** Minecraft-free services. Calls are made on the client thread. */
 interface ClientPlatform {

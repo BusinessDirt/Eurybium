@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.core
 
-import github.businessdirt.eurybium.api.ClientPlatform
+import github.businessdirt.eurybium.api.platform.ClientPlatform
 import github.businessdirt.eurybium.generated.BuildInfo
 import kotlin.test.Test
 import kotlin.test.assertEquals
