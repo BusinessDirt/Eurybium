@@ -11,7 +11,7 @@ import io.github.notenoughupdates.moulconfig.common.text.StructuredText
 
 class EurybiumConfig : Config() {
 
-    override fun getTitle(): StructuredText = StructuredText.of("Eurybium - ${BuildInfo.VERSION}")
+    override fun getTitle(): StructuredText = StructuredText.of("${BuildInfo.NAME} - ${BuildInfo.VERSION}")
 
     @Expose
     @Category(name = "About", desc = "Information about Eurybium")

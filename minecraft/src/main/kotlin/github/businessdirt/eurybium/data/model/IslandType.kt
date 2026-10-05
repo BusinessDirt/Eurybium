@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.data.model
 
-import github.businessdirt.eurybium.core.utils.SkyBlockUtils
+import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI
 import net.minecraft.world.phys.AABB
 
 enum class IslandType(private val nameFallback: String, private val apiNameFallback: String?) {
@@ -103,7 +103,7 @@ enum class IslandType(private val nameFallback: String, private val apiNameFallb
 
     }
 
-    fun isInIsland() = SkyBlockUtils.inSkyBlock && SkyBlockUtils.currentIsland == this
+    fun isInIsland() = HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.island == this
 }
 
 data class IslandData(

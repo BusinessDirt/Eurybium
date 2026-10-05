@@ -1,6 +1,8 @@
 package github.businessdirt.eurybium.core.utils
 
 import github.businessdirt.eurybium.core.utils.MathUtils.addSeparators
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import kotlin.math.min
 
 object StringUtils {

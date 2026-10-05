@@ -1,8 +1,13 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.minecraft.Chat
+import github.businessdirt.eurybium.core.utils.DelayedRun
+import github.businessdirt.eurybium.core.utils.RegexUtils.matchMatcher
 import github.businessdirt.eurybium.core.utils.StringUtils.removeColor
 import github.businessdirt.eurybium.data.model.IslandType
+import github.businessdirt.eurybium.events.skyblock.IslandJoinEvent
+import github.businessdirt.eurybium.events.skyblock.IslandLeaveEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelApiJoinEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
@@ -12,21 +17,13 @@ import github.businessdirt.eurybium.processors.EurybiumModule
 import net.hypixel.data.type.GameType
 import net.hypixel.data.type.ServerType
 import org.apache.logging.log4j.LogManager
+import java.util.regex.Pattern
 
 @Suppress("MemberVisibilityCanBePrivate")
 @EurybiumModule
 object HypixelLocationAPI {
 
-    private val patternGroup = RepoPattern.group("api.hypixellocation")
-
-    /**
-     * REGEX-TEST: legacylobby3
-     * REGEX-TEST: lobby1
-     */
-    private val lobbyTypePattern by patternGroup.pattern(
-        "lobbytype",
-        "(?<lobbyType>.*lobby)\\d+",
-    )
+    private val lobbyTypePattern = Pattern.compile("(?<lobbyType>.*lobby)\\\\d+")
 
     var inHypixel: Boolean = false
         private set
@@ -72,14 +69,17 @@ object HypixelLocationAPI {
     private var internalIsland = IslandType.NONE
     private var previousIsland = IslandType.NONE
 
+    fun inAnyIsland(vararg islandTypes: IslandType): Boolean = inSkyBlock && islandTypes.any { it == island }
+    fun inAnyIsland(islandTypes: Collection<IslandType>): Boolean = inSkyBlock && islandTypes.contains(island)
+
     @HandleEvent(priority = HandleEvent.HIGHEST)
-    fun onHypixelApiJoinEvent(event: HypixelApiJoinEvent) {
+    private fun onHypixelApiJoinEvent(event: HypixelApiJoinEvent) {
         inAlpha = event.alpha
         inHypixel = true
     }
 
     @HandleEvent(priority = HandleEvent.HIGHEST)
-    fun onHypixelApiServerChangeEvent(event: HypixelApiServerChangeEvent) {
+    private fun onHypixelApiServerChangeEvent(event: HypixelApiServerChangeEvent) {
         inHypixel = true
         inSkyBlock = event.serverType == GameType.SKYBLOCK
         serverType = event.serverType
@@ -87,9 +87,13 @@ object HypixelLocationAPI {
         map = event.map
         serverId = event.serverName
         lobbyName = event.lobbyName
+
         lobbyType = event.lobbyName?.let { name ->
-            lobbyTypePattern.matchMatcher(name) { group("lobbyType") }
+            lobbyTypePattern.matchMatcher(name) {
+                group("lobbyType")
+            }
         }
+
         isGuest = false
 
         // Set island to NONE when you leave skyblock
@@ -103,11 +107,12 @@ object HypixelLocationAPI {
 
         val newIsland = IslandType.getByIdOrUnknown(mode)
         if (newIsland == IslandType.UNKNOWN) {
-            ChatUtils.debug("Unknown island mode detected: '$mode'")
-            logger.log("Unknown island mode detected: '$mode'")
+            Chat.debug("Unknown island mode detected: '$mode'")
+            logger.warn("Unknown island mode detected: '$mode'")
         } else {
-            logger.log("Island detected: '$newIsland'")
+            logger.debug("Island detected: '{}'", newIsland)
         }
+
         internalIsland = newIsland
 
         // If the island has a guest variant, we wait for the scoreboard packet to confirm if it's a guest island or not
@@ -120,7 +125,7 @@ object HypixelLocationAPI {
     }
 
     @HandleEvent
-    fun onScoreboardTitleUpdateEvent(event: ScoreboardTitleUpdateEvent) {
+    private fun onScoreboardTitleUpdateEvent(event: ScoreboardTitleUpdateEvent) {
         if (!inHypixel || !inSkyBlock || sentIslandEvent || !event.isSkyblock) return
 
         isGuest = event.title.trim().removeColor().endsWith("GUEST")
@@ -134,13 +139,14 @@ object HypixelLocationAPI {
     private fun changeIsland() {
         val oldIsland = island
         island = internalIsland
-        logger.log("Island change: '$oldIsland' -> '$island'")
+        logger.debug("Island change: '{}' -> '{}'", oldIsland, island)
 
         if (oldIsland != IslandType.NONE) {
             DelayedRun.runOrNextTick {
                 IslandLeaveEvent(oldIsland).post()
             }
         }
+
         if (island != IslandType.NONE) {
             val captured = previousIsland
             DelayedRun.runOrNextTick {
@@ -148,14 +154,10 @@ object HypixelLocationAPI {
             }
             previousIsland = island
         }
-
-        DelayedRun.runOrNextTick {
-            IslandChangeEvent(island, oldIsland).post()
-        }
     }
 
     @HandleEvent(eventType = ClientDisconnectEvent::class)
-    fun onDisconnect() {
+    private fun onDisconnect() {
         if (inSkyBlock || island != IslandType.NONE) {
             internalIsland = IslandType.NONE
             changeIsland()
@@ -181,5 +183,4 @@ object HypixelLocationAPI {
         sentIslandEvent = false
         internalIsland = IslandType.NONE
     }
-
 }

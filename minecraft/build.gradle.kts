@@ -1,4 +1,4 @@
-import java.util.Properties
+import java.util.*
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -22,13 +22,14 @@ val fabricApiVersion = targetProperty("fabric_api_version")
 val universalcraftTarget = targetProperty("universalcraft_target")
 val universalcraftVersion = targetProperty("universalcraft_version")
 
-base.archivesName = "eurybium"
+base.archivesName = rootProject.name.lowercase()
 version = "${rootProject.version}+mc$minecraftVersion"
 
 repositories {
     maven("https://maven.notenoughupdates.org/releases/") {
         content { includeGroup("org.notenoughupdates.moulconfig") }
     }
+
     maven("https://repo.hypixel.net/repository/Hypixel/") {
         content { includeGroup("net.hypixel") }
     }
@@ -43,28 +44,37 @@ repositories {
 }
 
 dependencies {
+    // Minecraft & Fabric
     minecraft("com.mojang:minecraft:$minecraftVersion")
     implementation(libs.fabric.loader)
     implementation(libs.fabric.kotlin)
     implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+
+    // MoulConfig
     val moulconfig = "org.notenoughupdates.moulconfig:modern-$moulconfigTarget:${libs.versions.moulconfig.get()}"
     implementation(moulconfig)
     include(moulconfig)
-    implementation(libs.hypixel.mod.api)
-    ksp(project(":processors"))
-    // SOURCE-retained annotations are needed when compiling, but not at runtime.
-    compileOnly(project(":processors"))
-    testImplementation(kotlin("test"))
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.launcher)
 
+    // HypixelModApi
+    implementation(libs.hypixel.mod.api)
+
+    // UniversalCraft
     val universalcraft = "gg.essential:universalcraft-$universalcraftTarget:$universalcraftVersion"
     implementation(universalcraft)
     include(universalcraft)
 
-    // Development only: never included in the distributed mod.
+    // DevAuth
     runtimeOnly(libs.devauth)
+
+    // KSP
+    ksp(project(":processors"))
+    compileOnly(project(":processors"))
+
+    // Tests
+    testImplementation(kotlin("test"))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 loom {
@@ -76,6 +86,7 @@ loom {
             systemProperties.put("devauth.configDir", rootProject.file(".devauth").absolutePath)
             systemProperties.put("devauth.enabled", providers.gradleProperty("devauth").orElse("false").get())
         }
+
         removeIf { it.name == "server" }
     }
 }
@@ -95,6 +106,8 @@ tasks.processResources {
 
 ksp {
     arg("eurybium.version", rootProject.version.toString())
+    arg("eurybium.id", rootProject.name.lowercase())
+    arg("eurybium.name", rootProject.name)
 }
 
 // Tests consume the metadata generated for main; do not generate a second copy.

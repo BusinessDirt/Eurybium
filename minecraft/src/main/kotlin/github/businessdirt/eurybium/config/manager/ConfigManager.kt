@@ -8,6 +8,7 @@ import github.businessdirt.eurybium.core.json.BaseGsonBuilder
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import github.businessdirt.eurybium.core.utils.OSUtils
 import github.businessdirt.eurybium.core.utils.files.StringFileHandler
+import github.businessdirt.eurybium.generated.BuildInfo
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import io.github.notenoughupdates.moulconfig.gui.MoulConfigEditor
 import io.github.notenoughupdates.moulconfig.processor.BuiltinMoulConfigGuis
@@ -20,7 +21,7 @@ import kotlin.time.Duration.Companion.days
 class ConfigManager {
     companion object {
         val gson: Gson = BaseGsonBuilder.gson().create()
-        val configDirectory = File("config/eurybium")
+        val configDirectory = File("config/${BuildInfo.ID}")
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -39,7 +40,7 @@ class ConfigManager {
             configHolder.set(fileType, firstLoadFile(fileType.file, fileType, fileType.clazz.getDeclaredConstructor().newInstance()))
         }
 
-        fixedRateTimer(name = "eurybium-config-auto-save", period = 60_000L, initialDelay = 60_000L) {
+        fixedRateTimer(name = "${BuildInfo.ID}-config-auto-save", period = 60_000L, initialDelay = 60_000L) {
             saveConfig(ConfigFileType.CONFIG, "auto-save-60s")
         }
 
@@ -50,7 +51,7 @@ class ConfigManager {
         driver.warnForPrivateFields = false
         driver.processConfig(EurybiumMod.config)
 
-        OSUtils.deleteExpiredFiles(File("eurybium/config/backup"), 7.days) // TODO: add config value
+        OSUtils.deleteExpiredFiles(File("${BuildInfo.ID}/config/backup"), 7.days) // TODO: add config value
     }
 
     private fun firstLoadFile(file: File, fileType: ConfigFileType, defaultValue: Any): Any {

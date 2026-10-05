@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.api.events
 
+import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI
 import github.businessdirt.eurybium.data.model.IslandType
-import github.businessdirt.eurybium.core.utils.SkyBlockUtils
 import java.util.function.Consumer
 import kotlin.collections.isNotEmpty
 import kotlin.collections.toSet
@@ -24,11 +24,11 @@ class EurybiumEventListener(
 
     init {
         this.cachedPredicates = buildList {
-            if (options.onlyOnSkyblock) add { _ -> SkyBlockUtils.inSkyblock() }
+            if (options.onlyOnSkyblock) add { _ -> HypixelLocationAPI.inSkyBlock }
             if (options.onlyOnIsland != IslandType.ANY) add { _ -> options.onlyOnIsland.isInIsland() }
             if (options.onlyOnIslands.isNotEmpty()) {
                 val set = options.onlyOnIslands.toSet()
-                add { _ -> SkyBlockUtils.inAnyIsland(set) }
+                add { _ -> HypixelLocationAPI.inAnyIsland(set) }
             }
         }
 
