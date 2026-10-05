@@ -3,6 +3,9 @@ package github.businessdirt.eurybium.core.rendering
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
+import github.businessdirt.eurybium.EurybiumMod
+import kotlin.test.BeforeTest
+import kotlin.test.AfterTest
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.lang.reflect.Proxy
 import kotlin.test.Test
@@ -12,6 +15,19 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 
 class GlowingBlockRendererTestCommandsTest {
+    private var previousDevCommands = false
+
+    @BeforeTest
+    fun enableDevCommands() {
+        previousDevCommands = EurybiumMod.config.dev.devCommands
+        EurybiumMod.config.dev.devCommands = true
+    }
+
+    @AfterTest
+    fun restoreDevCommands() {
+        EurybiumMod.config.dev.devCommands = previousDevCommands
+    }
+
     @Test
     fun `test commands parse completely including coordinates colors and controls`() {
         val dispatcher = CommandDispatcher<FabricClientCommandSource>()
