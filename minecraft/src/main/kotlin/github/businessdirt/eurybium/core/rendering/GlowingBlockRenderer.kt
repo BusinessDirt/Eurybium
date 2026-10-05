@@ -19,11 +19,14 @@ object GlowingBlockRenderer {
 
     private data class PreparedBlock(val position: BlockPos, val parts: List<BlockStateModelPart>, val color: Int)
     private var prepared: List<PreparedBlock> = emptyList()
+    internal val profile = GlowingBlockRenderProfile()
 
     @HandleEvent(eventType = PreModInitializationEvent::class)
     private fun onPreModInitializationEvent() {
         // Requests made during the previous drawing phase are prepared without retaining live world objects.
         LevelRenderEvents.END_EXTRACTION.register { context ->
+            GlowingBlockRendererTestCommands.queueTestBlocks()
+            val start = System.nanoTime()
             prepared = buildList {
                 blocks.forEach { color, group ->
                     val rgb = color.getEffectiveColour().rgb
@@ -32,9 +35,11 @@ object GlowingBlockRenderer {
             }
             blocks.clear()
             if (prepared.isNotEmpty()) context.levelState().haveGlowingEntities = true
+            profile.recordPreparation(System.nanoTime() - start, prepared.size, prepared.sumOf { it.parts.size })
         }
 
         LevelRenderEvents.COLLECT_SUBMITS.register { context ->
+            val start = System.nanoTime()
             val camera = context.levelState().cameraRenderState.pos
             val matrices = context.poseStack()
             val layer = RenderTypes.outline(Identifier.fromNamespaceAndPath("minecraft", "textures/atlas/blocks.png"))
@@ -46,9 +51,11 @@ object GlowingBlockRenderer {
                 } finally { matrices.popPose() }
             }
             prepared = emptyList()
+            profile.recordSubmission(System.nanoTime() - start)
         }
     }
 
     @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ])
     private fun onWorldClearEvents() { blocks.clear(); prepared = emptyList() }
+
 }
