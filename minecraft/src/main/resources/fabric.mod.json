@@ -6,7 +6,7 @@
   "description": "A modular Hypixel SkyBlock client mod.",
   "environment": "client",
   "entrypoints": {
-    "client": ["github.businessdirt.eurybium.minecraft.EurybiumClient"]
+    "client": ["github.businessdirt.eurybium.EurybiumModLoader"]
   },
   "mixins": ["eurybium.mixins.json"],
   "depends": {

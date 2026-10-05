@@ -4,11 +4,12 @@ import github.businessdirt.eurybium.core.events.EurybiumEvent
 import github.businessdirt.eurybium.core.events.InvalidConsumerException
 import github.businessdirt.eurybium.core.events.InvalidRunnableException
 import java.lang.invoke.LambdaMetafactory
+import java.lang.invoke.MethodHandleProxies
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 import java.util.function.Consumer
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
+import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaMethod
 
 @OptIn(ExperimentalStdlibApi::class)
@@ -18,8 +19,7 @@ object ReflectionUtils {
         get() {
             val method = javaMethod
             val declaring = method?.declaringClass?.name ?: "Unknown"
-            val params = parameters
-                .filter { it.kind == KParameter.Kind.VALUE }
+            val params = valueParameters
                 .joinToString(prefix = "(", postfix = ")", separator = ", ") {
                     it.type.toString().substringAfterLast('.')
                 }
@@ -88,27 +88,10 @@ object ReflectionUtils {
 
             val baseLookup = MethodHandles.lookup()
             val privateLookup = MethodHandles.privateLookupIn(method.declaringClass, baseLookup)
-            val handle = privateLookup.unreflect(method)
+            val boundHandle = privateLookup.unreflect(method).bindTo(instance)
+            val consumerHandle = MethodHandles.dropArguments(boundHandle, 0, Any::class.java)
 
-            // Adapt the handle to accept and discard the event argument (Object/Any)
-            // Transforms () -> void into (Object) -> void, retaining the target receiver binding
-            val adaptedHandle = MethodHandles.dropArguments(
-                handle,
-                1, // Insert after receiver (param index 0 is receiver, 1 is the new unused event argument)
-                Any::class.java
-            )
-
-            // Generate a direct Consumer site instead of an intermediary Runnable
-            val site = LambdaMetafactory.metafactory(
-                privateLookup,
-                "accept",
-                MethodType.methodType(Consumer::class.java, method.declaringClass),   // Factory: Consumer get(DeclaringClass)
-                MethodType.methodType(Void.TYPE, Any::class.java),             // Interface: void accept(Object t)
-                adaptedHandle,                                                                      // Target: void invoke(DeclaringClass, Object)
-                MethodType.methodType(Void.TYPE, Any::class.java)              // Instantiated: void accept(Object t)
-            )
-
-            return site.target.invoke(instance) as Consumer<EurybiumEvent>
+            return MethodHandleProxies.asInterfaceInstance(Consumer::class.java, consumerHandle) as Consumer<EurybiumEvent>
         } catch (e: Throwable) {
             throw InvalidRunnableException(function, e)
         }

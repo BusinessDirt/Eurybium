@@ -2,28 +2,33 @@ package github.businessdirt.eurybium
 
 import github.businessdirt.eurybium.commands.CommandCategory
 import github.businessdirt.eurybium.core.events.HandleEvent
-import github.businessdirt.eurybium.core.events.HandleEvent.Companion.HIGHEST
-import github.businessdirt.eurybium.events.CommandRegistrationEvent
-import github.businessdirt.eurybium.events.ModInitializationEvent
-import github.businessdirt.eurybium.events.PostModInitializationEvent
-import github.businessdirt.eurybium.events.PreModInitializationEvent
+import github.businessdirt.eurybium.events.*
 import github.businessdirt.eurybium.processors.EurybiumModule
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 @EurybiumModule
 object EurybiumMod {
 
-    @HandleEvent(eventType = PreModInitializationEvent::class, priority = HIGHEST)
+    val logger: Logger = LogManager.getLogger(EurybiumMod::class.java)
+
+    @HandleEvent(eventType = PreModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onPreModInitializationEvent() {
         //logger.initialize(EurybiumMod::class.java, config.dev.debug::enabled)
     }
 
-    @HandleEvent(eventType = ModInitializationEvent::class, priority = HIGHEST)
+    @HandleEvent(eventType = ModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onModInitializationEvent() {
         //SecondPassedEvent.schedule()
     }
 
-    @HandleEvent(eventType = PostModInitializationEvent::class, priority = HIGHEST)
+    @HandleEvent(eventType = PostModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onPostModInitializationEvent() {
+
+    }
+
+    @HandleEvent(eventType = ModShutdownEvent::class, priority = Int.MAX_VALUE)
+    private fun onModShutdownEvent() {
 
     }
 

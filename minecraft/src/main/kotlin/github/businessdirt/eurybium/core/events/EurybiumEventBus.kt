@@ -1,16 +1,13 @@
 package github.businessdirt.eurybium.core.events
 
+import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.utils.ReflectionUtils
 import github.businessdirt.eurybium.core.utils.ReflectionUtils.fullyQualifiedName
 import java.util.function.Consumer
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
-import kotlin.reflect.KVisibility
-import kotlin.reflect.full.declaredFunctions
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.isSuperclassOf
-import kotlin.reflect.full.superclasses
+import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
 
 object EurybiumEventBus {
@@ -20,21 +17,22 @@ object EurybiumEventBus {
     fun init(instances: List<Any>) = instances.forEach(::register)
 
     @Synchronized
-    fun register(instance: Any) {
-        instance::class.declaredFunctions.forEach { function ->
-            function.isAccessible = true
-            if (function.visibility != KVisibility.PUBLIC) throw MethodNotPublicException(function)
+    fun register(instance: Any) = instance::class.declaredFunctions.forEach { registerFunction(instance, it) }
 
-            val (options, eventTypes) = getEventData(function)
-            eventTypes.forEach { eventType ->
-                val invoker: Consumer<EurybiumEvent> = when (function.parameters.size) {
-                    0 -> ReflectionUtils.createZeroParameterEventConsumer(instance, function)
-                    1 -> ReflectionUtils.createSingleParameterEventConsumer(instance, function)
-                    else -> throw IllegalArgumentException("Unsupported parameter count ${function.parameters.size}")
-                }
+    private fun registerFunction(instance: Any, function: KFunction<*>) {
+        val (options, eventTypes) = getEventData(function) ?: return
 
-                listeners.getOrPut(eventType) { mutableListOf() }.add(EurybiumEventListener(function.fullyQualifiedName, invoker, options))
+        function.isAccessible = true
+        eventTypes.forEach { eventType ->
+            val invoker: Consumer<EurybiumEvent> = when (function.valueParameters.size) {
+                0 -> ReflectionUtils.createZeroParameterEventConsumer(instance, function)
+                1 -> ReflectionUtils.createSingleParameterEventConsumer(instance, function)
+                else -> throw IllegalArgumentException("Unsupported parameter count ${function.valueParameters.size}")
             }
+
+            listeners.getOrPut(eventType) { mutableListOf() }.add(EurybiumEventListener(function.fullyQualifiedName, invoker, options))
+
+            EurybiumMod.logger.atDebug().log("Registering event listener ${function.fullyQualifiedName}")
         }
     }
 
@@ -45,10 +43,10 @@ object EurybiumEventBus {
 
 
     @Suppress("UNCHECKED_CAST")
-    private fun getEventData(function: KFunction<*>): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> {
-        val options = requireNotNull(function.findAnnotation<HandleEvent>())
+    private fun getEventData(function: KFunction<*>): Pair<HandleEvent, List<KClass<out EurybiumEvent>>>? {
+        val options = function.findAnnotation<HandleEvent>() ?: return null
 
-        return when (function.parameters.size) {
+        return when (function.valueParameters.size) {
             0 -> handleZeroParameterFunction(options)
             1 -> handleSingleParameterFunction(function, options)
             else -> throw ParameterException(function, "must have either 0 or 1 parameters")
@@ -62,7 +60,7 @@ object EurybiumEventBus {
         }
 
     private fun handleSingleParameterFunction(function: KFunction<*>, options: HandleEvent): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> {
-        val paramType: KType = function.parameters[0].type
+        val paramType: KType = function.valueParameters[0].type
         val eventClass = paramType.classifier as? KClass<*>
             ?: throw ParameterException(function, "parameter must be a class")
 

@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 
-@Suppress("unused")
 class EurybiumModLoader : ClientModInitializer {
 
     override fun onInitializeClient() {

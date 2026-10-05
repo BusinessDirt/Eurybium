@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.core.events
 
+import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.utils.StringUtils.optionalAn
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -27,17 +28,16 @@ class EurybiumEventHandler private constructor(
                 listener.invoker.accept(event)
             } catch (throwable: Throwable) {
                 val errorName = throwable::class.simpleName ?: "error"
-                val aOrAn = errorName.optionalAn()
-                logger.atError().withThrowable(throwable).log("Caught $aOrAn $errorName in ${listener.name} at $name.")
+                EurybiumMod.logger.atError()
+                    .withThrowable(throwable)
+                    .log("Caught ${errorName.optionalAn()} $errorName in ${listener.name} at $name.")
+
                 onError?.invoke(throwable)
             }
+
             if (event.isCancelled && !this.canReceiveCancelled) break
         }
 
         return event.isCancelled
-    }
-
-    companion object {
-        val logger: Logger = LogManager.getLogger(EurybiumEventHandler::class.java)
     }
 }

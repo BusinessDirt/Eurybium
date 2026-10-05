@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.core.events
 
 import github.businessdirt.eurybium.core.utils.ReflectionUtils.fullyQualifiedName
 import kotlin.reflect.KFunction
+import kotlin.reflect.full.valueParameters
 
 class MethodNotPublicException(function: KFunction<*>) : RuntimeException("Method ${function.fullyQualifiedName} is not public")
 
@@ -28,7 +29,7 @@ class InvalidRunnableException(
 
 private fun KFunction<*>.internalExecutableCause(
     expectedSize: Int,
-): String = when (parameters.size) {
+): String = when (valueParameters.size) {
     expectedSize -> "Unknown reason."
-    else -> "Expected parameter count of $expectedSize but was ${this.parameters.size}"
+    else -> "Expected parameter count of $expectedSize but was ${this.valueParameters.size}"
 }
