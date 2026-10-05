@@ -1,9 +1,9 @@
 package github.businessdirt.eurybium.core.rendering
 
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import github.businessdirt.eurybium.core.commands.CommandCategory
-import github.businessdirt.eurybium.core.commands.brigadier.BrigadierArguments
-import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.api.commands.CommandCategory
+import github.businessdirt.eurybium.api.commands.brigadier.BrigadierArguments
+import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent

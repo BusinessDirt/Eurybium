@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.events.minecraft
 
-import github.businessdirt.eurybium.core.events.CancellableEurybiumEvent
-import github.businessdirt.eurybium.core.events.EurybiumEvent
+import github.businessdirt.eurybium.api.events.CancellableEurybiumEvent
+import github.businessdirt.eurybium.api.events.EurybiumEvent
 import net.minecraft.network.chat.Component
 
 /**

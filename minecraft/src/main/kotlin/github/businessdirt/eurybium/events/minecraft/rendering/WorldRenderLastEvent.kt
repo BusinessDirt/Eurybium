@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
-import github.businessdirt.eurybium.core.events.RenderingEurybiumEvent
+import github.businessdirt.eurybium.api.events.RenderingEurybiumEvent
 import github.businessdirt.eurybium.core.rendering.LineRenderer
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext

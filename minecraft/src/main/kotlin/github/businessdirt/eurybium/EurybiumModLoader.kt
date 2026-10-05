@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium
 
-import github.businessdirt.eurybium.core.events.EurybiumEventBus
+import github.businessdirt.eurybium.api.events.EurybiumEventBus
 import github.businessdirt.eurybium.core.modules.LoadedModules
 import github.businessdirt.eurybium.events.ModInitializationEvent
 import github.businessdirt.eurybium.events.ModShutdownEvent

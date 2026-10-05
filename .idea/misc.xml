@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="github.businessdirt.eurybium.core.events.HandleEvent" />
+    <list size="3">
+      <item index="0" class="java.lang.String" itemvalue="github.businessdirt.eurybium.api.events.HandleEvent" />
+      <item index="1" class="java.lang.String" itemvalue="github.businessdirt.eurybium.core.events.HandleEvent" />
+      <item index="2" class="java.lang.String" itemvalue="github.businessdirt.eurybium.processors.EurybiumModule" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

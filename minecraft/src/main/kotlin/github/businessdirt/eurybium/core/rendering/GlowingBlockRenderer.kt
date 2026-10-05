@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.core.rendering
 
-import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent

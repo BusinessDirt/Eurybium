@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.core.utils
 
-import github.businessdirt.eurybium.core.events.HandleEvent
+import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.events.SecondPassedEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.TickEvent

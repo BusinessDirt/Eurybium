@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.core.json
 
 import com.google.gson.GsonBuilder
-import github.businessdirt.eurybium.core.data.model.IslandType
+import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.core.json.adapters.EurybiumTypeAdapters
 import github.businessdirt.eurybium.core.json.adapters.KotlinTypeAdapterFactory
 import github.businessdirt.eurybium.core.json.adapters.ListEnumSkippingTypeAdapterFactory

@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.core.json.adapters
 
 import com.google.gson.TypeAdapter
-import github.businessdirt.eurybium.core.data.model.IslandType
+import github.businessdirt.eurybium.data.model.IslandType
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
 

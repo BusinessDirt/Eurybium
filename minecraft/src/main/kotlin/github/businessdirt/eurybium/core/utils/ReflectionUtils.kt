@@ -1,8 +1,8 @@
 package github.businessdirt.eurybium.core.utils
 
-import github.businessdirt.eurybium.core.events.EurybiumEvent
-import github.businessdirt.eurybium.core.events.InvalidConsumerException
-import github.businessdirt.eurybium.core.events.InvalidRunnableException
+import github.businessdirt.eurybium.api.events.EurybiumEvent
+import github.businessdirt.eurybium.api.events.InvalidConsumerException
+import github.businessdirt.eurybium.api.events.InvalidRunnableException
 import java.lang.invoke.LambdaMetafactory
 import java.lang.invoke.MethodHandleProxies
 import java.lang.invoke.MethodHandles

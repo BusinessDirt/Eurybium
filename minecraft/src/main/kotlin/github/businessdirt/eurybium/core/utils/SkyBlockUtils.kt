@@ -1,8 +1,8 @@
 package github.businessdirt.eurybium.core.utils
 
 import gg.essential.universal.UMinecraft.getPlayer
-import github.businessdirt.eurybium.core.data.HypixelData
-import github.businessdirt.eurybium.core.data.model.IslandType
+import github.businessdirt.eurybium.data.HypixelData
+import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 
 @Suppress("unused")

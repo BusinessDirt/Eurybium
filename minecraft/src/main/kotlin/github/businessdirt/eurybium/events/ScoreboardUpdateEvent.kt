@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.events
 
-import github.businessdirt.eurybium.core.events.EurybiumEvent
+import github.businessdirt.eurybium.api.events.EurybiumEvent
 
 @Suppress("unused")
 class ScoreboardUpdateEvent(val newLines: List<String>, val oldLines: List<String>) : EurybiumEvent() {

@@ -1,9 +1,9 @@
 package github.businessdirt.eurybium.events
 
 import com.mojang.brigadier.CommandDispatcher
-import github.businessdirt.eurybium.core.commands.brigadier.BrigadierRootBuilder
-import github.businessdirt.eurybium.core.commands.brigadier.CommandData
-import github.businessdirt.eurybium.core.events.EurybiumEvent
+import github.businessdirt.eurybium.api.commands.brigadier.BrigadierRootBuilder
+import github.businessdirt.eurybium.api.commands.brigadier.CommandData
+import github.businessdirt.eurybium.api.events.EurybiumEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 class CommandRegistrationEvent(val dispatcher: CommandDispatcher<FabricClientCommandSource>) : EurybiumEvent() {
