@@ -14,10 +14,8 @@ class EventListenerFiltersTest {
     @TestFactory
     @DisplayName("SkyBlock single island and island sets follow current state and combine restrictions")
     fun skyBlockSingleIslandAndIslandSetsFollowCurrentStateAndCombineRestrictions(): List<DynamicTest> {
-        val names = listOf("inHypixel", "inAlpha", "inSkyBlock", "island")
-        val fields = names.associateWith {
-            HypixelLocationAPI::class.java.getDeclaredField(it).apply { isAccessible = true }
-        }
+        val tracker = HypixelLocationAPI::class.java.getDeclaredField("tracker").apply { isAccessible = true }.get(HypixelLocationAPI)
+        val stateField = tracker.javaClass.getDeclaredField("state").apply { isAccessible = true }
 
         val listeners = listOf(
             HandleEvent(),
@@ -69,16 +67,16 @@ class EventListenerFiltersTest {
         return testCases.map { state ->
             val displayName = "connected=${state.connected}, skyBlock=${state.skyBlock}, island=${state.island}"
             dynamicTest(displayName) {
-                val original = fields.mapValues { it.value.get(HypixelLocationAPI) }
+                val original = stateField.get(tracker)
                 try {
-                    fields.getValue("inAlpha").set(HypixelLocationAPI, false)
-                    fields.getValue("inHypixel").set(HypixelLocationAPI, state.connected)
-                    fields.getValue("inSkyBlock").set(HypixelLocationAPI, state.skyBlock)
-                    fields.getValue("island").set(HypixelLocationAPI, state.island)
-
+                    stateField.set(tracker, github.businessdirt.eurybium.api.hypixelapi.HypixelLocationState(
+                        inHypixel = state.connected,
+                        serverType = if (state.skyBlock) net.hypixel.data.type.GameType.SKYBLOCK else null,
+                        island = state.island,
+                    ))
                     assertEquals(state.expected, listeners.map { it.shouldInvoke(Event()) })
                 } finally {
-                    original.forEach { (name, value) -> fields.getValue(name).set(HypixelLocationAPI, value) }
+                    stateField.set(tracker, original)
                 }
             }
         }

@@ -1,45 +1,50 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
-import github.businessdirt.eurybium.events.hypixel.HypixelApiJoinEvent
-import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
+import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.core.utils.DelayedRun
+import github.businessdirt.eurybium.core.utils.ScheduledTask
+import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
+import github.businessdirt.eurybium.events.minecraft.ClientJoinEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
-import net.hypixel.data.region.Environment
 import net.hypixel.modapi.HypixelModAPI
 import net.hypixel.modapi.packet.impl.clientbound.ClientboundHelloPacket
 import net.hypixel.modapi.packet.impl.clientbound.event.ClientboundLocationPacket
 import net.hypixel.modapi.packet.impl.serverbound.ServerboundVersionedPacket
-import kotlin.jvm.optionals.getOrNull
 
+/**
+ * Bridges Hypixel Mod API packets to client-thread mod events and schedules outgoing packets.
+ *
+ * Handlers are installed once when this module initializes. Connection boundaries invalidate
+ * pending incoming callbacks before other handlers reset or consume location state.
+ */
 @EurybiumModule
 object HypixelEventAPI {
-
-    private val modApi: HypixelModAPI = HypixelModAPI.getInstance()
+    private val modApi = HypixelModAPI.getInstance()
+    private val bridge = HypixelPacketBridge(
+        enqueue = { DelayedRun.runOrNextTick("Hypixel packet event", it) },
+        emit = { it.post() },
+    )
 
     init {
+        modApi.createHandler(ClientboundHelloPacket::class.java, bridge::hello)
+        modApi.createHandler(ClientboundLocationPacket::class.java, bridge::location)
+
+        // Install receivers before subscribing so an immediate location response has a handler.
         modApi.subscribeToEventPacket(ClientboundLocationPacket::class.java)
-        modApi.createHandler(ClientboundHelloPacket::class.java, ::onHelloPacket)
-        modApi.createHandler(ClientboundLocationPacket::class.java, ::onLocationPacket)
     }
 
-    private fun onHelloPacket(packet: ClientboundHelloPacket) {
-        val isAlpha = packet.environment != Environment.PRODUCTION
-        HypixelApiJoinEvent(isAlpha).post()
-    }
+    @HandleEvent(eventTypes = [ClientJoinEvent::class, ClientDisconnectEvent::class], priority = Int.MIN_VALUE)
+    private fun onConnectionChanged() = bridge.invalidateConnection()
 
-    private fun onLocationPacket(packet: ClientboundLocationPacket) {
-        HypixelApiServerChangeEvent(
-            packet.serverName,
-            packet.serverType.getOrNull(),
-            packet.lobbyName.getOrNull(),
-            packet.mode.getOrNull(),
-            packet.map.getOrNull(),
-        ).post()
-    }
-
-    fun sendPacket(packet: ServerboundVersionedPacket) {
-        try {
+    /**
+     * Sends [packet] on the client thread and returns a cancellable result handle.
+     *
+     * A successful `false` result means the transport declined the packet. Exceptions are
+     * logged and retained as failures in [ScheduledTask.result], rather than silently ignored.
+     * The packet must not be mutated after submission when sending is deferred.
+     */
+    fun sendPacket(packet: ServerboundVersionedPacket): ScheduledTask<Boolean> =
+        DelayedRun.runOrNextTickReturning("Send Hypixel packet ${packet.javaClass.simpleName}") {
             modApi.sendPacket(packet)
-        } catch (_: Exception) {
         }
-    }
 }

@@ -76,5 +76,5 @@ enum class IslandType(private val displayName: String, private val apiName: Stri
         fun getByIdOrUnknown(id: String): IslandType = getByIdOrNull(id) ?: UNKNOWN
     }
 
-    fun isInIsland() = HypixelLocationAPI.inHypixel && HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.island == this
+    fun isInIsland() = HypixelLocationAPI.state.let { it.inSkyBlock && it.island == this }
 }
