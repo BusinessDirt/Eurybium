@@ -23,6 +23,4 @@ object MiningAPI {
             EurybiumMod.logger.info(line)
         }
     }
-
-    private fun onScoreboardAreaChangeEvent(event: ScoreboardUpdateEvent)
 }

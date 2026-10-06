@@ -7,7 +7,3 @@ object ModInitializationEvent : EurybiumEvent()
 object PostModInitializationEvent : EurybiumEvent()
 object ModShutdownEvent : EurybiumEvent()
 
-class SecondPassedEvent(private val totalSeconds: Int) : EurybiumEvent() {
-    fun repeatSeconds(i: Int): Boolean = totalSeconds % i == 0
-}
-
