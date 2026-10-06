@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.EurybiumEvent
-import github.businessdirt.eurybium.core.utils.text.StringExtensions.removeColor
+import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent

@@ -5,17 +5,16 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/** Constructs dated JSON backup paths without creating directories or writing files. */
 object BackupFiles {
+
+    private val directoryFormat = DateTimeFormatter.ofPattern("yyyy/MM")
+
+    /** Returns `backup/yyyy/MM/yyyy-MM-dd-version-name.json` beside [file], using the local calendar date. */
     fun getBackupFile(file: File): File {
-        val parent = file.parentFile
-        val fileName = file.nameWithoutExtension
-        val now = LocalDate.now()
-        val year = now.format(DateTimeFormatter.ofPattern("yyyy"))
-        val month = now.format(DateTimeFormatter.ofPattern("MM"))
-        val day = now.format(DateTimeFormatter.ofPattern("dd"))
+        val date = LocalDate.now()
+        val directory = File(file.parentFile, "backup/${date.format(directoryFormat)}")
 
-        val directory = File(parent, "backup/$year/$month")
-
-        return File(directory, "$year-$month-$day-${BuildInfo.VERSION}-$fileName.json")
+        return File(directory, "$date-${BuildInfo.VERSION}-${file.nameWithoutExtension}.json")
     }
 }

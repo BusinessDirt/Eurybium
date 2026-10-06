@@ -4,94 +4,94 @@ import java.lang.invoke.LambdaMetafactory
 import java.lang.invoke.MethodHandleProxies
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.function.Consumer
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaMethod
 
-@OptIn(ExperimentalStdlibApi::class)
+/** Builds event callbacks once during registration so dispatch does not repeatedly use Kotlin reflection. */
 object EventInvokerFactory {
 
+    /** A declaring-class, method-name, and parameter description suitable for registration diagnostics. */
     val KFunction<*>.fullyQualifiedName: String
         get() {
-            val method = javaMethod
-            val declaring = method?.declaringClass?.name ?: "Unknown"
-            val params = valueParameters
-                .joinToString(prefix = "(", postfix = ")", separator = ", ") {
-                    it.type.toString().substringAfterLast('.')
-                }
+            val declaring = javaMethod?.declaringClass?.name ?: "Unknown"
+            val parameters = valueParameters.joinToString(prefix = "(", postfix = ")") {
+                it.type.toString().substringAfterLast('.')
+            }
 
-            return "$declaring::$name$params"
+            return "$declaring::$name$parameters"
         }
 
-
     /**
-     * Creates a [java.util.function.Consumer] that invokes the given method on the provided owner.
-     * The method must be public, non-static, and take exactly one argument.
+     * Creates a callback for a Unit-returning instance method with one event parameter.
+     * Private methods are supported through a lookup scoped to their declaring class.
      *
-     * @param instance the object on which the method will be invoked.
-     * @param function the function to be invoked.
-     * @return a [java.util.function.Consumer] that, when called, invokes the specified method.
-     * @throws InvalidConsumerException if the method is not a valid consumer (e.g., wrong number of arguments).
+     * @throws InvalidConsumerException if ownership, signature, or method-handle creation is invalid.
      */
     @Throws(InvalidConsumerException::class)
-    fun createSingleParameterEventConsumer(
-        instance: Any,
-        function: KFunction<*>
-    ): Consumer<EurybiumEvent> {
+    fun createSingleParameterEventConsumer(instance: Any, function: KFunction<*>): Consumer<EurybiumEvent> {
         try {
-            val method = function.javaMethod ?: throw InvalidConsumerException(function, null)
-            require(method.returnType == Void.TYPE) { "Event listeners must return Unit" }
+            val method = listenerMethod(instance, function, parameterCount = 1)
+            val eventClass = method.parameterTypes.single()
+            require(EurybiumEvent::class.java.isAssignableFrom(eventClass)) { "Parameter must be an event" }
 
-            val baseLookup = MethodHandles.lookup()
-            val privateLookup = MethodHandles.privateLookupIn(method.declaringClass, baseLookup)
-            val handle = privateLookup.unreflect(method)
-            val rawEventClass = method.parameterTypes[0]
-            val site = LambdaMetafactory.metafactory(
-                privateLookup,
+            val lookup = MethodHandles.privateLookupIn(method.declaringClass, MethodHandles.lookup())
+            val handle = lookup.unreflect(method)
+
+            // The erased Consumer accepts Any; its generated implementation casts to the concrete
+            // event type and invokes the method directly on the captured listener instance.
+            val factory = LambdaMetafactory.metafactory(
+                lookup,
                 "accept",
                 MethodType.methodType(Consumer::class.java, method.declaringClass),
                 MethodType.methodType(Void.TYPE, Any::class.java),
                 handle,
-                MethodType.methodType(Void.TYPE, rawEventClass)
+                MethodType.methodType(Void.TYPE, eventClass),
             )
 
             @Suppress("UNCHECKED_CAST")
-            return site.target.invoke(instance) as Consumer<EurybiumEvent>
-        } catch (e: Throwable) {
-            throw InvalidConsumerException(function, e)
+            return factory.target.invoke(instance) as Consumer<EurybiumEvent>
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            throw InvalidConsumerException(function, failure)
         }
     }
 
     /**
-     * Creates a [Consumer] that invokes the given method on the provided owner.
-     * The method must be public, non-static, and take no arguments.
+     * Creates a callback for a Unit-returning instance method without an event parameter.
+     * Private methods are supported; the incoming event is deliberately ignored.
      *
-     * @param instance the object on which the method will be invoked.
-     * @param function the function to be invoked.
-     * @return a [Consumer] that, when called, invokes the specified method.
-     * @throws InvalidRunnableException if the method is not a valid runnable (e.g., wrong number of arguments).
+     * @throws InvalidRunnableException if ownership, signature, or method-handle creation is invalid.
      */
-    @Suppress("UNCHECKED_CAST")
     @Throws(InvalidRunnableException::class)
-    fun createZeroParameterEventConsumer(
-        instance: Any,
-        function: KFunction<*>
-    ): Consumer<EurybiumEvent> {
+    fun createZeroParameterEventConsumer(instance: Any, function: KFunction<*>): Consumer<EurybiumEvent> {
         try {
-            val method = function.javaMethod ?: throw InvalidRunnableException(function, null)
-            require(method.returnType == Void.TYPE) { "Event listeners must return Unit" }
-            require(method.parameterCount == 0) { "Zero-parameter listener must take no arguments" }
+            val method = listenerMethod(instance, function, parameterCount = 0)
+            val lookup = MethodHandles.privateLookupIn(method.declaringClass, MethodHandles.lookup())
+            val bound = lookup.unreflect(method).bindTo(instance)
 
-            val baseLookup = MethodHandles.lookup()
-            val privateLookup = MethodHandles.privateLookupIn(method.declaringClass, baseLookup)
-            val boundHandle = privateLookup.unreflect(method).bindTo(instance)
-            val consumerHandle = MethodHandles.dropArguments(boundHandle, 0, Any::class.java)
+            // Bind the owner first, then add an ignored argument to adapt () -> Unit
+            // to Consumer.accept(Any) without invoking the reflective KFunction on every event.
+            val consumer = MethodHandles.dropArguments(bound, 0, Any::class.java)
 
-            return MethodHandleProxies.asInterfaceInstance(Consumer::class.java, consumerHandle) as Consumer<EurybiumEvent>
-        } catch (e: Throwable) {
-            throw InvalidRunnableException(function, e)
+            @Suppress("UNCHECKED_CAST")
+            return MethodHandleProxies.asInterfaceInstance(Consumer::class.java, consumer) as Consumer<EurybiumEvent>
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            throw InvalidRunnableException(function, failure)
         }
     }
 
+    private fun listenerMethod(instance: Any, function: KFunction<*>, parameterCount: Int): Method {
+        val method = requireNotNull(function.javaMethod) { "Listener has no Java method" }
+        require(!Modifier.isStatic(method.modifiers)) { "Listener must be an instance method" }
+        require(method.declaringClass.isInstance(instance)) { "Listener owner does not match its declaring class" }
+        require(method.returnType == Void.TYPE) { "Event listeners must return Unit" }
+        require(method.parameterCount == parameterCount) { "Expected $parameterCount event parameters" }
+
+        return method
+    }
 }

@@ -4,21 +4,21 @@ import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.suggestion.SuggestionProvider
 
+/** Extensions shared by the command builders. */
 object BrigadierExtensions {
 
-    fun <T> ArgumentType<T>.isGreedy(): Boolean {
-        return when (this) {
-            is StringArgumentType -> this.type == StringArgumentType.StringType.GREEDY_PHRASE
-            else -> false
-        }
-    }
+    /** Whether this argument consumes the entire remaining command text. */
+    fun ArgumentType<*>.isGreedy(): Boolean =
+        this is StringArgumentType && type == StringArgumentType.StringType.GREEDY_PHRASE
 
-    fun <S> Collection<String>.toSuggestionProvider() = SuggestionProvider<S> { _, builder ->
-        for (s in this) {
-            if (s.startsWith(builder.remainingLowerCase)) {
-                builder.suggest(s)
+    /** Suggests current collection entries matching the input prefix, ignoring case while preserving spelling. */
+    fun <S> Collection<String>.toSuggestionProvider(): SuggestionProvider<S> = SuggestionProvider { _, builder ->
+        for (option in this) {
+            if (option.startsWith(builder.remaining, ignoreCase = true)) {
+                builder.suggest(option)
             }
         }
+
         builder.buildFuture()
     }
 }

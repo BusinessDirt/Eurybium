@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.core.scheduling
 
-import java.util.*
+import java.util.PriorityQueue
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration
 import kotlin.time.TimeSource

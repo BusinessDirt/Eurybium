@@ -2,10 +2,6 @@ package github.businessdirt.eurybium.core.scheduling
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.core.scheduling.ClientTasks.runAfterCurrentTickEvents
-import github.businessdirt.eurybium.core.scheduling.ClientTasks.runDelayed
-import github.businessdirt.eurybium.core.scheduling.ClientTasks.runOnNextMinecraftTick
-import github.businessdirt.eurybium.core.scheduling.ClientTasks.runOrNextTick
 import github.businessdirt.eurybium.events.minecraft.TickEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.minecraft.client.Minecraft

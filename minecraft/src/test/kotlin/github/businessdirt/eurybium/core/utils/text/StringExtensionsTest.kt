@@ -2,7 +2,7 @@ package github.businessdirt.eurybium.core.utils.text
 
 import github.businessdirt.eurybium.core.utils.text.StringExtensions.hasWhitespace
 import github.businessdirt.eurybium.core.utils.text.StringExtensions.optionalAn
-import github.businessdirt.eurybium.core.utils.text.StringExtensions.removeColor
+import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
