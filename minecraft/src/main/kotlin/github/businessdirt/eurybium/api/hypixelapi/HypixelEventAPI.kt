@@ -1,8 +1,8 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.core.utils.DelayedRun
-import github.businessdirt.eurybium.core.utils.ScheduledTask
+import github.businessdirt.eurybium.core.scheduling.ClientTasks
+import github.businessdirt.eurybium.core.scheduling.ScheduledTask
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.ClientJoinEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
@@ -21,7 +21,7 @@ import net.hypixel.modapi.packet.impl.serverbound.ServerboundVersionedPacket
 object HypixelEventAPI {
     private val modApi = HypixelModAPI.getInstance()
     private val bridge = HypixelPacketBridge(
-        enqueue = { DelayedRun.runOrNextTick("Hypixel packet event", it) },
+        enqueue = { ClientTasks.runOrNextTick("Hypixel packet event", it) },
         emit = { it.post() },
     )
 
@@ -44,7 +44,7 @@ object HypixelEventAPI {
      * The packet must not be mutated after submission when sending is deferred.
      */
     fun sendPacket(packet: ServerboundVersionedPacket): ScheduledTask<Boolean> =
-        DelayedRun.runOrNextTickReturning("Send Hypixel packet ${packet.javaClass.simpleName}") {
+        ClientTasks.runOrNextTickReturning("Send Hypixel packet ${packet.javaClass.simpleName}") {
             modApi.sendPacket(packet)
         }
 }

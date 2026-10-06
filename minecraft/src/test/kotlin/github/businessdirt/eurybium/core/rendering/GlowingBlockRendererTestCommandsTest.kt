@@ -2,19 +2,13 @@ package github.businessdirt.eurybium.core.rendering
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderProfile
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRendererTestCommands
-import kotlin.test.BeforeTest
-import kotlin.test.AfterTest
+import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.lang.reflect.Proxy
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 class GlowingBlockRendererTestCommandsTest {
     private var previousDevCommands = false

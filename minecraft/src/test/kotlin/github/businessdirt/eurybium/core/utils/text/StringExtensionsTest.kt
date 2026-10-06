@@ -1,8 +1,8 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.core.utils.text
 
-import github.businessdirt.eurybium.core.utils.StringUtils.hasWhitespace
-import github.businessdirt.eurybium.core.utils.StringUtils.optionalAn
-import github.businessdirt.eurybium.core.utils.StringUtils.removeColor
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.hasWhitespace
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.optionalAn
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.removeColor
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -13,7 +13,7 @@ import java.util.stream.Stream
 
 @Suppress("SpellCheckingInspection")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class StringUtilsTest {
+internal class StringExtensionsTest {
     @ParameterizedTest
     @MethodSource("testOptionalAnSource")
     @DisplayName("Adding an optional an or otherwise a should work")

@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.api.events
 
-import github.businessdirt.eurybium.core.utils.ReflectionUtils.fullyQualifiedName
+import github.businessdirt.eurybium.api.events.EventInvokerFactory.fullyQualifiedName
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.valueParameters
 

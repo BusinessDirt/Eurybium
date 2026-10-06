@@ -1,11 +1,13 @@
 package github.businessdirt.eurybium.api.commands
 
 import com.mojang.brigadier.CommandDispatcher
-import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.commands.brigadier.BrigadierRootBuilder
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class CommandDataTest {
     @Test

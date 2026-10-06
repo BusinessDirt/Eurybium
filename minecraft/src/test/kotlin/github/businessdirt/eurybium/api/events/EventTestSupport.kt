@@ -1,8 +1,7 @@
 package github.businessdirt.eurybium.api.events
 
-import github.businessdirt.eurybium.api.events.EurybiumEventBus
-import kotlin.test.BeforeTest
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 /** Isolate the singleton bus without adding reset operations to the production API. */
 abstract class EventBusTestFixture {

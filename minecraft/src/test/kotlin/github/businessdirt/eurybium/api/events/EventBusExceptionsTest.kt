@@ -1,11 +1,8 @@
 package github.businessdirt.eurybium.api.events
 
-import github.businessdirt.eurybium.api.events.EurybiumEvent
-import github.businessdirt.eurybium.api.events.InvalidConsumerException
-import github.businessdirt.eurybium.api.events.InvalidRunnableException
-import github.businessdirt.eurybium.api.events.MethodNotPublicException
-import github.businessdirt.eurybium.api.events.ParameterException
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class EventBusExceptionsTest {
     class Methods {

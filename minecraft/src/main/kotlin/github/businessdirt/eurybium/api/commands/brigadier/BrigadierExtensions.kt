@@ -1,10 +1,10 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.api.commands.brigadier
 
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.suggestion.SuggestionProvider
 
-object BrigadierUtils {
+object BrigadierExtensions {
 
     fun <T> ArgumentType<T>.isGreedy(): Boolean {
         return when (this) {

@@ -3,12 +3,12 @@ package github.businessdirt.eurybium.core.rendering.glow
 import com.google.gson.annotations.Expose
 import gg.essential.universal.UMinecraft.getMinecraft
 import io.github.notenoughupdates.moulconfig.ChromaColour
-import net.minecraft.world.level.block.RenderShape
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.Blocks
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart
 import net.minecraft.core.BlockPos
 import net.minecraft.util.RandomSource
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.RenderShape
+import net.minecraft.world.level.block.state.BlockState
 
 class GlowingBlock(@Expose val position: BlockPos) {
     fun getState(): BlockState = getMinecraft().level?.getBlockState(position) ?: Blocks.AIR.defaultBlockState()

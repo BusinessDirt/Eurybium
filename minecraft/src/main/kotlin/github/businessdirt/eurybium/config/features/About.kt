@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.config.features
 
 import com.google.gson.annotations.Expose
-import github.businessdirt.eurybium.core.utils.OSUtils.openBrowser
+import github.businessdirt.eurybium.api.minecraft.PlatformActions.openBrowser
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption

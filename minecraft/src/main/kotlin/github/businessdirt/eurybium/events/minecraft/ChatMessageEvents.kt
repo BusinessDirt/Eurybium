@@ -4,8 +4,8 @@ import com.mojang.authlib.GameProfile
 import github.businessdirt.eurybium.api.events.CancellableEurybiumEvent
 import github.businessdirt.eurybium.api.events.EurybiumEvent
 import net.minecraft.network.chat.ChatType
-import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.PlayerChatMessage
 import java.time.Instant
 
 /**

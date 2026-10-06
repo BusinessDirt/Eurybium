@@ -1,8 +1,8 @@
 package github.businessdirt.eurybium.api.minecraft
 
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.core.utils.ChatUtils.addToChat
-import github.businessdirt.eurybium.core.utils.ChatUtils.asComponent
+import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.addToChat
+import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.asComponent
 
 object Chat {
 

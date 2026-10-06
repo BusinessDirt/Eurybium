@@ -1,7 +1,8 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.EurybiumEvent
-import github.businessdirt.eurybium.events.hypixel.*
+import github.businessdirt.eurybium.events.hypixel.HypixelApiJoinEvent
+import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
 import net.hypixel.data.region.Environment
 import net.hypixel.data.type.GameType
 import net.hypixel.modapi.packet.impl.clientbound.ClientboundHelloPacket

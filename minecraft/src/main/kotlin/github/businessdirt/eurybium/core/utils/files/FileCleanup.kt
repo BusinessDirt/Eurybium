@@ -1,18 +1,15 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.core.utils.files
 
 import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.core.concurrency.BackgroundTasks
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import kotlinx.io.IOException
-import net.minecraft.util.Util
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
-import kotlin.jvm.java
 import kotlin.time.Duration
 
-object OSUtils {
-
-    fun openBrowser(url: String) = Util.getPlatform().openUri(url)
+object FileCleanup {
 
     private fun File.isExpired(
         expiryDuration: Duration,
@@ -24,13 +21,13 @@ object OSUtils {
         SimpleTimeMark(attributes.lastModifiedTime().toMillis())
     } catch (_: IOException) {
         EurybiumMod.logger.error("Error reading last modified attribute (file=$this, path=${this.absolutePath})")
-        SimpleTimeMark.now()
+        SimpleTimeMark.Companion.now()
     }
 
     private fun File.isEmptyFile() = length() == 0L
     private fun File.isEmptyDirectory() = listFiles()?.isEmpty() == true
 
-    fun deleteExpiredFiles(root: File, expiryDuration: Duration) = ConcurrencyUtils.launch("deleteExpiredFiles") {
+    fun deleteExpiredFiles(root: File, expiryDuration: Duration) = BackgroundTasks.launch("deleteExpiredFiles") {
         val allFiles = root.walk().filter { it.isFile }.toList()
         val lastModified = allFiles.associateWith { file ->
             file.lastModifiedTime()

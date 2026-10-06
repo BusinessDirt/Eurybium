@@ -2,9 +2,8 @@ package github.businessdirt.eurybium.data
 
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.events.HandleEvent.Companion.HIGHEST
-import github.businessdirt.eurybium.core.utils.StringUtils.removeColor
-import github.businessdirt.eurybium.core.utils.ComponentUtils.legacyString
-import github.businessdirt.eurybium.events.minecraft.ScoreboardUpdateEvent
+import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.removeColor
 import github.businessdirt.eurybium.events.minecraft.*
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.minecraft.client.Minecraft

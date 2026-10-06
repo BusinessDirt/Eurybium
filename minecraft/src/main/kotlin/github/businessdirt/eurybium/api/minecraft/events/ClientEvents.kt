@@ -1,11 +1,11 @@
 package github.businessdirt.eurybium.api.minecraft.events
 
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.processors.EurybiumModule
 import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.events.minecraft.*
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
+import github.businessdirt.eurybium.processors.EurybiumModule
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLevelEvents
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 

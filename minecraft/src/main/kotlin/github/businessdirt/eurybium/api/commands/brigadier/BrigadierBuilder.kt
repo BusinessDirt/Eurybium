@@ -5,11 +5,11 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.suggestion.SuggestionProvider
-import github.businessdirt.eurybium.core.utils.BrigadierUtils.isGreedy
-import github.businessdirt.eurybium.core.utils.BrigadierUtils.toSuggestionProvider
-import github.businessdirt.eurybium.core.utils.StringUtils.hasWhitespace
-import github.businessdirt.eurybium.core.utils.StringUtils.splitFirstWhitespace
-import github.businessdirt.eurybium.core.utils.StringUtils.splitLastWhitespace
+import github.businessdirt.eurybium.api.commands.brigadier.BrigadierExtensions.isGreedy
+import github.businessdirt.eurybium.api.commands.brigadier.BrigadierExtensions.toSuggestionProvider
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.hasWhitespace
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.splitFirstWhitespace
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.splitLastWhitespace
 import net.minecraft.commands.SharedSuggestionProvider
 import java.util.*
 

@@ -1,10 +1,5 @@
 package github.businessdirt.eurybium.api.events
 
-import github.businessdirt.eurybium.api.events.CancellableEurybiumEvent
-import github.businessdirt.eurybium.api.events.EurybiumEvent
-import github.businessdirt.eurybium.api.events.EurybiumEventHandler
-import github.businessdirt.eurybium.api.events.EurybiumEventListener
-import github.businessdirt.eurybium.api.events.HandleEvent
 import java.util.function.Consumer
 import kotlin.test.*
 

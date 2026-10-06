@@ -1,11 +1,9 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.core.utils.text
 
-import github.businessdirt.eurybium.core.utils.MathUtils.addSeparators
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
+import github.businessdirt.eurybium.core.utils.text.NumberFormatting.addSeparators
 import kotlin.math.min
 
-object StringUtils {
+object StringExtensions {
     private val COLOR_CHARS = mutableSetOf<Char?>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
     private val FORMATTING_CHARS = mutableSetOf<Char?>('k', 'l', 'm', 'n', 'o', 'r')
 

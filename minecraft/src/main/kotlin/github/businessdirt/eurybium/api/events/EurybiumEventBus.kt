@@ -1,10 +1,8 @@
 package github.businessdirt.eurybium.api.events
 
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.core.utils.ReflectionUtils
-import github.businessdirt.eurybium.core.utils.ReflectionUtils.fullyQualifiedName
+import github.businessdirt.eurybium.api.events.EventInvokerFactory.fullyQualifiedName
 import java.util.function.Consumer
-import kotlin.collections.get
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -26,8 +24,8 @@ object EurybiumEventBus {
         function.isAccessible = true
         eventTypes.forEach { eventType ->
             val invoker: Consumer<EurybiumEvent> = when (function.valueParameters.size) {
-                0 -> ReflectionUtils.createZeroParameterEventConsumer(instance, function)
-                1 -> ReflectionUtils.createSingleParameterEventConsumer(instance, function)
+                0 -> EventInvokerFactory.createZeroParameterEventConsumer(instance, function)
+                1 -> EventInvokerFactory.createSingleParameterEventConsumer(instance, function)
                 else -> throw IllegalArgumentException("Unsupported parameter count ${function.valueParameters.size}")
             }
 

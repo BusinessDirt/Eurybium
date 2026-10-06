@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
-import java.util.Locale
+import java.util.*
 
 /** Persistent test selections are resubmitted every frame, independently of feature requests. */
 @EurybiumModule

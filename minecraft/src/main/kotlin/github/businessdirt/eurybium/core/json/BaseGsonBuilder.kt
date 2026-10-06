@@ -1,17 +1,16 @@
 package github.businessdirt.eurybium.core.json
 
 import com.google.gson.GsonBuilder
-import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.core.json.adapters.EurybiumTypeAdapters
 import github.businessdirt.eurybium.core.json.adapters.KotlinTypeAdapterFactory
 import github.businessdirt.eurybium.core.json.adapters.ListEnumSkippingTypeAdapterFactory
 import github.businessdirt.eurybium.core.json.adapters.SkippingTypeAdapterFactory
+import github.businessdirt.eurybium.data.model.IslandType
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.LegacyStringChromaColourTypeAdapter
 import io.github.notenoughupdates.moulconfig.observer.PropertyTypeAdapterFactory
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
-import kotlin.jvm.java
 
 object BaseGsonBuilder {
 

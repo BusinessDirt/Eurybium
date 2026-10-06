@@ -1,6 +1,8 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI.inAnyIsland
+import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI.state
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.hypixel.HypixelApiJoinEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent

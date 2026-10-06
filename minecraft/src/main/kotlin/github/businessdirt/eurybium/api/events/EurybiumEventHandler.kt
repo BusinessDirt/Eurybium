@@ -1,7 +1,7 @@
 package github.businessdirt.eurybium.api.events
 
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.core.utils.StringUtils.optionalAn
+import github.businessdirt.eurybium.core.utils.text.StringExtensions.optionalAn
 import kotlin.reflect.KClass
 
 class EurybiumEventHandler private constructor(

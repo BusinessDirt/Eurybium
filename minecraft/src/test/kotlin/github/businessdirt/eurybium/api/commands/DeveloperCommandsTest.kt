@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
 import github.businessdirt.eurybium.EurybiumMod
-import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.lang.reflect.Proxy

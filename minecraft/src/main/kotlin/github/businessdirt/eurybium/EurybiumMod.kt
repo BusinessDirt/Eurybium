@@ -1,9 +1,9 @@
 package github.businessdirt.eurybium
 
-import github.businessdirt.eurybium.config.EurybiumConfig
-import github.businessdirt.eurybium.config.manager.ConfigManager
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.config.EurybiumConfig
+import github.businessdirt.eurybium.config.manager.ConfigManager
 import github.businessdirt.eurybium.events.*
 import github.businessdirt.eurybium.processors.EurybiumModule
 import org.apache.logging.log4j.LogManager

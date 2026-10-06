@@ -1,12 +1,13 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.core.scheduling
 
-import java.util.concurrent.ExecutionException
+import java.util.*
 import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.test.*
-import kotlin.time.TestTimeSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TestTimeSource
 
 class TickTaskSchedulerTest {
     private val clock = TestTimeSource()
@@ -19,7 +20,7 @@ class TickTaskSchedulerTest {
         scheduler.schedule(2.seconds) { calls.add("later") }
         scheduler.schedule(1.seconds) { calls.add("first") }
         scheduler.schedule(1.seconds) { calls.add("second") }
-        scheduler.schedule(Duration.ZERO) { calls.add("immediate") }
+        scheduler.schedule(Duration.Companion.ZERO) { calls.add("immediate") }
         scheduler.runTick()
         assertEquals(listOf("immediate"), calls)
         clock += 1.seconds
@@ -33,9 +34,9 @@ class TickTaskSchedulerTest {
     @Test
     fun `tasks queued by a running batch wait for another tick`() {
         val calls = mutableListOf<String>()
-        scheduler.schedule(Duration.ZERO) {
+        scheduler.schedule(Duration.Companion.ZERO) {
             calls.add("outer")
-            scheduler.schedule(Duration.ZERO) { calls.add("inner") }
+            scheduler.schedule(Duration.Companion.ZERO) { calls.add("inner") }
         }
         scheduler.runTick()
         assertEquals(listOf("outer"), calls)
@@ -46,8 +47,8 @@ class TickTaskSchedulerTest {
     @Test
     fun `result reads do not repeat work and cancelled tasks never execute`() {
         var calls = 0
-        val result = scheduler.schedule(Duration.ZERO) { ++calls }
-        val cancelled = scheduler.schedule(Duration.ZERO) { ++calls }
+        val result = scheduler.schedule(Duration.Companion.ZERO) { ++calls }
+        val cancelled = scheduler.schedule(Duration.Companion.ZERO) { ++calls }
         assertFalse(result.isDone)
         assertNull(result.result)
         assertTrue(cancelled.cancel(true))
@@ -67,8 +68,8 @@ class TickTaskSchedulerTest {
     @Test
     fun `failed task reports its label and cause without stopping the batch`() {
         val failure = IllegalStateException("expected")
-        val failed = scheduler.schedule(Duration.ZERO, "test label") { throw failure }
-        val following = scheduler.schedule(Duration.ZERO) { 42 }
+        val failed = scheduler.schedule(Duration.Companion.ZERO, "test label") { throw failure }
+        val following = scheduler.schedule(Duration.Companion.ZERO) { 42 }
         scheduler.runTick()
         assertEquals(42, following.get())
         assertSame(failure, assertFailsWith<ExecutionException> { failed.get() }.cause)
@@ -80,7 +81,7 @@ class TickTaskSchedulerTest {
 
     @Test
     fun `negative and infinite delays are rejected`() {
-        for (delay in listOf(-1.seconds, Duration.INFINITE, -Duration.INFINITE)) {
+        for (delay in listOf(-1.seconds, Duration.Companion.INFINITE, -Duration.Companion.INFINITE)) {
             assertFailsWith<IllegalArgumentException> { scheduler.schedule(delay) {} }
         }
     }
@@ -88,11 +89,11 @@ class TickTaskSchedulerTest {
     @Test
     fun `worker thread submissions are safe and execute only on the ticking thread`() {
         val current = Thread.currentThread()
-        val tasks = java.util.Collections.synchronizedList(mutableListOf<ScheduledTask<Thread>>())
+        val tasks = Collections.synchronizedList(mutableListOf<ScheduledTask<Thread>>())
         val workers = List(4) {
             Thread {
                 repeat(50) {
-                    tasks.add(scheduler.schedule(Duration.ZERO) { Thread.currentThread() })
+                    tasks.add(scheduler.schedule(Duration.Companion.ZERO) { Thread.currentThread() })
                 }
             }
         }
@@ -112,7 +113,7 @@ class TickTaskSchedulerTest {
         assertSame(rejection, assertFailsWith<ExecutionException> { task.get() }.cause)
         assertEquals("rejected", errors.single().first)
         val fatal = AssertionError("fatal")
-        val fatalTask = scheduler.schedule(Duration.ZERO) { throw fatal }
+        val fatalTask = scheduler.schedule(Duration.Companion.ZERO) { throw fatal }
         assertSame(fatal, assertFailsWith<AssertionError> { scheduler.runTick() })
         assertSame(fatal, assertFailsWith<ExecutionException> { fatalTask.get() }.cause)
     }

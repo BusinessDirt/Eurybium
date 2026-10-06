@@ -6,8 +6,8 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.EurybiumConfig
 import github.businessdirt.eurybium.core.json.BaseGsonBuilder
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
-import github.businessdirt.eurybium.core.utils.OSUtils
-import github.businessdirt.eurybium.core.utils.files.StringFileHandler
+import github.businessdirt.eurybium.core.utils.files.FileCleanup.deleteExpiredFiles
+import github.businessdirt.eurybium.core.utils.files.RecoverableTextFile
 import github.businessdirt.eurybium.generated.BuildInfo
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import io.github.notenoughupdates.moulconfig.gui.MoulConfigEditor
@@ -51,7 +51,7 @@ class ConfigManager {
         driver.warnForPrivateFields = false
         driver.processConfig(EurybiumMod.config)
 
-        OSUtils.deleteExpiredFiles(File("${BuildInfo.ID}/config/backup"), 7.days) // TODO: add config value
+        deleteExpiredFiles(File("${BuildInfo.ID}/config/backup"), 7.days) // TODO: add config value
     }
 
     private fun firstLoadFile(file: File, fileType: ConfigFileType, defaultValue: Any): Any {
@@ -61,7 +61,7 @@ class ConfigManager {
 
         if (file.exists()) {
             try {
-                val text = StringFileHandler(file).load()
+                val text = RecoverableTextFile(file).load()
                 val lenientGson = BaseGsonBuilder.lenientGson().create()
 
                 logger.info("load-$fileName-now")
@@ -107,7 +107,7 @@ class ConfigManager {
         try {
             logger.info("Saving $fileName file")
             file.parentFile.mkdirs()
-            StringFileHandler(file).save(gson.toJson(json))
+            RecoverableTextFile(file).save(gson.toJson(json))
             logger.info("Saved $fileName file successfully")
         } catch (e: Exception) {
             logger.error("Could not save $fileName file to $file")

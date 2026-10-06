@@ -1,22 +1,14 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.core.concurrency
 
 import github.businessdirt.eurybium.EurybiumMod
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-object ConcurrencyUtils {
+object BackgroundTasks {
     private val globalJob: Job = Job(null)
     private val coroutineScope = CoroutineScope(
         CoroutineName("Eurybium") + SupervisorJob(globalJob),
@@ -78,8 +70,8 @@ object ConcurrencyUtils {
                 function()
             } catch (e: CancellationException) {
                 // Don't notify the user about cancellation exceptions - these are to be expected at times
-                val jobState = coroutineContext[Job]?.toString() ?: "unknown job"
-                val cancellationCause = coroutineContext[Job]?.getCancellationException()
+                val jobState = coroutineContext[Job.Key]?.toString() ?: "unknown job"
+                val cancellationCause = coroutineContext[Job.Key]?.getCancellationException()
                 EurybiumMod.logger.debug(
                     "Job {} was cancelled with cause: {}\n {}",
                     jobState,
@@ -91,7 +83,7 @@ object ConcurrencyUtils {
             }
         }
 
-        if (timeout != Duration.INFINITE && timeout != Duration.ZERO) {
+        if (timeout != Duration.Companion.INFINITE && timeout != Duration.Companion.ZERO) {
             launch {
                 delay(timeout)
                 if (mainJob.isActive) {

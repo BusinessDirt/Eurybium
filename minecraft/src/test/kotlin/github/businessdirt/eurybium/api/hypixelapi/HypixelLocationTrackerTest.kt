@@ -2,9 +2,11 @@ package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.EurybiumEvent
 import github.businessdirt.eurybium.data.model.IslandType
-import github.businessdirt.eurybium.events.hypixel.*
+import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
+import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
 import github.businessdirt.eurybium.events.minecraft.ScoreboardTitleUpdateEvent
-import github.businessdirt.eurybium.events.skyblock.*
+import github.businessdirt.eurybium.events.skyblock.IslandJoinEvent
+import github.businessdirt.eurybium.events.skyblock.IslandLeaveEvent
 import net.hypixel.data.type.GameType
 import kotlin.test.*
 

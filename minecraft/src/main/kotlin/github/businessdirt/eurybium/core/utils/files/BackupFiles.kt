@@ -5,7 +5,7 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-object FileUtils {
+object BackupFiles {
     fun getBackupFile(file: File): File {
         val parent = file.parentFile
         val fileName = file.nameWithoutExtension

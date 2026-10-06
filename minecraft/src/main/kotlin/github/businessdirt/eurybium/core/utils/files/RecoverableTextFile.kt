@@ -6,7 +6,7 @@ import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class StringFileHandler(private val file: File) {
+class RecoverableTextFile(private val file: File) {
     private val backupFile = File(file.parentFile, "${file.name}.bak")
     private val tempFile = File(file.parentFile, "${file.name}.tmp")
 

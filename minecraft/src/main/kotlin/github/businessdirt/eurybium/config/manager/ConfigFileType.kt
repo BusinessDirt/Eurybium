@@ -2,9 +2,8 @@ package github.businessdirt.eurybium.config.manager
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.EurybiumConfig
-import github.businessdirt.eurybium.core.utils.files.FileUtils
+import github.businessdirt.eurybium.core.utils.files.BackupFiles
 import java.io.File
-import kotlin.getValue
 import kotlin.reflect.KMutableProperty0
 
 enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val property: KMutableProperty0<*>) {
@@ -14,5 +13,5 @@ enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val propert
     ;
 
     val file by lazy { File(ConfigManager.configDirectory, "$fileName.json") }
-    val backupFile get() = FileUtils.getBackupFile(file)
+    val backupFile get() = BackupFiles.getBackupFile(file)
 }

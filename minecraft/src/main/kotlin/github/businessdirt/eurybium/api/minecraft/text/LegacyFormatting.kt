@@ -1,10 +1,12 @@
-package github.businessdirt.eurybium.core.utils
+package github.businessdirt.eurybium.api.minecraft.text
 
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import java.util.Optional
+import net.minecraft.network.chat.Style
+import java.util.*
 
-object ComponentUtils {
+object LegacyFormatting {
+
     fun Component.legacyString(): String = buildString {
         visit({ style, text ->
             append("§r")
@@ -18,6 +20,6 @@ object ComponentUtils {
             if (style.isObfuscated) append("§k")
             append(text)
             Optional.empty<Unit>()
-        }, net.minecraft.network.chat.Style.EMPTY)
+        }, Style.EMPTY)
     }
 }
