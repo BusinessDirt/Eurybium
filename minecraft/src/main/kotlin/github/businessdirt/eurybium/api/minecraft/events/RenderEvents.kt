@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.api.minecraftevents
+package github.businessdirt.eurybium.api.minecraft.events
 
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.events.PreModInitializationEvent
