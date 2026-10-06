@@ -6,8 +6,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class DebugConfig {
 
-    @Expose
     @ConfigEditorBoolean
     @ConfigOption(name = "Enable Debug", desc = "Enable Test logic")
-    var enabled: Boolean = false
+    @Expose var enabled: Boolean = false
 }

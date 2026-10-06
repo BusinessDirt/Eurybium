@@ -7,13 +7,11 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class DevConfig {
 
-    @Expose
     @Accordion
     @ConfigOption(name = "Debug", desc = "")
-    var debug: DebugConfig = DebugConfig()
+    @Expose var debug: DebugConfig = DebugConfig()
 
-    @Expose
     @ConfigEditorBoolean
     @ConfigOption(name = "Dev Commands", desc = "Enables Dev commands")
-    var devCommands: Boolean = false
+    @Expose var devCommands: Boolean = false
 }

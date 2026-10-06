@@ -9,10 +9,9 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 @Suppress("unused")
 class About {
 
-    @Expose
     @Accordion
     @ConfigOption(name = "Used Software", desc = "Information about used software and licenses.")
-    val licenses: Licenses = Licenses()
+    @Expose val licenses: Licenses = Licenses()
 
     class Licenses {
 

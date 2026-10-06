@@ -1,9 +1,8 @@
 package github.businessdirt.eurybium.data.model
 
 import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI
-import net.minecraft.world.phys.AABB
 
-enum class IslandType(private val nameFallback: String, private val apiNameFallback: String?) {
+enum class IslandType(private val displayName: String, private val apiName: String?) {
     // General
     PRIVATE_ISLAND("Private Island", "dynamic"),
     PRIVATE_ISLAND_GUEST("Private Island Guest", null),
@@ -72,43 +71,10 @@ enum class IslandType(private val nameFallback: String, private val apiNameFallb
         else -> false
     }
 
-    var islandData: IslandData? = null
-        private set
-
-    val displayName: String get() = islandData?.name ?: nameFallback
-
-    val apiName: String? get() = islandData?.apiName ?: apiNameFallback
-
     companion object {
-        fun Collection<IslandType>.isInAnyIsland(): Boolean = any { it.isInIsland() }
-
-        /**
-         * The maximum amount of players that can be on an island.
-         */
-        var maxPlayers = 24
-            private set
-
-        /**
-         * The maximum amount of players that can be on a mega hub.
-         */
-        var maxPlayersMega = 80
-            private set
-
-        fun getByName(name: String): IslandType = getByNameOrNull(name) ?: error("IslandType not found: '$name'")
-        fun getByNameOrUnknown(name: String): IslandType = getByNameOrNull(name) ?: UNKNOWN
-        fun getByNameOrNull(name: String): IslandType? = entries.find { it.displayName == name }
-
         fun getByIdOrNull(id: String): IslandType? = entries.find { it.apiName == id }
         fun getByIdOrUnknown(id: String): IslandType = getByIdOrNull(id) ?: UNKNOWN
-
     }
 
     fun isInIsland() = HypixelLocationAPI.inHypixel && HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.island == this
 }
-
-data class IslandData(
-    val name: String,
-    val apiName: String?,
-    val maxPlayers: Int,
-    val boundingBox: AABB?,
-)

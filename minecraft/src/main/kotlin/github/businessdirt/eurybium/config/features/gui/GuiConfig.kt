@@ -7,8 +7,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class GuiConfig {
 
-    @Expose
     @ConfigEditorBoolean
     @ConfigOption(name = "Time Format", desc = "Change ${BuildInfo.NAME} to use 24h time instead of 12h time.")
-    var timeFormat24h: Boolean = true
+    @Expose var timeFormat24h: Boolean = true
 }
