@@ -29,10 +29,9 @@ object GlowingBlockRendererTestCommands {
     private val colorNames = listOf("cyan", "red", "green", "blue", "yellow", "magenta", "white", "chroma")
 
     @HandleEvent
-    private fun onCommandRegistrationEvent(event: CommandRegistrationEvent) = event.register("eybdevtestglowingblockrenderer") {
+    private fun onCommandRegistrationEvent(event: CommandRegistrationEvent) = event.register("eybglowtest") {
         category = CommandCategory.DEVELOPER_TEST
         description = "Test block model outlines and profile their CPU preparation/submission."
-        aliases = mutableListOf("eybglowtest")
 
         callback { feedback(context.source as FabricClientCommandSource, help) }
 

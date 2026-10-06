@@ -1,9 +1,13 @@
 package github.businessdirt.eurybium.data
 
+import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.events.HandleEvent.Companion.HIGHEST
+import github.businessdirt.eurybium.api.minecraft.Chat
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
+import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.minecraft.*
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.minecraft.client.Minecraft
@@ -30,6 +34,16 @@ object ScoreboardData {
 
     @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ], priority = HIGHEST)
     private fun onTabListClearEvents() = clear()
+
+    @HandleEvent
+    private fun onCommandRegistrationEvent(event: CommandRegistrationEvent) = event.register("eybdumpscoreboard") {
+        category = CommandCategory.DEVELOPER_DEBUG
+        description = "Test block model outlines and profile their CPU preparation/submission."
+        simpleCallback {
+            sidebarLinesFormatted.forEach { EurybiumMod.logger.info(it) }
+            Chat.debug("Dumped Scoreboard to logs")
+        }
+    }
 
     fun refresh() {
         val scoreboard = Minecraft.getInstance().level?.scoreboard
