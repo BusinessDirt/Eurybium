@@ -4,6 +4,6 @@ import github.businessdirt.eurybium.api.events.EurybiumEvent
 
 @Suppress("unused")
 class ScoreboardTitleUpdateEvent(val objectiveName: String, val title: String) : EurybiumEvent() {
-    val isSkyblock: Boolean
+    val isSkyBlock: Boolean
         get() = this.objectiveName == "SBScoreboard"
 }

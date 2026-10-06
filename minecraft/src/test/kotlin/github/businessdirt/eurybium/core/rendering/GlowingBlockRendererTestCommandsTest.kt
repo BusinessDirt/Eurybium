@@ -4,6 +4,8 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderProfile
+import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRendererTestCommands
 import kotlin.test.BeforeTest
 import kotlin.test.AfterTest
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
@@ -64,10 +66,15 @@ class GlowingBlockRendererTestCommandsTest {
 
     @Test
     fun `CPU profile records totals peaks and resets`() {
+        val oldDev = EurybiumMod.config.dev.devCommands
+        val oldDebug = EurybiumMod.config.dev.debug.enabled
+        EurybiumMod.config.dev.devCommands = true
+        EurybiumMod.config.dev.debug.enabled = true
+
         val profile = GlowingBlockRenderProfile()
-        profile.recordPreparation(50, 2, 4)
+        profile.recordPreparation(50, { 2 }, { 4 })
         profile.recordSubmission(30)
-        profile.recordPreparation(100, 3, 6)
+        profile.recordPreparation(100, { 3 }, { 6 })
         profile.recordSubmission(10)
         assertEquals(2L, profile.samples)
         assertEquals(150L, profile.preparationTotalNs)
@@ -81,5 +88,8 @@ class GlowingBlockRendererTestCommandsTest {
         assertEquals(0L, profile.preparationTotalNs)
         assertEquals(0L, profile.submissionTotalNs)
         assertEquals(0, profile.submittedBlocks)
+
+        EurybiumMod.config.dev.devCommands = oldDev
+        EurybiumMod.config.dev.debug.enabled = oldDebug
     }
 }

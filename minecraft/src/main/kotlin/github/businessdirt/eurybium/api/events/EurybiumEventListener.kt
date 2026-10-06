@@ -24,7 +24,7 @@ class EurybiumEventListener(
 
     init {
         this.cachedPredicates = buildList {
-            if (options.onlyOnSkyblock) add { _ -> HypixelLocationAPI.inSkyBlock }
+            if (options.onlyOnSkyblock) add { _ -> HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.inHypixel }
             if (options.onlyOnIsland != IslandType.ANY) add { _ -> options.onlyOnIsland.isInIsland() }
             if (options.onlyOnIslands.isNotEmpty()) {
                 val set = options.onlyOnIslands.toSet()

@@ -103,7 +103,7 @@ enum class IslandType(private val nameFallback: String, private val apiNameFallb
 
     }
 
-    fun isInIsland() = HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.island == this
+    fun isInIsland() = HypixelLocationAPI.inHypixel && HypixelLocationAPI.inSkyBlock && HypixelLocationAPI.island == this
 }
 
 data class IslandData(

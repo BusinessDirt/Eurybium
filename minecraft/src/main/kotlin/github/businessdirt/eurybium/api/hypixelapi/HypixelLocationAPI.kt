@@ -69,8 +69,8 @@ object HypixelLocationAPI {
     private var internalIsland = IslandType.NONE
     private var previousIsland = IslandType.NONE
 
-    fun inAnyIsland(vararg islandTypes: IslandType): Boolean = inSkyBlock && islandTypes.any { it == island }
-    fun inAnyIsland(islandTypes: Collection<IslandType>): Boolean = inSkyBlock && islandTypes.contains(island)
+    fun inAnyIsland(vararg islandTypes: IslandType): Boolean = inHypixel && inSkyBlock && islandTypes.any { it == island }
+    fun inAnyIsland(islandTypes: Collection<IslandType>): Boolean = inHypixel && inSkyBlock && islandTypes.contains(island)
 
     @HandleEvent(priority = HandleEvent.HIGHEST)
     private fun onHypixelApiJoinEvent(event: HypixelApiJoinEvent) {
@@ -126,7 +126,7 @@ object HypixelLocationAPI {
 
     @HandleEvent
     private fun onScoreboardTitleUpdateEvent(event: ScoreboardTitleUpdateEvent) {
-        if (!inHypixel || !inSkyBlock || sentIslandEvent || !event.isSkyblock) return
+        if (!inHypixel || !inSkyBlock || sentIslandEvent || !event.isSkyBlock) return
 
         isGuest = event.title.trim().removeColor().endsWith("GUEST")
         sentIslandEvent = true

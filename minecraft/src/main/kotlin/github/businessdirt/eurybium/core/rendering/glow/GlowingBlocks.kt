@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.core.rendering
+package github.businessdirt.eurybium.core.rendering.glow
 
 import com.google.gson.annotations.Expose
 import gg.essential.universal.UMinecraft.getMinecraft
