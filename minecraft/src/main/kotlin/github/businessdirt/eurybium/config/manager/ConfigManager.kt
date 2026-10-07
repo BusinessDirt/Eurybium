@@ -67,7 +67,6 @@ class ConfigManager {
 
                 logger.info("load-$fileName-now")
                 val json = lenientGson.fromJson(text, JsonElement::class.java)
-                if (fileType == ConfigFileType.CONFIG) ConfigMigrations.moveOrderedWaypoints(json)
                 output = lenientGson.fromJson(json, defaultValue.javaClass)
                 logger.info("Loaded $fileName from file")
 

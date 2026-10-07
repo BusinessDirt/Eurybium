@@ -3,36 +3,24 @@ package github.businessdirt.eurybium.config.features.mining.glacitemineshaft
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.*
 
-class MineshaftMiningConfig {
-
-    @ConfigEditorInfoText
-    @ConfigOption(name = "Description", desc = "These features are related to the Mineshaft Mining as described in the Mining Cult Discord server. §eRequires 'Mineshaft Detection' to be enabled.")
-    @Transient var extensiveDescription: Unit? = null
+/** Per-gemstone corpse thresholds for normal mining and Mining Fiesta. Five disables that type. */
+class CorpseNotificationsConfig {
 
     @ConfigEditorBoolean
-    @ConfigOption(name = "Detect Viable Mineshaft", desc = "Detects if a mineshaft has enough corpses for it to be 'profitable'.")
-    @Expose var detectViableMineshafts: Boolean = false
-
-    @ConfigEditorBoolean
-    @ConfigOption(name = "Auto load Waypoints", desc = "Automatically loads ordered waypoints when entering a mineshaft. They need to be saved as an ordered waypoint route with the name being the mineshaft name. (JASP1, etc.) For Crystal mineshafts it is always 'CRYSTAL'")
-    @Expose var autoLoadWaypoints: Boolean = false
-
-    @ConfigEditorText
-    @ConfigOption(name = "Auto load Mineshaft spawning waypoints", desc = "Automatically loads a route when entering the Dwarven Base Camp. The specified route will need to be saved as an ordered waypoint route.")
-    @Expose var autoLoadSpawnMineshaft: String = ""
+    @ConfigOption(name = "Enable Corpse Notifications", desc = "Notify once when the detected shaft reaches its corpse threshold. Mineshaft type announcements do not need to be enabled.")
+    @Expose var enabled: Boolean = false
 
     @ConfigEditorInfoText
-    @ConfigOption(name = "Thresholds", desc = "Set the minimum amount of corpses needed for the mineshaft to be considered viable (also for fiestas). Set the value to 5 to 'disable' the shaft.")
+    @ConfigOption(name = "Thresholds", desc = "Set the minimum corpse count required for a notification. Use the Fiesta thresholds during Mining Fiesta. Five disables notifications for that gemstone.")
     @Transient var thresholdDescription: Unit? = null
 
     @Accordion
-    @ConfigOption(name = "Corpse Thresholds", desc = "")
+    @ConfigOption(name = "Corpse Thresholds", desc = "Minimum corpse counts outside Mining Fiesta.")
     @Expose var corpseThresholds: CorpseThresholds = CorpseThresholds(4f, 3f, 3f, 3f, 2f, 2f, 4f, 0f, 5f, 5f, 5f, 3f)
 
     @Accordion
-    @ConfigOption(name = "Fiesta Corpse Thresholds", desc = "")
+    @ConfigOption(name = "Fiesta Corpse Thresholds", desc = "Minimum corpse counts during Mining Fiesta.")
     @Expose var fiestaCorpseThresholds: CorpseThresholds = CorpseThresholds(4f, 1f, 1f, 2f, 1f, 5f, 3f, 0f, 5f, 5f, 5f, 5f)
-
 
     class CorpseThresholds(
         @ConfigOption(name = "Ruby", desc = "Threshold for Ruby Mineshafts")

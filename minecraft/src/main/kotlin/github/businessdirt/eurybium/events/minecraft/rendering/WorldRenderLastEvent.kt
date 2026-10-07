@@ -6,7 +6,6 @@ import github.businessdirt.eurybium.core.rendering.BoxRenderer
 import github.businessdirt.eurybium.core.rendering.LineRenderer
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlock
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderer
-import github.businessdirt.eurybium.data.model.MineshaftType
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
