@@ -3,6 +3,7 @@ package github.businessdirt.eurybium
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.config.EurybiumConfig
+import github.businessdirt.eurybium.config.OrderedWaypointsRoutes
 import github.businessdirt.eurybium.config.manager.ConfigManager
 import github.businessdirt.eurybium.events.*
 import github.businessdirt.eurybium.processors.EurybiumModule
@@ -16,10 +17,11 @@ object EurybiumMod {
 
     lateinit var configManager: ConfigManager
     var config: EurybiumConfig = EurybiumConfig()
+    var orderedWaypointsRoutes: OrderedWaypointsRoutes = OrderedWaypointsRoutes()
 
     @HandleEvent(eventType = PreModInitializationEvent::class, priority = Int.MIN_VALUE)
     private fun onPreModInitializationEvent() {
-        //logger.initialize(EurybiumMod::class.java, config.dev.debug::enabled)
+
     }
 
     @HandleEvent(eventType = ModInitializationEvent::class, priority = Int.MIN_VALUE)

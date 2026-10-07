@@ -69,6 +69,8 @@ dependencies {
     // KSP
     ksp(project(":processors"))
     compileOnly(project(":processors"))
+    ksp(libs.auto.service.ksp)
+    implementation(libs.auto.service.annotations)
 
     // Tests
     testImplementation(kotlin("test"))
@@ -105,6 +107,7 @@ tasks.processResources {
 }
 
 ksp {
+    arg("autoserviceKsp.verify", "true")
     arg("eurybium.version", rootProject.version.toString())
     arg("eurybium.id", rootProject.name.lowercase())
     arg("eurybium.name", rootProject.name)
