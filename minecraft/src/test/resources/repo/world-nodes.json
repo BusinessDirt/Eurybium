@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "island": "MINESHAFT",
+  "mineshaft": "JASP1",
+  "space": "WORLD",
+  "nodes": [
+    {
+      "id": "JASP1/red_glass/-1_-16_0",
+      "kind": "GEMSTONE",
+      "material": "RED_GLASS",
+      "blockTypes": [
+        "minecraft:red_stained_glass",
+        "minecraft:red_stained_glass_pane"
+      ],
+      "blocks": [
+        [-1, -16, 0],
+        [0, -16, 0]
+      ]
+    }
+  ]
+}

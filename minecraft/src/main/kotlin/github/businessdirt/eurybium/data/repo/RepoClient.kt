@@ -59,6 +59,21 @@ internal class RepoClient(
             }
         }
 
+        // Count bytes once per response, rather than repeatedly encoding all prior survey files.
+        var totalBytes = files.values.sumOf { it.toByteArray(Charsets.UTF_8).size.toLong() }
+        require(totalBytes <= RepoParser.MAX_TOTAL_FILE_BYTES) { "Repository data is too large" }
+
+        // Referenced files are mandatory: a partial survey must never replace the last good revision.
+        for (path in files["mining/nodes.json"]?.let(RepoParser::nodeFiles).orEmpty()) {
+            val response = transport.get(URI("$RAW_URL/$revision/$path"), null)
+            check(response.status == 200) { "Repository file $path failed: HTTP ${response.status}" }
+            files[path] = response.body
+            totalBytes += response.body.toByteArray(Charsets.UTF_8).size
+            require(totalBytes <= RepoParser.MAX_TOTAL_FILE_BYTES) {
+                "Repository data is too large"
+            }
+        }
+
         val candidate = CachedRepo(revision, head.etag, nowMillis(), files)
         val snapshot = candidate.snapshot()
 

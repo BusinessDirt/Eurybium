@@ -26,9 +26,20 @@ class RepoRoute(val id: String, val scope: RepoScope, points: List<RepoPosition>
     val points: List<RepoPosition> = java.util.List.copyOf(points)
 }
 
-/** Immutable block membership of a mining node, with duplicate coordinates removed during parsing. */
-class RepoMiningNode(val id: String, val scope: RepoScope, val kind: RepoNodeKind, val material: String, blocks: List<RepoPosition>) {
+/**
+ * A connected surveyed cluster. [material] groups equivalent block variants; [blockTypes] lists the
+ * saved Minecraft IDs for future live-state checks. Empty types occur only in legacy inline data.
+ */
+class RepoMiningNode(
+    val id: String,
+    val scope: RepoScope,
+    val kind: RepoNodeKind,
+    val material: String,
+    blocks: List<RepoPosition>,
+    blockTypes: List<String> = emptyList(),
+) {
     val blocks: List<RepoPosition> = java.util.List.copyOf(blocks)
+    val blockTypes: List<String> = java.util.List.copyOf(blockTypes)
 }
 
 /** One validated revision, published atomically. Containers cannot be mutated by event consumers. */
