@@ -15,6 +15,7 @@ class OrderedWaypointRouteTest {
 
     private fun route(vararg positions: Int): OrderedWaypointRoute = OrderedWaypointRoute().apply {
         load(Waypoints(positions.mapIndexed { index, x -> EurybiumWaypoint(BlockPos(x, 0, 0), index + 1) }.toMutableList()))
+        skipTo(1) // These navigation tests begin with the first waypoint already selected.
     }
 
     private fun assertConsistent(route: OrderedWaypointRoute) {
@@ -22,7 +23,7 @@ class OrderedWaypointRouteTest {
         assertEquals(route.waypoints.map { it.number.toString() }, route.waypoints.map { it.options["name"] })
         assertTrue(route.visibleIndices().all { it in route.waypoints.indices })
         if (route.waypoints.isEmpty()) assertEquals(0, route.currentIndex)
-        else assertTrue(route.currentIndex in route.waypoints.indices)
+        else assertTrue(route.currentIndex == -1 || route.currentIndex in route.waypoints.indices)
     }
 
     @Test
@@ -39,6 +40,53 @@ class OrderedWaypointRouteTest {
         assertNotSame(source[1].options, route.waypoints[0].options)
         route.waypoints[0].options["custom"] = "changed"
         assertFalse(source[1].options.containsKey("custom"))
+    }
+
+    @Test
+    fun `loaded route targets the first waypoint until it is reached`() {
+        val route = route(0, 10, 20).apply { load(waypoints) }
+        assertEquals(-1, route.currentIndex)
+        assertEquals(0, route.nextIndex)
+        assertEquals(listOf(0), route.visibleIndices())
+        route.advanceIfNear(Vec3(9.5, 0.0, 0.0), 1.0)
+        assertEquals(-1, route.currentIndex)
+        route.advanceIfNear(Vec3(0.5, 0.0, 0.0), 1.0)
+        assertEquals(0, route.currentIndex)
+        assertEquals(1, route.nextIndex)
+        assertConsistent(route)
+    }
+
+    @Test
+    fun `skipping from the initial state selects the first waypoint`() {
+        val route = route(0, 10).apply { load(waypoints) }
+        route.move(1)
+        assertEquals(0, route.currentIndex)
+        assertEquals(1, route.nextIndex)
+    }
+
+    @Test
+    fun `single waypoint can be reached from the initial state`() {
+        val route = route(0).apply { load(waypoints) }
+        assertEquals(-1, route.currentIndex)
+        assertEquals(0, route.nextIndex)
+        route.advanceIfNear(Vec3.ZERO, 1.0)
+        assertEquals(0, route.currentIndex)
+        repeat(3) { route.advanceIfNear(Vec3.ZERO, 1.0) }
+        assertEquals(0, route.currentIndex)
+    }
+
+    @Test
+    fun `editing an unstarted route retains the initial state and deleting all resets it`() {
+        val route = route(0, 10).apply { load(waypoints) }
+        route.add(1, BlockPos(5, 0, 0))
+        assertEquals(-1, route.currentIndex)
+        assertEquals(5, route.waypoints[route.nextIndex].location.x)
+        route.delete(1)
+        assertEquals(-1, route.currentIndex)
+        assertEquals(0, route.waypoints[route.nextIndex].location.x)
+        route.delete(1)
+        route.delete(1)
+        assertConsistent(route)
     }
 
     @Test

@@ -39,8 +39,8 @@ class OrderedWaypointsConfig {
 
     @ConfigAccordionId(id = 0)
     @ConfigOption(name = "Outline Thickness", desc = "Thickness of waypoint edges in Outline mode.")
-    @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
-    @Expose var blockOutlineThickness: Float = 1f
+    @ConfigEditorSlider(minValue = 1f, maxValue = 20f, minStep = 1f)
+    @Expose var blockOutlineThickness: Float = 5f
 
     @ConfigOption(name = "Navigation", desc = "Control when the route advances.")
     @ConfigEditorAccordion(id = 1)
@@ -68,7 +68,7 @@ class OrderedWaypointsConfig {
     @ConfigAccordionId(id = 2)
     @ConfigOption(name = "Trace Line Thickness", desc = "Thickness of the trace line.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
-    @Expose var traceLineThickness: Float = 1.0f
+    @Expose var traceLineThickness: Float = 2.0f
 
     enum class RenderMode {
         OUTLINE, FILL, GLOW

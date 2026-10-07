@@ -56,7 +56,7 @@ object OrderedWaypoints {
             }
         }
 
-        if (config.traceLine && route.waypoints.size > 1) {
+        if (config.traceLine && route.waypoints.isNotEmpty() && (route.currentIndex < 0 || route.waypoints.size > 1)) {
             event.drawLineToEye(
                 route.waypoints[route.nextIndex].location.center,
                 config.traceLineColor,

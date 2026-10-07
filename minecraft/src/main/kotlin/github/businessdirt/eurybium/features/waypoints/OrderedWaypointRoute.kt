@@ -10,18 +10,19 @@ internal class OrderedWaypointRoute {
 
     val waypoints = Waypoints<EurybiumWaypoint>()
 
+    /** Last reached or selected waypoint; -1 means the loaded route has not reached its first point. */
     var currentIndex: Int = 0
         private set
 
     val nextIndex: Int get() = if (waypoints.isEmpty()) 0 else (currentIndex + 1) % waypoints.size
 
-    /** Loads an independent route, sorting imported numbers and normalizing them to one-based order. */
+    /** Loads an independent route, sorting imported numbers and normalizing them to one-based order, ready to approach the first point. */
     fun load(source: Waypoints<EurybiumWaypoint>) {
         val sorted = source.deepCopy().sortedBy { it.number }
         waypoints.clear()
         waypoints.addAll(sorted)
         renumber()
-        currentIndex = 0
+        currentIndex = if (waypoints.isEmpty()) 0 else -1
     }
 
     /** Clears the route and resets navigation. */
@@ -61,27 +62,29 @@ internal class OrderedWaypointRoute {
         val index = number - 1
         waypoints.removeAt(index)
         if (index < currentIndex) currentIndex--
-        if (currentIndex >= waypoints.size) currentIndex = 0
+        if (waypoints.isEmpty() || currentIndex >= waypoints.size) currentIndex = 0
         renumber()
         return true
     }
 
-    /** Previous, current, and next list indexes, deduplicated for routes of one or two points. */
+    /** Only the first target before starting; otherwise previous, current, and next without duplicates. */
     fun visibleIndices(): List<Int> {
         if (waypoints.isEmpty()) return emptyList()
+        if (currentIndex < 0) return listOf(nextIndex)
         val previous = Math.floorMod(currentIndex - 1, waypoints.size)
         return listOf(previous, currentIndex, nextIndex).distinct()
     }
 
     /**
      * Advances once when the next block is within range and closer than the current block.
+     * Before starting, only the first point needs to be in range.
      * Requiring the next point to be closer prevents two nearby points from alternating every frame.
      */
     fun advanceIfNear(playerPosition: Vec3, range: Double) {
-        if (waypoints.size < 2 || !range.isFinite() || range <= 0 || !playerPosition.isFinite) return
+        if (waypoints.isEmpty() || (currentIndex >= 0 && waypoints.size < 2) || !range.isFinite() || range <= 0 || !playerPosition.isFinite) return
         fun distance(index: Int): Double = playerPosition.distanceToSqr(Vec3.atLowerCornerOf(waypoints[index].location))
         val nextDistance = distance(nextIndex)
-        if (nextDistance < range * range && nextDistance < distance(currentIndex)) move(1)
+        if (nextDistance < range * range && (currentIndex < 0 || nextDistance < distance(currentIndex))) move(1)
     }
 
     private fun renumber() {
