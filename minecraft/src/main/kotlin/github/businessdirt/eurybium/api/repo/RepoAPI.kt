@@ -113,7 +113,7 @@ object RepoAPI {
                 "(${repo.patterns.size} patterns, ${repo.routes.size} routes, ${repo.nodes.size} nodes)"
             val failure = lastFailure?.let { " Last refresh failed: $it" }.orEmpty()
 
-            ChatAPI.userError(status + failure)
+            ChatAPI.chat(status + failure)
         }
 
         literal("refresh") {

@@ -5,6 +5,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.commands.brigadier.BrigadierArguments
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.repo.RepoAPI
 import github.businessdirt.eurybium.data.repo.RepoCoordinateSpace
 import github.businessdirt.eurybium.data.repo.RepoMiningNode
@@ -33,7 +34,7 @@ object NodeRendererTestCommands {
         category = CommandCategory.DEVELOPER_TEST
         description = "Add repository node clusters to the glow renderer test selections."
 
-        callback { feedback(context.source as FabricClientCommandSource, HELP) }
+        callback { feedback(HELP) }
 
         literal("add") {
             arg("file", BrigadierArguments.word(), fileSuggestions) { file ->
@@ -42,14 +43,14 @@ object NodeRendererTestCommands {
                         val nodes = nodesForFile(RepoAPI.snapshot, getArg(file))
                         val number = getArg(index)
                         val node = nodes.getOrNull(number - 1) ?: fail("Node must be in 1..${nodes.size} for ${getArg(file)}.")
-                        add(context.source as FabricClientCommandSource, listOf(node), colors[(number - 1) % 7])
+                        add(listOf(node), colors[(number - 1) % 7])
                     }
 
                     argCallback("color", BrigadierArguments.word(), colors) { color ->
                         val nodes = nodesForFile(RepoAPI.snapshot, getArg(file))
                         val number = getArg(index)
                         val node = nodes.getOrNull(number - 1) ?: fail("Node must be in 1..${nodes.size} for ${getArg(file)}.")
-                        add(context.source as FabricClientCommandSource, listOf(node), color)
+                        add(listOf(node), color)
                     }
                 }
             }
@@ -60,25 +61,25 @@ object NodeRendererTestCommands {
                 val snapshot = RepoAPI.snapshot
                 val nodes = snapshot.nodes.values.filter { it.scope.space == RepoCoordinateSpace.WORLD }
                 if (nodes.isEmpty()) fail("No world-space repo nodes loaded. Check /eybrepo.")
-                add(context.source as FabricClientCommandSource, nodes)
+                add(nodes)
                 val skipped = snapshot.nodes.size - nodes.size
-                if (skipped > 0) feedback(context.source as FabricClientCommandSource, "Skipped $skipped template nodes without a resolved placement.")
+                if (skipped > 0) feedback("Skipped $skipped template nodes without a resolved placement.")
             }
 
             argCallback("file", BrigadierArguments.word(), fileSuggestions) { file ->
-                add(context.source as FabricClientCommandSource, nodesForFile(RepoAPI.snapshot, file))
+                add(nodesForFile(RepoAPI.snapshot, file))
             }
         }
 
         literal("list") {
             callback {
                 val names = files(RepoAPI.snapshot)
-                feedback(context.source as FabricClientCommandSource, if (names.isEmpty()) "No repo node files loaded. Check /eybrepo." else "Files: ${names.joinToString()}. Node numbers start at 1.")
+                feedback(if (names.isEmpty()) "No repo node files loaded. Check /eybrepo." else "Files: ${names.joinToString()}. Node numbers start at 1.")
             }
 
             argCallback("file", BrigadierArguments.word(), fileSuggestions) { file ->
                 val nodes = nodesForFile(RepoAPI.snapshot, file)
-                feedback(context.source as FabricClientCommandSource, "$file: ${nodes.size} nodes, ${nodes.sumOf { it.blocks.size }} blocks; valid numbers 1..${nodes.size}.")
+                feedback("$file: ${nodes.size} nodes, ${nodes.sumOf { it.blocks.size }} blocks; valid numbers 1..${nodes.size}.")
             }
         }
     }
@@ -96,7 +97,7 @@ object NodeRendererTestCommands {
 
     private fun fileKey(path: String): String = path.substringAfterLast('/').removeSuffix(".json")
 
-    private fun add(source: FabricClientCommandSource, nodes: List<RepoMiningNode>, color: String? = null) {
+    private fun add(nodes: List<RepoMiningNode>, color: String? = null) {
         val override = color?.let(GlowingBlockRendererTestCommands::color)
 
         // Assign one color per cluster; overlapping positions still share the test tool's deduplication.
@@ -107,10 +108,10 @@ object NodeRendererTestCommands {
 
         val result = GlowingBlockRendererTestCommands.addTestBlocks(blocks)
 
-        feedback(source, "${nodes.size} node(s): $result Use /eybglowtest clear, pause, resume, status or profile.")
+        feedback("${nodes.size} node(s): $result Use /eybglowtest clear, pause, resume, status or profile.")
     }
 
-    private fun feedback(source: FabricClientCommandSource, text: String) = source.sendFeedback(Component.literal("[Node test] $text"))
+    private fun feedback(text: String) = ChatAPI.debug("[Node test] $text")
     private fun fail(message: String): Nothing = throw SimpleCommandExceptionType(Component.literal(message)).create()
 
     private const val HELP = "add <file> <node number starting at 1> [color] | addall [file] | list [file]. Uses loaded repository data and the shared glow test selections."

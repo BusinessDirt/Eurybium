@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.commands.brigadier.BrigadierArguments
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
@@ -33,22 +34,22 @@ object GlowingBlockRendererTestCommands {
         category = CommandCategory.DEVELOPER_TEST
         description = "Test block model outlines and profile their CPU preparation/submission."
 
-        callback { feedback(context.source as FabricClientCommandSource, HELP) }
+        callback { feedback(HELP) }
 
         literal("render") {
-            callback { select(context.source as FabricClientCommandSource, target(), "cyan") }
+            callback { select(target(), "cyan") }
 
             argCallback("color", BrigadierArguments.word(), colorNames) { color ->
-                select(context.source as FabricClientCommandSource, target(), color)
+                select(target(), color)
             }
 
             arg("x", BrigadierArguments.int()) { x ->
                 arg("y", BrigadierArguments.int()) { y ->
                     arg("z", BrigadierArguments.int()) { z ->
-                        callback { select(context.source as FabricClientCommandSource, BlockPos(getArg(x), getArg(y), getArg(z)), "cyan") }
+                        callback { select(BlockPos(getArg(x), getArg(y), getArg(z)), "cyan") }
 
                         argCallback("color", BrigadierArguments.word(), colorNames) { color ->
-                            select(context.source as FabricClientCommandSource, BlockPos(getArg(x), getArg(y), getArg(z)), color)
+                            select(BlockPos(getArg(x), getArg(y), getArg(z)), color)
                         }
                     }
                 }
@@ -57,27 +58,27 @@ object GlowingBlockRendererTestCommands {
 
         literal("fill") {
             arg("radius", BrigadierArguments.int(0, 8)) { radius ->
-                callback { fill(context.source as FabricClientCommandSource, getArg(radius), "cyan") }
+                callback { fill(getArg(radius), "cyan") }
 
                 argCallback("color", BrigadierArguments.word(), colorNames) { color ->
-                    fill(context.source as FabricClientCommandSource, getArg(radius), color)
+                    fill(getArg(radius), color)
                 }
             }
         }
 
         literal("colors") {
             argCallback("radius", BrigadierArguments.int(0, 8)) { radius ->
-                fill(context.source as FabricClientCommandSource, radius, null)
+                fill(radius, null)
             }
         }
 
         literal("remove") {
-            callback { remove(context.source as FabricClientCommandSource, target()) }
+            callback { remove(target()) }
 
             arg("x", BrigadierArguments.int()) { x ->
                 arg("y", BrigadierArguments.int()) { y ->
                     argCallback("z", BrigadierArguments.int()) { z ->
-                        remove(context.source as FabricClientCommandSource, BlockPos(getArg(x), getArg(y), z))
+                        remove(BlockPos(getArg(x), getArg(y), z))
                     }
                 }
             }
@@ -86,29 +87,29 @@ object GlowingBlockRendererTestCommands {
         literal("clear") {
             callback {
                 selections.clear()
-                feedback(context.source as FabricClientCommandSource, "Cleared test selections.")
+                feedback("Cleared test selections.")
             }
         }
 
         literal("pause") {
-            callback { enabled = false; feedback(context.source as FabricClientCommandSource, "Test outlines paused.") }
+            callback { enabled = false; feedback("Test outlines paused.") }
         }
 
         literal("resume") {
-            callback { enabled = true; feedback(context.source as FabricClientCommandSource, "Test outlines resumed.") }
+            callback { enabled = true; feedback("Test outlines resumed.") }
         }
 
         literal("status") {
-            callback { feedback(context.source as FabricClientCommandSource, status()) }
+            callback { feedback(status()) }
         }
 
         literal("profile") {
-            callback { feedback(context.source as FabricClientCommandSource, profileSummary()) }
+            callback { feedback(profileSummary()) }
 
             literal("reset") {
                 callback {
                     GlowingBlockRenderer.profile.reset()
-                    feedback(context.source as FabricClientCommandSource, "CPU profile reset. Use profile after sampling several seconds.")
+                    feedback("CPU profile reset. Use profile after sampling several seconds.")
                 }
             }
         }
@@ -155,7 +156,7 @@ object GlowingBlockRendererTestCommands {
         return hit.blockPos
     }
 
-    private fun select(source: FabricClientCommandSource, pos: BlockPos, colorText: String) {
+    private fun select(pos: BlockPos, colorText: String) {
         val color = color(colorText)
         val level = Minecraft.getInstance().level ?: fail("Join a world first.")
         if (!level.hasChunk(pos.x shr 4, pos.z shr 4)) fail("The block's chunk is not loaded.")
@@ -166,10 +167,10 @@ object GlowingBlockRendererTestCommands {
 
         selections[pos.immutable()] = color
 
-        feedback(source, "Selected ${pos.toShortString()} ($colorText). ${selections.size} test blocks; ${if (enabled) "active" else "paused"}.")
+        feedback("Selected ${pos.toShortString()} ($colorText). ${selections.size} test blocks; ${if (enabled) "active" else "paused"}.")
     }
 
-    private fun fill(source: FabricClientCommandSource, radius: Int, colorText: String?) {
+    private fun fill(radius: Int, colorText: String?) {
         val center = target()
         val level = Minecraft.getInstance().level ?: fail("Join a world first.")
         val palette = if (colorText == null) colorNames.take(7).map(::color) else listOf(color(colorText))
@@ -189,11 +190,11 @@ object GlowingBlockRendererTestCommands {
             selected++
         }
 
-        feedback(source, "Selected/updated $selected blocks, skipped $skipped unsupported/unloaded positions, capped $limited. ${selections.size} total; ${if (enabled) "active" else "paused"}.")
+        feedback("Selected/updated $selected blocks, skipped $skipped unsupported/unloaded positions, capped $limited. ${selections.size} total; ${if (enabled) "active" else "paused"}.")
     }
 
-    private fun remove(source: FabricClientCommandSource, pos: BlockPos) =
-        feedback(source, if (selections.remove(pos) != null) "Removed ${pos.toShortString()}." else "No test selection at ${pos.toShortString()}.")
+    private fun remove(pos: BlockPos) =
+        feedback(if (selections.remove(pos) != null) "Removed ${pos.toShortString()}." else "No test selection at ${pos.toShortString()}.")
 
     internal fun color(text: String): ChromaColour {
         val normalized = text.lowercase(Locale.ROOT)
@@ -225,7 +226,7 @@ object GlowingBlockRendererTestCommands {
         return "${p.samples} frames: prepare avg/max ${ms(p.preparationTotalNs.toDouble() / p.samples)}/${ms(p.preparationMaxNs.toDouble())} ms; submit avg/max ${ms(p.submissionTotalNs.toDouble() / p.samples)}/${ms(p.submissionMaxNs.toDouble())} ms. CPU only; excludes model drawing and GPU/post-process cost."
     }
 
-    private fun feedback(source: FabricClientCommandSource, text: String) = source.sendFeedback(Component.literal("[Glow test] $text"))
+    private fun feedback(text: String) = ChatAPI.chat("[Glow test] $text")
     private fun fail(message: String): Nothing = throw SimpleCommandExceptionType(Component.literal(message)).create()
 
     private const val HELP = "render [color] | render <x> <y> <z> [color] | fill <radius 0..8> [color] | colors <radius 0..8> | remove [x y z] | clear | pause | resume | status | profile [reset]. Colors: cyan/red/green/blue/yellow/magenta/white/chroma or hex RRGGBB/AARRGGBB."
