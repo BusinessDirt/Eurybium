@@ -2,7 +2,12 @@ package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.api.events.RenderingEurybiumEvent
+import github.businessdirt.eurybium.core.rendering.BoxRenderer
 import github.businessdirt.eurybium.core.rendering.LineRenderer
+import github.businessdirt.eurybium.core.rendering.glow.GlowingBlock
+import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderer
+import github.businessdirt.eurybium.data.model.MineshaftType
+import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.world.phys.Vec3
@@ -27,7 +32,7 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
         )
     }
 
-    /**fun drawWaypointFilled(
+    fun drawWaypointFilled(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
         depth: Boolean = true,
@@ -51,8 +56,8 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
     fun drawWaypointGlowing(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
-        mineshaftType: MineshaftType = MineshaftType.UNKNOWN,
     ) {
+        /**
         if (mineshaftType == MineshaftType.UNKNOWN ||
             GlowingBlockRenderer.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.isEmpty() == true
         ) {
@@ -62,5 +67,9 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
 
         val gemstoneNode = waypoint.getNearestNode(mineshaftType) ?: return
         GlowingBlockRenderer.blocks.addAll(color, gemstoneNode.blocks)
-    }**/
+        **/
+
+        val block = GlowingBlock(waypoint.location)
+        GlowingBlockRenderer.blocks.add(color, block)
+    }
 }
