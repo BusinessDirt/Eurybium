@@ -58,7 +58,7 @@ class FileCleanupTest {
     fun `missing directory is harmless and invalid expiry is rejected`() {
         val root = directory.resolve("missing").toFile()
         FileCleanup.cleanup(root, 1.days, now)
-        assertFailsWith<IllegalArgumentException> { FileCleanup.cleanup(root, -1.days, now) }
+        assertFailsWith<IllegalArgumentException> { FileCleanup.cleanup(root, (-1).days, now) }
         assertFailsWith<IllegalArgumentException> { FileCleanup.cleanup(root, Duration.INFINITE, now) }
     }
 }

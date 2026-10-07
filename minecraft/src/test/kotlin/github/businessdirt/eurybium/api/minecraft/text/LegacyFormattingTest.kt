@@ -6,6 +6,7 @@ import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.stripLea
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import org.junit.jupiter.api.Test
+import java.util.stream.IntStream
 import kotlin.test.*
 
 class LegacyFormattingTest {
@@ -25,6 +26,8 @@ class LegacyFormattingTest {
         val text = "§aone§btwo§cthree"
         val sequence = object : CharSequence by text {
             override fun toString(): String { conversions++; return text }
+            override fun chars(): IntStream = text.chars()
+            override fun codePoints(): IntStream = text.codePoints()
         }
         assertEquals("onetwothree", sequence.removeColor())
         assertEquals(1, conversions)

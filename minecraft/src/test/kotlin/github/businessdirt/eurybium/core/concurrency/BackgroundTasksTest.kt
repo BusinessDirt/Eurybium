@@ -72,6 +72,6 @@ class BackgroundTasksTest {
 
     @Test
     fun `negative timeout is rejected`() {
-        assertFailsWith<IllegalArgumentException> { BackgroundTasks.launch("negative", -1.seconds) {} }
+        assertFailsWith<IllegalArgumentException> { BackgroundTasks.launch("negative", (-1).seconds) {} }
     }
 }

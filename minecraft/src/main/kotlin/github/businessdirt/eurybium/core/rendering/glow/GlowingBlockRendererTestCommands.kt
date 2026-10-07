@@ -33,7 +33,7 @@ object GlowingBlockRendererTestCommands {
         category = CommandCategory.DEVELOPER_TEST
         description = "Test block model outlines and profile their CPU preparation/submission."
 
-        callback { feedback(context.source as FabricClientCommandSource, help) }
+        callback { feedback(context.source as FabricClientCommandSource, HELP) }
 
         literal("render") {
             callback { select(context.source as FabricClientCommandSource, target(), "cyan") }
@@ -208,5 +208,6 @@ object GlowingBlockRendererTestCommands {
 
     private fun feedback(source: FabricClientCommandSource, text: String) = source.sendFeedback(Component.literal("[Glow test] $text"))
     private fun fail(message: String): Nothing = throw SimpleCommandExceptionType(Component.literal(message)).create()
-    private const val help = "render [color] | render <x> <y> <z> [color] | fill <radius 0..8> [color] | colors <radius 0..8> | remove [x y z] | clear | pause | resume | status | profile [reset]. Colors: cyan/red/green/blue/yellow/magenta/white/chroma or hex RRGGBB/AARRGGBB."
+
+    private const val HELP = "render [color] | render <x> <y> <z> [color] | fill <radius 0..8> [color] | colors <radius 0..8> | remove [x y z] | clear | pause | resume | status | profile [reset]. Colors: cyan/red/green/blue/yellow/magenta/white/chroma or hex RRGGBB/AARRGGBB."
 }

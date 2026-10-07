@@ -35,7 +35,7 @@ class LineRendererTest {
             for (camera in listOf(to.scale(2.0), to.scale(0.5))) {
                 val quad = LineRenderer.lineToQuad(from, to, camera, 2f)
                 assertEquals(4, quad.size)
-                assertTrue(quad.all { it.isFinite() })
+                assertTrue(quad.all { it.isFinite })
                 assertEquals(0.008, quad[0].distanceTo(quad[1]), 1e-10)
             }
         }

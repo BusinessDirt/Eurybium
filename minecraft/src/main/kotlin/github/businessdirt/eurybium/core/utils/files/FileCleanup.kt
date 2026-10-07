@@ -57,7 +57,7 @@ object FileCleanup {
             }
         })
 
-        val retainedDates = files.map { it.date }.distinct().sortedDescending().take(3).toSet()
+        val retainedDates = files.asSequence().map { it.date }.distinct().sortedDescending().take(3).toSet()
         val cutoff = now.minusMillis(expiryDuration.inWholeMilliseconds)
 
         for (entry in files) {

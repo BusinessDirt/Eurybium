@@ -55,7 +55,7 @@ object LineRenderer {
      * Looking exactly along a segment has no unique facing plane; a stable world axis supplies the fallback.
      */
     fun lineToQuad(from: Vec3, to: Vec3, cameraPosition: Vec3, width: Float): List<Vec3> {
-        if (!validLine(from, to, width) || !cameraPosition.isFinite()) return emptyList()
+        if (!validLine(from, to, width) || !cameraPosition.isFinite) return emptyList()
 
         val delta = to.subtract(from)
         val direction = delta.scale(1.0 / sqrt(delta.lengthSqr()))
@@ -145,7 +145,7 @@ object LineRenderer {
     }
 
     private fun validLine(from: Vec3, to: Vec3, width: Float): Boolean {
-        if (!width.isFinite() || width <= 0 || !from.isFinite() || !to.isFinite()) return false
+        if (!width.isFinite() || width <= 0 || !from.isFinite || !to.isFinite) return false
 
         val lengthSquared = to.subtract(from).lengthSqr()
         return lengthSquared.isFinite() && lengthSquared > MIN_LENGTH_SQUARED
