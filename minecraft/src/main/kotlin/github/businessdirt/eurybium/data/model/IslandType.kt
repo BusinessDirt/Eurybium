@@ -52,11 +52,7 @@ enum class IslandType(private val displayName: String, private val apiName: Stri
     ;
 
     fun isValidIsland(): Boolean = when (this) {
-        NONE,
-        ANY,
-        UNKNOWN,
-            -> false
-
+        NONE, ANY, UNKNOWN, -> false
         else -> true
     }
 
@@ -68,6 +64,11 @@ enum class IslandType(private val displayName: String, private val apiName: Stri
 
     fun hasGuestVariant(): Boolean = when (this) {
         PRIVATE_ISLAND, GARDEN -> true
+        else -> false
+    }
+
+    fun isMiningIsland(): Boolean = when (this) {
+        GOLD_MINES, DEEP_CAVERNS, DWARVEN_MINES, CRYSTAL_HOLLOWS, MINESHAFT -> true
         else -> false
     }
 

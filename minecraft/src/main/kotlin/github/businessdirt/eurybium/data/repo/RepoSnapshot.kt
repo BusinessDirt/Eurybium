@@ -1,13 +1,13 @@
 package github.businessdirt.eurybium.data.repo
 
 import github.businessdirt.eurybium.data.model.IslandType
+import github.businessdirt.eurybium.data.model.MineshaftType
 import java.util.Collections
 
 /** Coordinates remain independent of the current world until a feature resolves their space. */
 data class RepoPosition(val x: Int, val y: Int, val z: Int)
 
 enum class RepoCoordinateSpace { WORLD, TEMPLATE }
-enum class RepoNodeKind { GEMSTONE, ORE, MITHRIL }
 
 /** Location restrictions shared by routes and mining nodes; template placements need runtime resolution. */
 data class RepoScope(
@@ -27,18 +27,16 @@ class RepoRoute(val id: String, val scope: RepoScope, points: List<RepoPosition>
 }
 
 /**
- * A connected surveyed cluster. [material] groups equivalent block variants; [blockTypes] lists the
- * saved Minecraft IDs for future live-state checks. Empty types occur only in legacy inline data.
- * [sourceFile] preserves catalog membership independently of the node's ID.
+ * A surveyed gemstone cluster in one mineshaft variant, using fixed world coordinates.
+ * [sourceFile] retains file membership for debug commands without depending on ID conventions.
  */
 class RepoMiningNode(
     val id: String,
-    val scope: RepoScope,
-    val kind: RepoNodeKind,
+    val mineshaft: MineshaftType,
     val material: String,
     blocks: List<RepoPosition>,
-    blockTypes: List<String> = emptyList(),
-    val sourceFile: String = "mining/nodes.json",
+    blockTypes: List<String>,
+    val sourceFile: String,
 ) {
     val blocks: List<RepoPosition> = java.util.List.copyOf(blocks)
     val blockTypes: List<String> = java.util.List.copyOf(blockTypes)

@@ -7,7 +7,6 @@ import github.businessdirt.eurybium.api.commands.brigadier.BrigadierArguments
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.repo.RepoAPI
-import github.businessdirt.eurybium.data.repo.RepoCoordinateSpace
 import github.businessdirt.eurybium.data.repo.RepoMiningNode
 import github.businessdirt.eurybium.data.repo.RepoSnapshot
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
@@ -58,12 +57,9 @@ object NodeRendererTestCommands {
 
         literal("addall") {
             callback {
-                val snapshot = RepoAPI.snapshot
-                val nodes = snapshot.nodes.values.filter { it.scope.space == RepoCoordinateSpace.WORLD }
-                if (nodes.isEmpty()) fail("No world-space repo nodes loaded. Check /eybrepo.")
+                val nodes = RepoAPI.snapshot.nodes.values.toList()
+                if (nodes.isEmpty()) fail("No mineshaft gemstone nodes loaded. Check /eybrepo.")
                 add(nodes)
-                val skipped = snapshot.nodes.size - nodes.size
-                if (skipped > 0) feedback("Skipped $skipped template nodes without a resolved placement.")
             }
 
             argCallback("file", BrigadierArguments.word(), fileSuggestions) { file ->
@@ -91,7 +87,6 @@ object NodeRendererTestCommands {
     internal fun nodesForFile(snapshot: RepoSnapshot, file: String): List<RepoMiningNode> {
         val nodes = snapshot.nodes.values.filter { fileKey(it.sourceFile).equals(file.removeSuffix(".json"), ignoreCase = true) }
         if (nodes.isEmpty()) fail("No nodes for file $file. Use /eybnodetest list or /eybrepo refresh.")
-        if (nodes.any { it.scope.space != RepoCoordinateSpace.WORLD }) fail("File $file uses template coordinates; its placement must be resolved first.")
         return nodes
     }
 

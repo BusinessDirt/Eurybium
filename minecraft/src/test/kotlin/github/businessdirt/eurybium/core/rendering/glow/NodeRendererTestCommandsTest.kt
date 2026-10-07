@@ -6,14 +6,14 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.lang.reflect.Proxy
-import github.businessdirt.eurybium.data.model.IslandType
+import github.businessdirt.eurybium.data.model.MineshaftType
 import github.businessdirt.eurybium.data.repo.*
 import kotlin.test.*
 
 class NodeRendererTestCommandsTest {
-    private fun node(id: String, file: String, space: RepoCoordinateSpace = RepoCoordinateSpace.WORLD) = RepoMiningNode(
-        id, RepoScope(IslandType.MINESHAFT, null, "JASP1", space, if (space == RepoCoordinateSpace.TEMPLATE) "layout" else null),
-        RepoNodeKind.GEMSTONE, "JASPER", listOf(RepoPosition(1, 2, 3)), sourceFile = file,
+    private fun node(id: String, file: String) = RepoMiningNode(
+        id, MineshaftType.JASP_1, "JASPER", listOf(RepoPosition(1, 2, 3)),
+        listOf("minecraft:magenta_stained_glass"), file,
     )
 
     private fun snapshot(vararg nodes: RepoMiningNode) = RepoSnapshot("", 0, emptyMap(), emptyMap(), nodes.associateBy { it.id })
@@ -57,9 +57,7 @@ class NodeRendererTestCommandsTest {
     }
 
     @Test
-    fun `missing and unresolved template files produce command errors`() {
+    fun `missing files produce command errors`() {
         assertFailsWith<CommandSyntaxException> { NodeRendererTestCommands.nodesForFile(RepoSnapshot.EMPTY, "JASP1") }
-        val repo = snapshot(node("template", "mining/nodes/JASP1.json", RepoCoordinateSpace.TEMPLATE))
-        assertFailsWith<CommandSyntaxException> { NodeRendererTestCommands.nodesForFile(repo, "JASP1") }
     }
 }

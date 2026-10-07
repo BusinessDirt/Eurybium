@@ -32,10 +32,9 @@ class RepoParserTest {
     }
 
     @Test
-    fun `routes and nodes have validated scopes and deduplicated block membership`() {
-        val snapshot = RepoParser.parse(REVISION_A, 1, repoFiles() + mapOf("mining/routes.json" to JASPER_ROUTE, "mining/nodes.json" to JASPER_NODE))
+    fun `routes have validated scopes and ordered points`() {
+        val snapshot = RepoParser.parse(REVISION_A, 1, repoFiles() + ("mining/routes.json" to JASPER_ROUTE))
         assertEquals(2, snapshot.routes.getValue("eurybium:JASP1").points.size)
-        assertEquals(2, snapshot.nodes.getValue("jasper-one").blocks.size)
         for (text in listOf(JASPER_ROUTE.replace("JASP1", "JASP2"), JASPER_ROUTE.replace("MINESHAFT", "HUB"), JASPER_ROUTE.replace("[10,100,20]", "[10.5,100,20]"), JASPER_ROUTE.replace("[10,100,20]", "[10,100]"))) {
             assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + ("mining/routes.json" to text)) }
         }

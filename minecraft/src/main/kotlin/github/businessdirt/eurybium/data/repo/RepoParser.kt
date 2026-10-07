@@ -13,21 +13,24 @@ internal object RepoParser {
 
     const val MAX_FILE_BYTES = 8 * 1024 * 1024
     const val MAX_TOTAL_FILE_BYTES = 24 * 1024 * 1024
-    const val MAX_NODE_FILES = 128
-    const val MAX_NODE_BLOCKS = 65_536
-    const val MAX_TOTAL_NODE_BLOCKS = 1_000_000
+    val MAX_NODE_FILES = MineshaftType.entries.size
+    const val MAX_NODE_BLOCKS = 2048
+    const val MAX_TOTAL_NODE_BLOCKS = 250_000
 
-    private val nodeFilePattern = Regex("mining/nodes/[A-Za-z0-9_-]{1,64}\\.json")
-    private val blockTypePattern = Regex("[a-z0-9_.-]+:[a-z0-9_./-]+")
+    private val nodeShafts = MineshaftType.entries.associateBy {
+        "mining/nodes/${it.internalRouteId.removePrefix(MiningRouteIds.NAMESPACE)}.json"
+    }
+    private val blockTypePattern = Regex("minecraft:(?:[a-z_]+_stained_)?glass(?:_pane)?")
 
-    /** The index is pinned to the same commit as its shards; paths cannot leave the node directory. */
+    /** The index names one file per known mineshaft, pinned to the same repository commit. */
     fun nodeFiles(text: String): List<String> {
         val root = document(text)
-        val array = root.getAsJsonArray("files") ?: return emptyList()
+        require(!root.has("nodes")) { "Nodes belong in their mineshaft files" }
+        val array = root.getAsJsonArray("files") ?: error("Missing node files array")
         require(array.size() <= MAX_NODE_FILES) { "Too many node files" }
         val paths = array.map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString) { "Expected node file path" }
-            it.asString.also { path -> require(nodeFilePattern.matches(path)) { "Invalid node file path $path" } }
+            it.asString.also { path -> require(path in nodeShafts) { "Invalid node file path $path" } }
         }
         require(paths.distinct().size == paths.size) { "Duplicate node file path" }
         return paths
@@ -53,10 +56,10 @@ internal object RepoParser {
     fun parse(revision: String, fetchedAtMillis: Long, files: Map<String, String>): RepoSnapshot {
         require(validRevision(revision)) { "Invalid repository commit" }
         require(fetchedAtMillis >= 0) { "Invalid repository timestamp" }
-        val shards = files["mining/nodes.json"]?.let(::nodeFiles).orEmpty()
-        require(files.keys.all { it in requiredFiles || it in optionalFiles || it in shards }) { "Unknown repository file" }
+        val nodePaths = files["mining/nodes.json"]?.let(::nodeFiles).orEmpty()
+        require(files.keys.all { it in requiredFiles || it in optionalFiles || it in nodePaths }) { "Unknown repository file" }
         require(requiredFiles.all { it in files }) { "Missing pattern catalog" }
-        require(shards.all { it in files }) { "Missing node file" }
+        require(nodePaths.all { it in files }) { "Missing node file" }
         require(files.values.sumOf { it.toByteArray(Charsets.UTF_8).size.toLong() } <= MAX_TOTAL_FILE_BYTES) {
             "Repository data is too large"
         }
@@ -93,44 +96,38 @@ internal object RepoParser {
 
         val nodes = linkedMapOf<String, RepoMiningNode>()
         var totalBlocks = 0
+        for (path in nodePaths) {
+            val root = document(files.getValue(path))
+            val shaft = nodeShafts.getValue(path)
+            require(root.string("island") == "MINESHAFT" && root.string("space") == "WORLD") {
+                "Node files must use mineshaft world coordinates"
+            }
+            require(root.string("mineshaft") == shaft.internalRouteId.removePrefix(MiningRouteIds.NAMESPACE)) {
+                "Node file $path has a mismatched mineshaft"
+            }
 
-        fun addNodes(entries: List<JsonObject>, sharedScope: RepoScope? = null, sourceFile: String = "mining/nodes.json") {
-            for (entry in entries) {
+            for (entry in records(root, "nodes")) {
                 val id = entry.id()
-                val blocks = positions(entry, "blocks", MAX_NODE_BLOCKS).distinct()
-                totalBlocks += blocks.size
-
-                require(totalBlocks <= MAX_TOTAL_NODE_BLOCKS) { "Too many mining node blocks" }
-
+                require(entry.string("kind") == "GEMSTONE") { "Only gemstone nodes are supported" }
                 val material = entry.string("material")
                 require(materialPattern.matches(material)) { "Invalid node material" }
-
-                val types = entry.getAsJsonArray("blockTypes")?.map {
-                    require(it.isJsonPrimitive && it.asJsonPrimitive.isString) { "Invalid block type" }
-                    it.asString.also { type -> require(type.length <= 128 && blockTypePattern.matches(type)) { "Invalid block type" } }
-                }.orEmpty()
-
-                require(types.size <= 64 && (sharedScope == null || types.isNotEmpty())) { "Invalid block types" }
-                require(sharedScope == null || listOf("island", "region", "mineshaft", "space", "layout").none(entry::has)) {
+                require(listOf("island", "region", "mineshaft", "space", "layout").none(entry::has)) {
                     "Node scope belongs on the file, not individual nodes"
                 }
-
-                val node = RepoMiningNode(id, sharedScope ?: scope(entry), RepoNodeKind.valueOf(entry.string("kind")), material, blocks, types.distinct(), sourceFile)
+                val types = entry.getAsJsonArray("blockTypes") ?: error("Missing node block types")
+                require(types.size() in 1..2) { "A gemstone node needs one or two glass block types" }
+                val blockTypes = types.map {
+                    require(it.isJsonPrimitive && it.asJsonPrimitive.isString && blockTypePattern.matches(it.asString)) {
+                        "Invalid gemstone block type"
+                    }
+                    it.asString
+                }.distinct()
+                val blocks = positions(entry, "blocks", MAX_NODE_BLOCKS).distinct()
+                totalBlocks += blocks.size
+                require(totalBlocks <= MAX_TOTAL_NODE_BLOCKS) { "Too many gemstone node blocks" }
+                val node = RepoMiningNode(id, shaft, material, blocks, blockTypes, path)
                 require(nodes.put(id, node) == null) { "Duplicate node $id" }
             }
-        }
-
-        // Keep reading inline legacy nodes while new surveys use one shared scope per file.
-        files["mining/nodes.json"]?.let { text ->
-            val root = document(text)
-            require(root.has("files") || root.has("nodes")) { "Missing node index" }
-
-            if (root.has("nodes")) addNodes(records(root, "nodes"))
-        }
-
-        for (path in shards) {
-            val root = document(files.getValue(path))
-            addNodes(records(root, "nodes"), scope(root), path)
         }
 
         return RepoSnapshot(revision, fetchedAtMillis, patterns, routes, nodes)

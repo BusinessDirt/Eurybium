@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.data.repo
 
+import github.businessdirt.eurybium.data.model.MineshaftType
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URI
@@ -7,7 +8,7 @@ import kotlin.test.*
 
 private const val NODE_PATH = "mining/nodes/JASP1.json"
 private const val NODE_INDEX = """{"schemaVersion":1,"files":["mining/nodes/JASP1.json"]}"""
-private const val NODE_FILE = """{"schemaVersion":1,"island":"MINESHAFT","mineshaft":"JASP1","space":"WORLD","nodes":[{"id":"JASP1/magenta_glass/10_100_20","kind":"GEMSTONE","material":"MAGENTA_GLASS","blockTypes":["minecraft:magenta_stained_glass","minecraft:magenta_stained_glass_pane"],"blocks":[[10,100,20],[11,100,20]]}]}"""
+private const val NODE_FILE = """{"schemaVersion":1,"island":"MINESHAFT","mineshaft":"JASP1","space":"WORLD","nodes":[{"id":"JASP1/magenta_glass/10_100_20","kind":"GEMSTONE","material":"MAGENTA_GLASS","blockTypes":["minecraft:magenta_stained_glass","minecraft:magenta_stained_glass_pane"],"blocks":[[10,100,20],[11,100,20],[10,100,20]]}]}"""
 
 class RepoNodeFilesTest {
     @TempDir lateinit var directory: File
@@ -15,17 +16,18 @@ class RepoNodeFilesTest {
     private fun files() = repoFiles() + mapOf("mining/nodes.json" to NODE_INDEX, NODE_PATH to NODE_FILE)
 
     @Test
-    fun `node file shares validated scope and retains immutable block IDs`() {
+    fun `node files resolve typed mineshafts and retain immutable deduplicated blocks`() {
         val node = RepoParser.parse(REVISION_A, 1, files()).nodes.values.single()
-        assertEquals("JASP1", node.scope.mineshaft)
+        assertEquals(MineshaftType.JASP_1, node.mineshaft)
         assertEquals(NODE_PATH, node.sourceFile)
         assertEquals(2, node.blocks.size)
         assertEquals(listOf("minecraft:magenta_stained_glass", "minecraft:magenta_stained_glass_pane"), node.blockTypes)
         assertFailsWith<UnsupportedOperationException> { (node.blockTypes as MutableList).clear() }
+        assertFailsWith<UnsupportedOperationException> { (node.blocks as MutableList).clear() }
     }
 
     @Test
-    fun `Python exported fixture is accepted without translation`() {
+    fun `existing Python exported fixture remains compatible`() {
         val generated = javaClass.getResource("/repo/world-nodes.json")!!.readText()
         val node = RepoParser.parse(REVISION_A, 1, files() + (NODE_PATH to generated)).nodes.values.single()
         assertEquals("JASP1/red_glass/-1_-16_0", node.id)
@@ -34,48 +36,51 @@ class RepoNodeFilesTest {
     }
 
     @Test
-    fun `index rejects unsafe duplicate and excessive file paths`() {
-        for (path in listOf("../other.json", "https://host/nodes.json", "mining/nodes/a/b.json", "mining/nodes/a%20b.json")) {
+    fun `index accepts one file per known mineshaft and rejects unsafe duplicate or split paths`() {
+        for (path in listOf("../other.json", "https://host/nodes.json", "mining/nodes/a/b.json",
+            "mining/nodes/UNKNOWN.json", "mining/nodes/JASP1-part-001.json", "mining/nodes/crystal-hollows.json")) {
             assertFails { RepoParser.nodeFiles(NODE_INDEX.replace(NODE_PATH, path)) }
         }
         assertFails { RepoParser.nodeFiles("""{"schemaVersion":1,"files":["$NODE_PATH","$NODE_PATH"]}""") }
-        val paths = (0..RepoParser.MAX_NODE_FILES).joinToString { "\"mining/nodes/$it.json\"" }
+        val paths = (0..RepoParser.MAX_NODE_FILES).joinToString { "\"$NODE_PATH\"" }
         assertFails { RepoParser.nodeFiles("""{"schemaVersion":1,"files":[$paths]}""") }
+        assertFails { RepoParser.nodeFiles("""{"schemaVersion":1,"nodes":[]}""") }
+        assertTrue(RepoParser.nodeFiles("""{"schemaVersion":1,"files":[]}""").isEmpty())
     }
 
     @Test
-    fun `missing malformed conflicting scope and invalid block IDs reject candidate`() {
+    fun `unsupported scope kind block types and missing data reject candidate`() {
         assertFails { RepoParser.parse(REVISION_A, 1, files() - NODE_PATH) }
-        for (text in listOf("{bad}", NODE_FILE.replace("JASP1", "UNKNOWN"),
+        for (text in listOf("{bad}", NODE_FILE.replace("\"mineshaft\":\"JASP1\"", "\"mineshaft\":\"JASPC\""),
+            NODE_FILE.replace("MINESHAFT", "CRYSTAL_HOLLOWS"), NODE_FILE.replace("WORLD", "TEMPLATE"),
+            NODE_FILE.replace("GEMSTONE", "ORE"), NODE_FILE.replace("GEMSTONE", "MITHRIL"),
             NODE_FILE.replace("\"kind\":", "\"island\":\"HUB\",\"kind\":"),
-            NODE_FILE.replace("minecraft:magenta_stained_glass", "Not a block"),
+            NODE_FILE.replace("minecraft:magenta_stained_glass", "minecraft:iron_ore"),
             NODE_FILE.replace("\"blockTypes\":[\"minecraft:magenta_stained_glass\",\"minecraft:magenta_stained_glass_pane\"]", "\"blockTypes\":[]"))) {
             assertFails { RepoParser.parse(REVISION_A, 1, files() + (NODE_PATH to text)) }
         }
     }
 
     @Test
-    fun `legacy inline nodes and shards coexist but IDs remain globally unique`() {
-        val index = NODE_INDEX.dropLast(1) + ",\"nodes\":" + JASPER_NODE.substringAfter("\"nodes\":").dropLast(1) + "}"
-        val mixed = files() + ("mining/nodes.json" to index)
-        assertEquals(2, RepoParser.parse(REVISION_A, 1, mixed).nodes.size)
-        val duplicate = NODE_FILE.replace("JASP1/magenta_glass/10_100_20", "jasper-one")
-        assertFails { RepoParser.parse(REVISION_A, 1, mixed + (NODE_PATH to duplicate)) }
-        assertFails { RepoParser.parse(REVISION_A, 1, files() + ("mining/nodes/unlisted.json" to NODE_FILE)) }
+    fun `IDs remain globally unique and unlisted files cannot enter a snapshot`() {
+        val secondPath = "mining/nodes/JASPC.json"
+        val index = """{"schemaVersion":1,"files":["$NODE_PATH","$secondPath"]}"""
+        val second = NODE_FILE.replace("\"mineshaft\":\"JASP1\"", "\"mineshaft\":\"JASPC\"")
+        val combined = files() + mapOf("mining/nodes.json" to index, secondPath to second)
+        assertFails { RepoParser.parse(REVISION_A, 1, combined) }
+        val unique = second.replace("JASP1/magenta_glass", "JASPC/magenta_glass")
+        assertEquals(2, RepoParser.parse(REVISION_A, 1, combined + (secondPath to unique)).nodes.size)
+        assertFails { RepoParser.parse(REVISION_A, 1, files() + (secondPath to unique)) }
     }
 
     @Test
-    fun `empty surveys and template surveys are explicit`() {
-        val empty = """{"schemaVersion":1,"island":"CRYSTAL_HOLLOWS","space":"WORLD","nodes":[]}"""
+    fun `empty mineshaft surveys are valid`() {
+        val empty = """{"schemaVersion":1,"island":"MINESHAFT","mineshaft":"JASP1","space":"WORLD","nodes":[]}"""
         assertTrue(RepoParser.parse(REVISION_A, 1, files() + (NODE_PATH to empty)).nodes.isEmpty())
-        val template = NODE_FILE.replace("\"WORLD\"", "\"TEMPLATE\"")
-        assertFails { RepoParser.parse(REVISION_A, 1, files() + (NODE_PATH to template)) }
-        val valid = template.replace("\"nodes\":", "\"layout\":\"jasper-layout\",\"nodes\":")
-        assertEquals(RepoCoordinateSpace.TEMPLATE, RepoParser.parse(REVISION_A, 1, files() + (NODE_PATH to valid)).nodes.values.single().scope.space)
     }
 
     @Test
-    fun `client downloads pinned node files caches them and retains old data on missing shard`() {
+    fun `client downloads pinned shaft files caches them and preserves old data on missing file`() {
         var revision = REVISION_A
         var missing = false
         val requests = mutableListOf<URI>()
@@ -93,7 +98,7 @@ class RepoNodeFilesTest {
         assertEquals(1, assertNotNull(client.refresh()).nodes.size)
         assertTrue(requests.drop(1).all { "/$REVISION_A/" in it.path })
         val offline = RepoClient(RepoTransport { _, _ -> error("Offline") }, cache).loadCache()
-        assertEquals(2, assertNotNull(offline).nodes.values.single().blockTypes.size)
+        assertEquals(MineshaftType.JASP_1, assertNotNull(offline).nodes.values.single().mineshaft)
         missing = true
         revision = REVISION_B
         assertFails { client.refresh() }
