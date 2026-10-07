@@ -48,7 +48,13 @@ Common library/plugin versions are pinned in `gradle/libs.versions.toml`; Stonec
 
 ## Verification
 
-CI builds all registered targets and runs the lifecycle tests for each target. The lifecycle test uses a fake platform and requires no running Minecraft client. Before releasing, also launch the built mod on the supported client and verify `/eurybium` and mixin application.
+The `Build` GitHub Actions workflow runs on pull requests targeting `master` and can also be
+started manually from the Actions tab. It uses Java 25 and the root `build` task to build and
+run tests for every version in `minecraft_targets`; new targets are included automatically.
+The workflow continues independent targets after a failure, while still failing the overall
+check if any build or test fails.
+
+The lifecycle test uses a fake platform and requires no running Minecraft client. Before releasing, also launch the built mod on the supported client and verify `/eurybium` and mixin application.
 
 ## Development worlds
 
