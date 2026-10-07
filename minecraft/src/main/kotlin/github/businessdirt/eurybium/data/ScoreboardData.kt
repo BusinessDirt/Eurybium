@@ -4,7 +4,7 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.events.HandleEvent.Companion.HIGHEST
-import github.businessdirt.eurybium.api.minecraft.Chat
+import github.businessdirt.eurybium.api.minecraft.chat.Chat
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.events.CommandRegistrationEvent

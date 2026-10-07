@@ -2,7 +2,11 @@
   "required": true,
   "package": "github.businessdirt.eurybium.minecraft.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["ConnectionMixin"],
+  "client": [
+    "ConnectionMixin",
+    "ChatComponentAccessor",
+    "ScreenChatClickMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
