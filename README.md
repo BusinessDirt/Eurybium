@@ -86,3 +86,7 @@ to select a published revision, or read an unpublished index from a local data c
 Local indexes may use absolute `file:` archive URLs for testing before publishing a release.
 Downloads are cached under `.gradle/dev-worlds/`; `--offline` uses the cached index and verified ZIPs.
 Ordinary builds do not download or install worlds.
+
+## Repository data
+
+See [Repository data API](docs/repository-data.md) for refresh/caching behavior, typed accessors, update events, and JSON formats.

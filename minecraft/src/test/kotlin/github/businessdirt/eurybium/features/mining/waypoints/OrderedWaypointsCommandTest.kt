@@ -63,6 +63,29 @@ class OrderedWaypointsCommandTest {
     }
 
     @Test
+    fun `namespaced repository IDs and quoted saved names parse without extra quoting`() {
+        val dispatcher = dispatcher()
+        for (name in listOf("eurybium:JASP1", "eurybium:SHAFT_SPAWN_MITHRIL", "\"missing saved route\"")) {
+            assertEquals(1, dispatcher.execute("eybo load $name", commandSource()))
+        }
+    }
+
+    @Test
+    fun `reserved namespace cannot overwrite or erase legacy saved routes`() {
+        val original = EurybiumMod.orderedWaypointsRoutes.routes
+        try {
+            val legacy = Waypoints<github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint>()
+            EurybiumMod.orderedWaypointsRoutes.routes = mutableMapOf("EURYBIUM:legacy" to legacy)
+            OrderedWaypoints.save("EURYBIUM:legacy")
+            OrderedWaypoints.erase("EURYBIUM:legacy")
+            assertTrue(EurybiumMod.orderedWaypointsRoutes.routes!!["EURYBIUM:legacy"] === legacy)
+            assertTrue("EURYBIUM:legacy" !in OrderedWaypoints.getRouteNames())
+        } finally {
+            EurybiumMod.orderedWaypointsRoutes.routes = original
+        }
+    }
+
+    @Test
     fun `registered formats import and export independently of system locale`() {
         val original = Locale.getDefault()
         try {

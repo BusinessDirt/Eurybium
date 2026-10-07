@@ -9,7 +9,7 @@ object SuggestionProviders {
         return SuggestionProvider { _, builder ->
             val remaining = builder.remainingLowerCase
             for (option in supplier()) {
-                if (option.startsWith(remaining)) {
+                if (option.startsWith(remaining, ignoreCase = true)) {
                     builder.suggest(option)
                 }
             }

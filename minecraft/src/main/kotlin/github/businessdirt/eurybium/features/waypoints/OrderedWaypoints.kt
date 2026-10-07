@@ -3,6 +3,9 @@ package github.businessdirt.eurybium.features.waypoints
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.repo.RepoAPI
+import github.businessdirt.eurybium.api.repo.RepoWaypointRoute
+import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds
 import github.businessdirt.eurybium.config.features.waypoints.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.concurrency.BackgroundTasks
@@ -71,15 +74,21 @@ object OrderedWaypoints {
     fun onWorldChangeEvent(event: WorldChangeEvent) = unload(sendMessage = false)
 
     /** Returns a snapshot suitable for command suggestions. */
-    fun getRouteNames(): List<String> = EurybiumMod.orderedWaypointsRoutes.routes?.keys?.toList().orEmpty()
+    fun getRouteNames(): List<String> = (
+        EurybiumMod.orderedWaypointsRoutes.routes?.keys.orEmpty().filterNot(MiningRouteIds::isReserved) + RepoAPI.snapshot.routes.keys
+    ).distinct().sorted()
 
     /** Loads a named saved route, or parses the clipboard when [name] is blank. */
     fun load(name: String) {
         val revision = ++loadRevision
         if (name.isNotBlank()) {
-            val saved = EurybiumMod.orderedWaypointsRoutes.routes?.get(name)
+            val saved = if (MiningRouteIds.isReserved(name)) {
+                RepoWaypointRoute(name).waypoints()
+            } else {
+                EurybiumMod.orderedWaypointsRoutes.routes?.get(name)
+            }
             if (saved == null) {
-                EurybiumMod.logger.error("Route '{}' does not exist. Saved routes: {}", name, getRouteNames().joinToString(", "))
+                EurybiumMod.logger.error("Route '{}' is unavailable or needs a template placement. Available routes: {}", name, getRouteNames().joinToString(", "))
                 return
             }
 
@@ -199,6 +208,11 @@ object OrderedWaypoints {
 
     /** Persists an independent snapshot, initializing the route map even before joining Hypixel. */
     fun save(name: String) {
+        if (MiningRouteIds.isReserved(name)) {
+            EurybiumMod.logger.error("The eurybium: namespace is reserved for repository routes.")
+            return
+        }
+
         if (name.isBlank()) {
             EurybiumMod.logger.error("Route name must not be blank.")
             return
@@ -215,6 +229,11 @@ object OrderedWaypoints {
 
     /** Deletes a saved route without unloading the active copy. */
     fun erase(name: String) {
+        if (MiningRouteIds.isReserved(name)) {
+            EurybiumMod.logger.error("Repository routes cannot be erased. Rename legacy saved routes outside eurybium: first.")
+            return
+        }
+
         if (EurybiumMod.orderedWaypointsRoutes.routes?.remove(name) == null) {
             EurybiumMod.logger.error("Route '{}' does not exist.", name)
             return

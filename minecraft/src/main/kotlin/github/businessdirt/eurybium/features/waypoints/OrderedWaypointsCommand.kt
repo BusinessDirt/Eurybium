@@ -21,8 +21,8 @@ object OrderedWaypointsCommand {
             aliases = mutableListOf("eybo")
 
             literal("load", "import") {
-                description = "Load a saved route, or import the clipboard when no name is supplied."
-                arg("name", string(), dynamic(OrderedWaypoints::getRouteNames)) { name ->
+                description = "Load a saved or repository route, or import the clipboard when no name is supplied."
+                arg("name", WaypointRouteArgument, dynamic(OrderedWaypoints::getRouteNames)) { name ->
                     callback { OrderedWaypoints.load(getArg(name)) }
                 }
 
@@ -86,14 +86,14 @@ object OrderedWaypointsCommand {
 
             literal("save") {
                 description = "Saves the loaded ordered waypoints to your config."
-                arg("name", string()) { name ->
+                arg("name", WaypointRouteArgument) { name ->
                     callback { OrderedWaypoints.save(getArg(name)) }
                 }
             }
 
             literal("erase", "delete-route") {
                 description = "Erases the route with the specified name."
-                arg("name", string(), dynamic(OrderedWaypoints::getRouteNames)) { name ->
+                arg("name", WaypointRouteArgument, dynamic(OrderedWaypoints::getRouteNames)) { name ->
                     callback { OrderedWaypoints.erase(getArg(name)) }
                 }
             }
