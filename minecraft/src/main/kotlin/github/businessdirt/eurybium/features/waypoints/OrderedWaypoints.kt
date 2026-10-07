@@ -1,9 +1,9 @@
-package github.businessdirt.eurybium.features.mining.waypoints
+package github.businessdirt.eurybium.features.waypoints
 
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.config.features.mining.OrderedWaypointsConfig
+import github.businessdirt.eurybium.config.features.waypoints.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.core.concurrency.BackgroundTasks
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
@@ -25,7 +25,7 @@ import java.util.ServiceLoader
 @EurybiumModule
 object OrderedWaypoints {
 
-    private val config get() = EurybiumMod.config.mining.orderedWaypoints
+    private val config get() = EurybiumMod.config.orderedWaypoints
     private val route = OrderedWaypointRoute()
     private var loadRevision = 0L
 
@@ -48,8 +48,9 @@ object OrderedWaypoints {
             }
 
             val waypoint = route.waypoints[index]
+            // Route blocks often overlap solid terrain; both overlays must remain visible through it.
             when (config.renderMode) {
-                OrderedWaypointsConfig.RenderMode.FILL -> event.drawWaypointFilled(waypoint, color, true)
+                OrderedWaypointsConfig.RenderMode.FILL -> event.drawWaypointFilled(waypoint, color, depth = false)
                 OrderedWaypointsConfig.RenderMode.OUTLINE -> event.drawWaypointOutlined(waypoint, color, config.blockOutlineThickness.toInt(), false)
                 OrderedWaypointsConfig.RenderMode.GLOW -> event.drawWaypointGlowing(waypoint, color)
             }

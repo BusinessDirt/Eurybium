@@ -6,6 +6,8 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.commands.commandSource
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.data.model.waypoints.Waypoints
+import github.businessdirt.eurybium.features.waypoints.OrderedWaypoints
+import github.businessdirt.eurybium.features.waypoints.OrderedWaypointsCommand
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.util.Locale
 import kotlin.test.Test

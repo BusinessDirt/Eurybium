@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.features.mining.waypoints
+package github.businessdirt.eurybium.features.waypoints
 
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.commands.SuggestionProviders.dynamic

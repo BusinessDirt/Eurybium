@@ -6,6 +6,7 @@ import github.businessdirt.eurybium.config.features.About
 import github.businessdirt.eurybium.config.features.dev.DevConfig
 import github.businessdirt.eurybium.config.features.gui.GuiConfig
 import github.businessdirt.eurybium.config.features.mining.MiningConfig
+import github.businessdirt.eurybium.config.features.waypoints.OrderedWaypointsConfig
 import github.businessdirt.eurybium.config.manager.ConfigFileType
 import github.businessdirt.eurybium.generated.BuildInfo
 import io.github.notenoughupdates.moulconfig.Config
@@ -29,6 +30,9 @@ class EurybiumConfig : Config() {
 
     @Category(name = "Mining", desc = "Features for the mining skill")
     @Expose var mining: MiningConfig = MiningConfig()
+
+    @Category(name = "Ordered Waypoints", desc = "Ordered routes and waypoint rendering in any world")
+    @Expose var orderedWaypoints: OrderedWaypointsConfig = OrderedWaypointsConfig()
 
     @Category(name = "Dev", desc = "Developer debug and test tools")
     @Expose var dev: DevConfig = DevConfig()

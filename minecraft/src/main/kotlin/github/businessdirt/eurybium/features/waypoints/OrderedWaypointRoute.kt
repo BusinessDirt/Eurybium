@@ -1,4 +1,4 @@
-package github.businessdirt.eurybium.features.mining.waypoints
+package github.businessdirt.eurybium.features.waypoints
 
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.data.model.waypoints.Waypoints

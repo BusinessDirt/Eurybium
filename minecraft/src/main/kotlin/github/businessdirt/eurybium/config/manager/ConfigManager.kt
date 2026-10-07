@@ -1,6 +1,7 @@
 package github.businessdirt.eurybium.config.manager
 
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.config.EurybiumConfig
@@ -65,7 +66,9 @@ class ConfigManager {
                 val lenientGson = BaseGsonBuilder.lenientGson().create()
 
                 logger.info("load-$fileName-now")
-                output = lenientGson.fromJson(text, defaultValue.javaClass)
+                val json = lenientGson.fromJson(text, JsonElement::class.java)
+                if (fileType == ConfigFileType.CONFIG) ConfigMigrations.moveOrderedWaypoints(json)
+                output = lenientGson.fromJson(json, defaultValue.javaClass)
                 logger.info("Loaded $fileName from file")
 
             } catch (e: Exception) {

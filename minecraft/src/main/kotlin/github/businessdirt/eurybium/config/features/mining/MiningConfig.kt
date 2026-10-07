@@ -12,9 +12,6 @@ class MiningConfig {
     @ConfigOption(name = "Pickaxe Ability Notification", desc = "Notification when the pickaxe ability cooldown is ready")
     @Expose var pickaxeAbilityNotification: Boolean = false
 
-    @Category(name = "Ordered Waypoints", desc = "")
-    @Expose var orderedWaypoints: OrderedWaypointsConfig = OrderedWaypointsConfig()
-
     @Category(name = "Glacite Mineshaft", desc = "")
     @Expose var glaciteMineshaft: MineshaftConfig = MineshaftConfig()
 }

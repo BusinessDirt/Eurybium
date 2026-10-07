@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.features.mining.waypoints
 
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import github.businessdirt.eurybium.data.model.waypoints.Waypoints
+import github.businessdirt.eurybium.features.waypoints.OrderedWaypointRoute
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
 import kotlin.test.Test
