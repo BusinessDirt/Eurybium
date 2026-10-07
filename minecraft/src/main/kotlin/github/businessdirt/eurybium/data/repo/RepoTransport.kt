@@ -25,10 +25,12 @@ internal class HttpRepoTransport : RepoTransport {
             .header("Accept", "application/json")
             .apply { if (etag != null) header("If-None-Match", etag) }
             .build()
+
         val future = client.sendAsync(
             request,
             HttpResponse.BodyHandlers.limiting(HttpResponse.BodyHandlers.ofByteArray(), RepoParser.MAX_FILE_BYTES.toLong()),
         )
+
         try {
             val response = future.get(25, TimeUnit.SECONDS)
             return RepoResponse(response.statusCode(), response.body().toString(Charsets.UTF_8), response.headers().firstValue("ETag").orElse(null))

@@ -10,6 +10,7 @@ internal class RepoClient(
     private val nowMillis: () -> Long = System::currentTimeMillis,
     private val onCacheFailure: (Exception) -> Unit = {},
 ) {
+
     private var cached: CachedRepo? = null
 
     /** Revalidates cached files before exposing them; malformed caches must not become live data. */
@@ -18,6 +19,7 @@ internal class RepoClient(
         val candidate = cache.read() ?: return null
         val snapshot = candidate.snapshot()
         cached = candidate
+
         return snapshot
     }
 
@@ -29,9 +31,12 @@ internal class RepoClient(
             check(cached != null) { "GitHub returned Not Modified without a cache" }
             return null
         }
+
         check(head.status == 200) { "Repository revision request failed: HTTP ${head.status}" }
+
         val revision = JsonParser.parseString(head.body).asJsonObject.get("sha").asString
         require(RepoParser.validRevision(revision)) { "Invalid GitHub commit" }
+
         val previous = cached
         if (previous != null && revision == previous.revision) {
             // Branch metadata can get a new ETag without changing the underlying commit.
@@ -40,32 +45,34 @@ internal class RepoClient(
                 persist(refreshed)
                 cached = refreshed
             }
+
             return null
         }
 
         val files = linkedMapOf<String, String>()
         for (path in RepoParser.requiredFiles + RepoParser.optionalFiles) {
             val response = transport.get(URI("$RAW_URL/$revision/$path"), null)
-            when {
-                response.status == 200 -> files[path] = response.body
-                response.status == 404 && path in RepoParser.optionalFiles -> Unit
+            when (response.status) {
+                200 -> files[path] = response.body
+                404 if path in RepoParser.optionalFiles -> Unit
                 else -> error("Repository file $path failed: HTTP ${response.status}")
             }
         }
+
         val candidate = CachedRepo(revision, head.etag, nowMillis(), files)
         val snapshot = candidate.snapshot()
+
         persist(candidate)
         cached = candidate
+
         return snapshot
     }
 
-    private fun persist(candidate: CachedRepo) {
-        try {
-            cache.save(candidate)
-        } catch (failure: Exception) {
-            // Fresh validated data remains usable when persistence fails; keep the old disk cache.
-            onCacheFailure(failure)
-        }
+    private fun persist(candidate: CachedRepo) = try {
+        cache.save(candidate)
+    } catch (failure: Exception) {
+        // Fresh validated data remains usable when persistence fails; keep the old disk cache.
+        onCacheFailure(failure)
     }
 
     companion object {

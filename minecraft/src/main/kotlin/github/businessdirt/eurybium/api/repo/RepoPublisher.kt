@@ -8,8 +8,10 @@ internal class RepoPublisher(
     private val execute: (() -> Unit) -> Unit,
     private val onUpdate: (RepoUpdateEvent) -> Unit,
 ) {
+
     @Volatile var snapshot: RepoSnapshot = RepoSnapshot.EMPTY
         private set
+
     @Volatile private var closed = false
 
     fun publish(candidate: RepoSnapshot, source: RepoUpdateEvent.Source) = execute {

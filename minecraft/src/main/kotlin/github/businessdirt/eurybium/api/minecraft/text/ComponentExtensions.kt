@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.api.minecraft.text
 
-import github.businessdirt.eurybium.api.minecraft.chat.Chat
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
 import github.businessdirt.eurybium.core.types.SimpleTimeMark
 import net.minecraft.ChatFormatting
@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Style
 import java.net.URI
 import kotlin.time.Duration.Companion.milliseconds
 
-/** Styled text construction; chat delivery and action lifetime belong to [Chat]. */
+/** Styled text construction; chat delivery and action lifetime belong to [ChatAPI]. */
 object ComponentExtensions {
     private val resetStyle = Style.EMPTY.withColor(ChatFormatting.WHITE).withBold(false).withItalic(false)
         .withUnderlined(false).withStrikethrough(false).withObfuscated(false)
@@ -104,7 +104,7 @@ object ComponentExtensions {
         expireAt: SimpleTimeMark = SimpleTimeMark.farFuture(),
         oneTimeClick: Boolean = false,
         onClick: () -> Unit,
-    ): MutableComponent = apply { style = style.withClickEvent(Chat.createClickAction(expireAt, oneTimeClick, onClick)) }
+    ): MutableComponent = apply { style = style.withClickEvent(ChatAPI.createClickAction(expireAt, oneTimeClick, onClick)) }
 
     fun MutableComponent.copyToClipboard(text: String): MutableComponent = apply {
         style = style.withClickEvent(ClickEvent.CopyToClipboard(text))
@@ -123,13 +123,13 @@ object ComponentExtensions {
     }
 
     /** Sends unprefixed local chat; safe to call from a background task. */
-    fun Component.addToChat() = Chat.chat(this, prefix = false)
+    fun Component.addToChat() = ChatAPI.chat(this, prefix = false)
 
     /** Sends an unprefixed local message with a replaceable ID. */
-    fun Component.send(messageId: Int? = null) = Chat.chat(this, prefix = false, messageId = messageId)
+    fun Component.send(messageId: Int? = null) = ChatAPI.chat(this, prefix = false, messageId = messageId)
 
     /** True for a component currently tracked as an Eurybium-created chat entry. */
-    val Component.eurybiumCreated: Boolean get() = Chat.isOwnMessage(this)
+    val Component.eurybiumCreated: Boolean get() = ChatAPI.isOwnMessage(this)
 
     val GuiMessage.chatMessage: String get() = content().legacyString()
 

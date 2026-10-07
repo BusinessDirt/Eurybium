@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.api.minecraft
 import com.mojang.blaze3d.platform.ClipboardManager
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.core.concurrency.BackgroundTasks
 import net.minecraft.util.Util
 
@@ -16,9 +17,9 @@ object PlatformActions {
         BackgroundTasks.launch("copyToClipboard") {
             try {
                 ClipboardManager().setClipboard(getMinecraft().window, text)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 if (step == 3) {
-                    EurybiumMod.logger.atError().withThrowable(e).log("Error while trying to access the clipboard.")
+                    ChatAPI.userError("Error while trying to access the clipboard.")
                 } else {
                     copyToClipboard(text, step + 1)
                 }
@@ -31,7 +32,7 @@ object PlatformActions {
         val clipboard = ClipboardManager().getClipboard(getMinecraft().window) { _, _ -> shouldRetry = true }
         if (shouldRetry) {
             if (step == 3) {
-                EurybiumMod.logger.error("Cannot read from clipboard. Clipboard can not be accessed after 3 retries")
+                ChatAPI.userError("Cannot read from clipboard. Clipboard can not be accessed after 3 retries")
                 return null
             } else {
                 return readFromClipboard(step + 1)

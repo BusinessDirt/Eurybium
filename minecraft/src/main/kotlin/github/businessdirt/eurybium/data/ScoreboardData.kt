@@ -4,7 +4,7 @@ import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.events.HandleEvent.Companion.HIGHEST
-import github.businessdirt.eurybium.api.minecraft.chat.Chat
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
@@ -38,10 +38,10 @@ object ScoreboardData {
     @HandleEvent
     private fun onCommandRegistrationEvent(event: CommandRegistrationEvent) = event.register("eybdumpscoreboard") {
         category = CommandCategory.DEVELOPER_DEBUG
-        description = "Test block model outlines and profile their CPU preparation/submission."
+        description = "Dump scoreboard contents to logs."
         simpleCallback {
             sidebarLinesFormatted.forEach { EurybiumMod.logger.info(it) }
-            Chat.debug("Dumped Scoreboard to logs")
+            ChatAPI.debug("Dumped Scoreboard to logs")
         }
     }
 

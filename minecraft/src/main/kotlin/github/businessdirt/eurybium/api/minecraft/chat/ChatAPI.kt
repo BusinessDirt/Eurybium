@@ -20,7 +20,6 @@ import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.events.minecraft.AllowChatMessageEvent
 import github.businessdirt.eurybium.events.minecraft.AllowGameMessageEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
-import github.businessdirt.eurybium.events.minecraft.TickEvent
 import github.businessdirt.eurybium.minecraft.mixin.ChatComponentAccessor
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents
@@ -39,7 +38,7 @@ import kotlin.reflect.jvm.javaField
 
 /** Local chat and explicit server sending, with client-thread delivery and session-scoped action state. */
 @EurybiumModule
-object Chat {
+object ChatAPI {
     private val actions = ChatActionRegistry()
     private val messages = ChatMessageState()
     private val outgoing = ChatSendQueue()

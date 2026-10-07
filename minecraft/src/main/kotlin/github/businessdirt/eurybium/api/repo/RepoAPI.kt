@@ -4,6 +4,7 @@ import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.config.manager.ConfigManager
 import github.businessdirt.eurybium.core.concurrency.BackgroundTasks
 import github.businessdirt.eurybium.data.repo.HttpRepoTransport
@@ -30,6 +31,7 @@ import kotlin.time.Duration.Companion.minutes
 /** Cached repository data with background refreshes and atomic client-thread publication. */
 @EurybiumModule
 object RepoAPI {
+
     private val publication = RepoPublisher({ task -> getMinecraft().execute(task) }) { event -> event.post() }
     val snapshot: RepoSnapshot get() = publication.snapshot
 
@@ -37,18 +39,19 @@ object RepoAPI {
     var lastFailure: String? = null
         private set
 
-    private val busy = AtomicBoolean(false)
     @Volatile private var stopped = false
+    private val busy = AtomicBoolean(false)
     private var updateJob: Job? = null
     private var pollingJob: Job? = null
+
     private val client by lazy {
         RepoClient(HttpRepoTransport(), RepoCache(File(ConfigManager.configDirectory, "repo/cache.json"))) { failure ->
             EurybiumMod.logger.warn("Could not save the repository cache", failure)
         }
     }
 
-    @HandleEvent
-    fun onPostModInitialization(event: PostModInitializationEvent) {
+    @HandleEvent(eventType = PostModInitializationEvent::class)
+    fun onPostModInitialization() {
         startUpdate(restoreCache = true)
         pollingJob = BackgroundTasks.launch("repo-poll", timeout = Duration.INFINITE) {
             while (isActive) {
@@ -90,9 +93,9 @@ object RepoAPI {
 
     private fun publish(candidate: RepoSnapshot, source: RepoUpdateEvent.Source) = publication.publish(candidate, source)
 
-    @HandleEvent
     @Synchronized
-    fun onModShutdown(event: ModShutdownEvent) {
+    @HandleEvent(eventType = ModShutdownEvent::class)
+    fun onModShutdown() {
         stopped = true
         publication.close()
         pollingJob?.cancel()
@@ -100,22 +103,23 @@ object RepoAPI {
     }
 
     @HandleEvent
-    fun onCommandRegistration(event: CommandRegistrationEvent) {
-        event.register("eybrepo") {
-            category = CommandCategory.USERS_ACTIVE
-            description = "Inspect or refresh repository data."
+    fun onCommandRegistration(event: CommandRegistrationEvent) = event.register("eybrepo") {
+        category = CommandCategory.USERS_ACTIVE
+        description = "Inspect or refresh repository data."
+
+        callback {
+            val repo = snapshot
+            val status = "Repo: ${repo.revision.ifEmpty { "not loaded" }} " +
+                "(${repo.patterns.size} patterns, ${repo.routes.size} routes, ${repo.nodes.size} nodes)"
+            val failure = lastFailure?.let { " Last refresh failed: $it" }.orEmpty()
+
+            ChatAPI.userError(status + failure)
+        }
+
+        literal("refresh") {
             callback {
-                val repo = snapshot
-                val status = "[Eurybium] Repo: ${repo.revision.ifEmpty { "not loaded" }}; " +
-                    "${repo.patterns.size} patterns, ${repo.routes.size} routes, ${repo.nodes.size} nodes."
-                val failure = lastFailure?.let { " Last refresh failed: $it" }.orEmpty()
-                (context.source as FabricClientCommandSource).sendFeedback(Component.literal(status + failure))
-            }
-            literal("refresh") {
-                callback {
-                    val message = if (refresh()) "Repository refresh started." else "Repository refresh is already running or unavailable."
-                    (context.source as FabricClientCommandSource).sendFeedback(Component.literal("[Eurybium] $message"))
-                }
+                val message = if (refresh()) "Repository refresh started." else "Repository refresh is already running or unavailable."
+                ChatAPI.chat(message)
             }
         }
     }

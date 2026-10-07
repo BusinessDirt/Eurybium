@@ -1,6 +1,6 @@
 package github.businessdirt.eurybium.api.minecraft.text
 
-import github.businessdirt.eurybium.api.minecraft.chat.Chat
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.asComponent
 import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.asLiteralComponent
 import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.command
@@ -76,15 +76,15 @@ class ComponentExtensionsTest {
     fun `formatting a chat message copies siblings and does not color the message with its prefix`() {
         val child = Component.literal("child")
         val original = Component.literal("body").append(child)
-        val formatted = Chat.formatted(original, true, ChatFormatting.RED.color)
+        val formatted = ChatAPI.formatted(original, true, ChatFormatting.RED.color)
         child.append("changed")
         original.append("more")
         assertEquals("[Eurybium] bodychild", formatted.string)
         val parts = segments(formatted)
         assertEquals(ChatFormatting.RED.color, parts.first().second.color?.value)
         assertNull(parts[1].second.color)
-        assertEquals(ChatFormatting.GREEN.color, Chat.legacyColor("§a"))
-        assertFailsWith<IllegalArgumentException> { Chat.legacyColor("") }
-        assertFailsWith<IllegalArgumentException> { Chat.legacyColor("§l") }
+        assertEquals(ChatFormatting.GREEN.color, ChatAPI.legacyColor("§a"))
+        assertFailsWith<IllegalArgumentException> { ChatAPI.legacyColor("") }
+        assertFailsWith<IllegalArgumentException> { ChatAPI.legacyColor("§l") }
     }
 }

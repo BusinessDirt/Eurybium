@@ -10,15 +10,19 @@ import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds
 
 /** Strict validation happens off-thread before a revision can replace the last-known-good data. */
 internal object RepoParser {
+
     const val MAX_FILE_BYTES = 8 * 1024 * 1024
+
     val requiredFiles = listOf("patterns/chat.json", "patterns/scoreboard.json")
     val optionalFiles = listOf("mining/routes.json", "mining/nodes.json")
+
     private val shaftRouteIds = MineshaftType.entries.map { it.internalRouteId }.toSet()
     private val spawningRouteIds = setOf(
         MiningRouteIds.SHAFT_SPAWN_MITHRIL,
         MiningRouteIds.SHAFT_SPAWN_TUNGSTEN,
         MiningRouteIds.SHAFT_SPAWN_GEMSTONES,
     )
+
     private val materialPattern = Regex("[A-Z0-9_]{1,64}")
     private val revisionPattern = Regex("[a-fA-F0-9]{40}")
     private val idPattern = Regex("[A-Za-z0-9_.:/-]{1,128}")
@@ -31,6 +35,7 @@ internal object RepoParser {
         require(fetchedAtMillis >= 0) { "Invalid repository timestamp" }
         require(files.keys.all { it in requiredFiles || it in optionalFiles }) { "Unknown repository file" }
         require(requiredFiles.all { it in files }) { "Missing pattern catalog" }
+
         val patterns = linkedMapOf<String, RepoPatternData>()
         for (path in requiredFiles) {
             for (entry in records(files.getValue(path), "patterns")) {
@@ -40,6 +45,7 @@ internal object RepoParser {
                 require(patterns.put(id, RepoPatternData(id, source, Regex(source))) == null) { "Duplicate pattern $id" }
             }
         }
+
         val routes = linkedMapOf<String, RepoRoute>()
         files["mining/routes.json"]?.let { text ->
             val allowed = shaftRouteIds + spawningRouteIds
@@ -59,6 +65,7 @@ internal object RepoParser {
                 require(routes.put(id, RepoRoute(id, scope, positions(entry, "points", 10_000))) == null) { "Duplicate route $id" }
             }
         }
+
         val nodes = linkedMapOf<String, RepoMiningNode>()
         var totalBlocks = 0
         files["mining/nodes.json"]?.let { text ->
@@ -73,36 +80,45 @@ internal object RepoParser {
                 require(nodes.put(id, node) == null) { "Duplicate node $id" }
             }
         }
+
         return RepoSnapshot(revision, fetchedAtMillis, patterns, routes, nodes)
     }
 
     private fun records(text: String, key: String): List<JsonObject> {
         require(text.toByteArray(Charsets.UTF_8).size <= MAX_FILE_BYTES) { "Repository file is too large" }
+
         val root = JsonParser.parseString(text).asJsonObject
         require(root.get("schemaVersion")?.integer() == 1) { "Unsupported repository schema" }
+
         val array = root.getAsJsonArray(key) ?: error("Missing $key array")
         require(array.size() <= 20_000) { "Too many $key records" }
+
         return array.map { it.asJsonObject }
     }
 
     private fun scope(entry: JsonObject): RepoScope {
         val island = IslandType.valueOf(entry.string("island"))
         require(island.isValidIsland()) { "Invalid repository island" }
+
         val space = RepoCoordinateSpace.valueOf(entry.string("space"))
         val layout = entry.optionalString("layout")
         require(space != RepoCoordinateSpace.TEMPLATE || layout != null) { "Template needs a layout ID" }
+
         val shaft = entry.optionalString("mineshaft")
         require(shaft == null || "eurybium:$shaft" in shaftRouteIds) { "Unknown mineshaft $shaft" }
         require(island != IslandType.MINESHAFT || shaft != null) { "Mineshaft data needs a shaft variant" }
+
         return RepoScope(island, entry.optionalString("region"), shaft, space, layout)
     }
 
     private fun positions(entry: JsonObject, key: String, limit: Int): List<RepoPosition> {
         val array = entry.getAsJsonArray(key) ?: error("Missing $key")
         require(array.size() in 1..limit) { "Invalid $key count" }
+
         return array.map { item ->
             val point = item.asJsonArray
             require(point.size() == 3) { "Coordinates must contain three integers" }
+
             RepoPosition(point[0].integer(), point[1].integer(), point[2].integer())
         }
     }
@@ -115,6 +131,7 @@ internal object RepoParser {
     private fun JsonObject.string(key: String): String {
         val value = get(key) ?: error("Missing $key")
         require(value.isJsonPrimitive && value.asJsonPrimitive.isString) { "Expected string for $key" }
+
         return value.asString
     }
 

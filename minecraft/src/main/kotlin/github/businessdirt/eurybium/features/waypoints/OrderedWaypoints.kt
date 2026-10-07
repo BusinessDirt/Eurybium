@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.features.waypoints
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.repo.RepoAPI
 import github.businessdirt.eurybium.api.repo.RepoWaypointRoute
 import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds
@@ -87,14 +88,14 @@ object OrderedWaypoints {
             } else {
                 EurybiumMod.orderedWaypointsRoutes.routes?.get(name)
             }
+
             if (saved == null) {
-                EurybiumMod.logger.error("Route '{}' is unavailable or needs a template placement. Available routes: {}", name, getRouteNames().joinToString(", "))
+                ChatAPI.userError("Route '$name' is unavailable or needs a template placement.")
                 return
             }
 
             route.load(saved)
-            EurybiumMod.logger.info("Loaded ordered waypoints from '{}'.", name)
-
+            ChatAPI.chat("Loaded ordered waypoints from '$name'.")
             return
         }
 
@@ -107,10 +108,10 @@ object OrderedWaypoints {
                 // A newer load, unload, edit, or world change takes precedence over this result.
                 if (revision == loadRevision) {
                     if (imported == null) {
-                        EurybiumMod.logger.error("Cannot parse waypoints. Supported formats: {}", getWaypointFormats().joinToString(", "))
+                        ChatAPI.userError("Cannot parse waypoints. Supported formats: ${getWaypointFormats().joinToString(", ")}")
                     } else {
                         route.load(imported)
-                        EurybiumMod.logger.info("Loaded ordered waypoints from clipboard.")
+                        ChatAPI.chat("Loaded ordered waypoints from clipboard.")
                     }
                 }
             }
@@ -132,23 +133,23 @@ object OrderedWaypoints {
 
     private fun move(amount: Int, backwards: Boolean) {
         if (amount < 1) {
-            EurybiumMod.logger.error("Waypoint count must be at least 1.")
+            ChatAPI.userError("Waypoint count must be at least 1.")
             return
         }
 
         if (!route.move(if (backwards) -amount.toLong() else amount.toLong())) {
-            EurybiumMod.logger.error("There are no waypoints to navigate.")
+            ChatAPI.userError("There are no waypoints to navigate.")
             return
         }
 
         loadRevision++
-        EurybiumMod.logger.info("{} {} waypoint(s).", if (backwards) "Unskipped" else "Skipped", amount)
+        ChatAPI.chat("${if (backwards) "Unskipped" else "Skipped"} $amount waypoint(s).")
     }
 
     /** Selects a one-based position in the active route. */
     fun skipTo(number: Int) {
         if (!route.skipTo(number)) {
-            EurybiumMod.logger.error("Waypoint number must be between 1 and {}.", route.waypoints.size)
+            ChatAPI.userError("Waypoint number must be between 1 and ${route.waypoints.size}.")
             return
         }
 
@@ -159,30 +160,30 @@ object OrderedWaypoints {
     /** Deletes a one-based route position and renumbers the remaining waypoints. */
     fun delete(number: Int) {
         if (!route.delete(number)) {
-            EurybiumMod.logger.error("Waypoint number must be between 1 and {}.", route.waypoints.size)
+            ChatAPI.userError("Waypoint number must be between 1 and ${route.waypoints.size}.")
             return
         }
 
         loadRevision++
-        EurybiumMod.logger.info("Removed waypoint {}.", number)
+        ChatAPI.chat("Removed waypoint ${number}.")
     }
 
     /** Inserts a waypoint at the block beneath the player; does nothing when no player exists. */
     fun add(number: Int) {
         val player = getMinecraft().player
         if (player == null) {
-            EurybiumMod.logger.error("Join a world before adding waypoints.")
+            ChatAPI.userError("Join a world before adding waypoints.")
             return
         }
 
         val position = BlockPos.containing(player.position().add(0.0, -1.0, 0.0))
         if (!route.add(number, position)) {
-            EurybiumMod.logger.error("Insertion number must be between 1 and {}.", route.waypoints.size + 1)
+            ChatAPI.userError("Insertion number must be between 1 and ${route.waypoints.size + 1}.")
             return
         }
 
         loadRevision++
-        EurybiumMod.logger.info("Inserted waypoint {} at {}, {}, {}.", number, position.x, position.y, position.z)
+        ChatAPI.chat("Inserted waypoint $number at ${position.x}, ${position.y}, ${position.z}.")
     }
 
     /** Exports a stable snapshot, then writes the clipboard on the client thread. */
@@ -190,7 +191,7 @@ object OrderedWaypoints {
         val selected = format.ifBlank { "coleweight" }.lowercase(Locale.ROOT)
         val provider = formats.firstOrNull { it.name == selected }
         if (provider == null) {
-            EurybiumMod.logger.error("Unknown waypoint format '{}'. Formats: {}", format, getWaypointFormats().joinToString(", "))
+            ChatAPI.userError("Unknown waypoint format '$format'. Formats: ${getWaypointFormats().joinToString(", ")}")
             return
         }
 
@@ -201,7 +202,7 @@ object OrderedWaypoints {
             val encoded = provider.export(snapshot)
             minecraft.execute {
                 minecraft.keyboardHandler.clipboard = encoded
-                EurybiumMod.logger.info("Route was copied to clipboard.")
+                ChatAPI.chat("Route was copied to clipboard.")
             }
         }
     }
@@ -209,12 +210,12 @@ object OrderedWaypoints {
     /** Persists an independent snapshot, initializing the route map even before joining Hypixel. */
     fun save(name: String) {
         if (MiningRouteIds.isReserved(name)) {
-            EurybiumMod.logger.error("The eurybium: namespace is reserved for repository routes.")
+            ChatAPI.userError("The eurybium: namespace is reserved for repository routes.")
             return
         }
 
         if (name.isBlank()) {
-            EurybiumMod.logger.error("Route name must not be blank.")
+            ChatAPI.userError("Route name must not be blank.")
             return
         }
 
@@ -224,23 +225,23 @@ object OrderedWaypoints {
         routes[name] = route.waypoints.deepCopy()
         saveRoutes()
 
-        EurybiumMod.logger.info("Route saved as '{}'. Use /eybo load to select it.", name)
+        ChatAPI.chat("Route saved as '$name'. Use /eybo load to select it.")
     }
 
     /** Deletes a saved route without unloading the active copy. */
     fun erase(name: String) {
         if (MiningRouteIds.isReserved(name)) {
-            EurybiumMod.logger.error("Repository routes cannot be erased. Rename legacy saved routes outside eurybium: first.")
+            ChatAPI.userError("Repository routes cannot be erased. Rename legacy saved routes outside eurybium: first.")
             return
         }
 
         if (EurybiumMod.orderedWaypointsRoutes.routes?.remove(name) == null) {
-            EurybiumMod.logger.error("Route '{}' does not exist.", name)
+            ChatAPI.userError("Route '$name' does not exist.")
             return
         }
 
         saveRoutes()
-        EurybiumMod.logger.info("Route '{}' deleted.", name)
+        ChatAPI.chat("Route '$name' deleted.")
     }
 
     private fun saveRoutes() = EurybiumMod.configManager.saveConfig(ConfigFileType.ROUTES, "waypoint-route-edit")
