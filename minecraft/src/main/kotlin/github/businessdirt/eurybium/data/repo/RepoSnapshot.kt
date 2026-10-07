@@ -29,6 +29,7 @@ class RepoRoute(val id: String, val scope: RepoScope, points: List<RepoPosition>
 /**
  * A connected surveyed cluster. [material] groups equivalent block variants; [blockTypes] lists the
  * saved Minecraft IDs for future live-state checks. Empty types occur only in legacy inline data.
+ * [sourceFile] preserves catalog membership independently of the node's ID.
  */
 class RepoMiningNode(
     val id: String,
@@ -37,6 +38,7 @@ class RepoMiningNode(
     val material: String,
     blocks: List<RepoPosition>,
     blockTypes: List<String> = emptyList(),
+    val sourceFile: String = "mining/nodes.json",
 ) {
     val blocks: List<RepoPosition> = java.util.List.copyOf(blocks)
     val blockTypes: List<String> = java.util.List.copyOf(blockTypes)

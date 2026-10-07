@@ -94,23 +94,28 @@ internal object RepoParser {
         val nodes = linkedMapOf<String, RepoMiningNode>()
         var totalBlocks = 0
 
-        fun addNodes(entries: List<JsonObject>, sharedScope: RepoScope? = null) {
+        fun addNodes(entries: List<JsonObject>, sharedScope: RepoScope? = null, sourceFile: String = "mining/nodes.json") {
             for (entry in entries) {
                 val id = entry.id()
                 val blocks = positions(entry, "blocks", MAX_NODE_BLOCKS).distinct()
                 totalBlocks += blocks.size
+
                 require(totalBlocks <= MAX_TOTAL_NODE_BLOCKS) { "Too many mining node blocks" }
+
                 val material = entry.string("material")
                 require(materialPattern.matches(material)) { "Invalid node material" }
+
                 val types = entry.getAsJsonArray("blockTypes")?.map {
                     require(it.isJsonPrimitive && it.asJsonPrimitive.isString) { "Invalid block type" }
                     it.asString.also { type -> require(type.length <= 128 && blockTypePattern.matches(type)) { "Invalid block type" } }
                 }.orEmpty()
+
                 require(types.size <= 64 && (sharedScope == null || types.isNotEmpty())) { "Invalid block types" }
                 require(sharedScope == null || listOf("island", "region", "mineshaft", "space", "layout").none(entry::has)) {
                     "Node scope belongs on the file, not individual nodes"
                 }
-                val node = RepoMiningNode(id, sharedScope ?: scope(entry), RepoNodeKind.valueOf(entry.string("kind")), material, blocks, types.distinct())
+
+                val node = RepoMiningNode(id, sharedScope ?: scope(entry), RepoNodeKind.valueOf(entry.string("kind")), material, blocks, types.distinct(), sourceFile)
                 require(nodes.put(id, node) == null) { "Duplicate node $id" }
             }
         }
@@ -119,11 +124,13 @@ internal object RepoParser {
         files["mining/nodes.json"]?.let { text ->
             val root = document(text)
             require(root.has("files") || root.has("nodes")) { "Missing node index" }
+
             if (root.has("nodes")) addNodes(records(root, "nodes"))
         }
+
         for (path in shards) {
             val root = document(files.getValue(path))
-            addNodes(records(root, "nodes"), scope(root))
+            addNodes(records(root, "nodes"), scope(root), path)
         }
 
         return RepoSnapshot(revision, fetchedAtMillis, patterns, routes, nodes)

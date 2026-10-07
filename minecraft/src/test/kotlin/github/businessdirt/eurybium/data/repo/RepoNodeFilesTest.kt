@@ -18,6 +18,7 @@ class RepoNodeFilesTest {
     fun `node file shares validated scope and retains immutable block IDs`() {
         val node = RepoParser.parse(REVISION_A, 1, files()).nodes.values.single()
         assertEquals("JASP1", node.scope.mineshaft)
+        assertEquals(NODE_PATH, node.sourceFile)
         assertEquals(2, node.blocks.size)
         assertEquals(listOf("minecraft:magenta_stained_glass", "minecraft:magenta_stained_glass_pane"), node.blockTypes)
         assertFailsWith<UnsupportedOperationException> { (node.blockTypes as MutableList).clear() }

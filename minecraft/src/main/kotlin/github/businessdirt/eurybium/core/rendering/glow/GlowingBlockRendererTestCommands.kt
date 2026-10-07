@@ -114,9 +114,28 @@ object GlowingBlockRendererTestCommands {
         }
     }
 
+    /** Bulk imports share the same bounded selection and lifecycle as manual glow tests. */
+    internal fun addTestBlocks(blocks: Sequence<Pair<BlockPos, ChromaColour>>): String {
+        val level = Minecraft.getInstance().level ?: fail("Join a world first.")
+        var selected = 0
+        var skipped = 0
+        var limited = 0
+        for ((pos, color) in blocks) {
+            if (pos !in selections && selections.size >= MAX_BLOCKS) { limited++; continue }
+            if (!level.hasChunk(pos.x shr 4, pos.z shr 4)) { skipped++; continue }
+            val state = level.getBlockState(pos)
+            if (state.isAir || state.renderShape != RenderShape.MODEL) { skipped++; continue }
+            selections[pos.immutable()] = color
+            selected++
+        }
+        return "Selected/updated $selected blocks, skipped $skipped unsupported/unloaded, capped $limited. " +
+            "${selections.size}/$MAX_BLOCKS total; ${if (enabled) "active" else "paused"}."
+    }
+
     internal fun queueTestBlocks() {
         if (!enabled || selections.isEmpty()) return
         val level = Minecraft.getInstance().level ?: return
+
         selections.forEach { (pos, color) ->
             if (level.hasChunk(pos.x shr 4, pos.z shr 4)) GlowingBlockRenderer.blocks.add(color, GlowingBlock(pos))
         }
