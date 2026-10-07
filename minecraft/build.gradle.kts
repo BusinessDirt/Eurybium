@@ -117,3 +117,7 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.FAIL
     destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
+
+// Optional developer tasks; world downloads never run as part of a normal build.
+extra["devWorldSavesDirectory"] = loom.runs.named("client").flatMap { it.runDirectory }.map { it.dir("saves") }
+apply(from = rootProject.file("gradle/dev-worlds.gradle.kts"))
