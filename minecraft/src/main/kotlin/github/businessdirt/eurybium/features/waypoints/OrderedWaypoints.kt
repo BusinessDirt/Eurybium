@@ -91,7 +91,7 @@ object OrderedWaypoints {
             event.drawLineToEye(
                 traceTarget ?: return,
                 config.traceLineColor,
-                config.traceLineThickness.toInt(),
+                config.traceLineThickness,
                 depth = true,
             )
         }
