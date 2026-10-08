@@ -10,7 +10,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 class MiningConfig {
 
     @Accordion
-    @ConfigOption(name = "Waypoint Node Glow", desc = "Expand Glow waypoints to nearby mining nodes using repository data.")
+    @ConfigOption(name = "Waypoint Node Glow", desc = "Expand Glow waypoints to nearby mining nodes by scanning the loaded world.")
     @Expose var waypointNodes: WaypointNodeGlowConfig = WaypointNodeGlowConfig()
 
     @Accordion

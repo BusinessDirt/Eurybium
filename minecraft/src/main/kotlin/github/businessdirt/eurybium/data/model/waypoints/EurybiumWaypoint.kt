@@ -18,10 +18,18 @@ class EurybiumWaypoint(
     @Expose
     val location: BlockPos = location.immutable()
 
-    /** Runtime node lookup cache; excluded from JSON and reset when copying a waypoint. */
-    @Transient
-    var nearestNodeIndex: Int? = null
+    /**
+     * Optional block ID identifying the desired node, for example `minecraft:magenta_stained_glass`
+     * or `minecraft:diamond_ore`. Glass panes and deepslate variants match their base material.
+     * Null selects the nearest ore or colored glass. Stored in options for format compatibility.
+     */
+    var nodeMaterial: String?
+        get() = options["nodeMaterial"]
+        set(value) {
+            if (value.isNullOrBlank()) options.remove("nodeMaterial")
+            else options["nodeMaterial"] = value.trim().lowercase()
+        }
 
-    /** Copies editable data independently, leaving node lookup to the new waypoint's owner. */
+    /** Copies editable data independently, including the optional node material. */
     override fun copy(): EurybiumWaypoint = EurybiumWaypoint(location, number, options.toMutableMap())
 }

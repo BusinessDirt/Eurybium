@@ -8,7 +8,7 @@ class RepoAccessorsTest {
     @Test
     fun `pattern handles follow snapshots and use optional fallback for missing keys`() {
         val handle = RepoPattern("example", "Fallback")
-        fun snapshot(source: String) = RepoSnapshot(REVISION_A, 1, mapOf("example" to RepoPatternData("example", source, Regex(source))), emptyMap(), emptyMap())
+        fun snapshot(source: String) = RepoSnapshot(REVISION_A, 1, mapOf("example" to RepoPatternData("example", source, Regex(source))), emptyMap())
         assertTrue(assertNotNull(handle.resolve(snapshot("First"))).matches("First"))
         assertTrue(assertNotNull(handle.resolve(snapshot("Second"))).matches("Second"))
         assertTrue(assertNotNull(handle.resolve(RepoSnapshot.EMPTY)).matches("Fallback"))

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import github.businessdirt.eurybium.data.model.IslandType
+import github.businessdirt.eurybium.data.model.MiningNodeMaterial
 import github.businessdirt.eurybium.data.model.MineshaftType
 import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds.internalRouteId
 import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds
@@ -13,31 +14,8 @@ internal object RepoParser {
 
     const val MAX_FILE_BYTES = 8 * 1024 * 1024
     const val MAX_TOTAL_FILE_BYTES = 24 * 1024 * 1024
-    val MAX_NODE_FILES = MineshaftType.entries.size
-    const val MAX_NODE_BLOCKS = 2048
-    const val MAX_TOTAL_NODE_BLOCKS = 250_000
-
-    private val nodeShafts = MineshaftType.entries.associateBy {
-        "mining/nodes/${it.internalRouteId.removePrefix(MiningRouteIds.NAMESPACE)}.json"
-    }
-    private val blockTypePattern = Regex("minecraft:(?:[a-z_]+_stained_)?glass(?:_pane)?")
-
-    /** The index names one file per known mineshaft, pinned to the same repository commit. */
-    fun nodeFiles(text: String): List<String> {
-        val root = document(text)
-        require(!root.has("nodes")) { "Nodes belong in their mineshaft files" }
-        val array = root.getAsJsonArray("files") ?: error("Missing node files array")
-        require(array.size() <= MAX_NODE_FILES) { "Too many node files" }
-        val paths = array.map {
-            require(it.isJsonPrimitive && it.asJsonPrimitive.isString) { "Expected node file path" }
-            it.asString.also { path -> require(path in nodeShafts) { "Invalid node file path $path" } }
-        }
-        require(paths.distinct().size == paths.size) { "Duplicate node file path" }
-        return paths
-    }
-
     val requiredFiles = listOf("patterns/chat.json", "patterns/scoreboard.json")
-    val optionalFiles = listOf("mining/routes.json", "mining/nodes.json")
+    val optionalFiles = listOf("mining/routes.json")
 
     private val shaftRouteIds = MineshaftType.entries.map { it.internalRouteId }.toSet()
     private val spawningRouteIds = setOf(
@@ -46,7 +24,6 @@ internal object RepoParser {
         MiningRouteIds.SHAFT_SPAWN_GEMSTONES,
     )
 
-    private val materialPattern = Regex("[A-Z0-9_]{1,64}")
     private val revisionPattern = Regex("[a-fA-F0-9]{40}")
     private val idPattern = Regex("[A-Za-z0-9_.:/-]{1,128}")
 
@@ -56,10 +33,8 @@ internal object RepoParser {
     fun parse(revision: String, fetchedAtMillis: Long, files: Map<String, String>): RepoSnapshot {
         require(validRevision(revision)) { "Invalid repository commit" }
         require(fetchedAtMillis >= 0) { "Invalid repository timestamp" }
-        val nodePaths = files["mining/nodes.json"]?.let(::nodeFiles).orEmpty()
-        require(files.keys.all { it in requiredFiles || it in optionalFiles || it in nodePaths }) { "Unknown repository file" }
+        require(files.keys.all { it in requiredFiles || it in optionalFiles }) { "Unknown repository file" }
         require(requiredFiles.all { it in files }) { "Missing pattern catalog" }
-        require(nodePaths.all { it in files }) { "Missing node file" }
         require(files.values.sumOf { it.toByteArray(Charsets.UTF_8).size.toLong() } <= MAX_TOTAL_FILE_BYTES) {
             "Repository data is too large"
         }
@@ -90,47 +65,11 @@ internal object RepoParser {
                         "Spawning route has a mismatched scope"
                     }
                 }
-                require(routes.put(id, RepoRoute(id, scope, positions(entry, "points", 10_000))) == null) { "Duplicate route $id" }
+                require(routes.put(id, RepoRoute(id, scope, routePoints(entry))) == null) { "Duplicate route $id" }
             }
         }
 
-        val nodes = linkedMapOf<String, RepoMiningNode>()
-        var totalBlocks = 0
-        for (path in nodePaths) {
-            val root = document(files.getValue(path))
-            val shaft = nodeShafts.getValue(path)
-            require(root.string("island") == "MINESHAFT" && root.string("space") == "WORLD") {
-                "Node files must use mineshaft world coordinates"
-            }
-            require(root.string("mineshaft") == shaft.internalRouteId.removePrefix(MiningRouteIds.NAMESPACE)) {
-                "Node file $path has a mismatched mineshaft"
-            }
-
-            for (entry in records(root, "nodes")) {
-                val id = entry.id()
-                require(entry.string("kind") == "GEMSTONE") { "Only gemstone nodes are supported" }
-                val material = entry.string("material")
-                require(materialPattern.matches(material)) { "Invalid node material" }
-                require(listOf("island", "region", "mineshaft", "space", "layout").none(entry::has)) {
-                    "Node scope belongs on the file, not individual nodes"
-                }
-                val types = entry.getAsJsonArray("blockTypes") ?: error("Missing node block types")
-                require(types.size() in 1..2) { "A gemstone node needs one or two glass block types" }
-                val blockTypes = types.map {
-                    require(it.isJsonPrimitive && it.asJsonPrimitive.isString && blockTypePattern.matches(it.asString)) {
-                        "Invalid gemstone block type"
-                    }
-                    it.asString
-                }.distinct()
-                val blocks = positions(entry, "blocks", MAX_NODE_BLOCKS).distinct()
-                totalBlocks += blocks.size
-                require(totalBlocks <= MAX_TOTAL_NODE_BLOCKS) { "Too many gemstone node blocks" }
-                val node = RepoMiningNode(id, shaft, material, blocks, blockTypes, path)
-                require(nodes.put(id, node) == null) { "Duplicate node $id" }
-            }
-        }
-
-        return RepoSnapshot(revision, fetchedAtMillis, patterns, routes, nodes)
+        return RepoSnapshot(revision, fetchedAtMillis, patterns, routes)
     }
 
     private fun document(text: String): JsonObject {
@@ -163,15 +102,23 @@ internal object RepoParser {
         return RepoScope(island, entry.optionalString("region"), shaft, space, layout)
     }
 
-    private fun positions(entry: JsonObject, key: String, limit: Int): List<RepoPosition> {
-        val array = entry.getAsJsonArray(key) ?: error("Missing $key")
-        require(array.size() in 1..limit) { "Invalid $key count" }
+    private fun routePoints(entry: JsonObject): List<RepoPosition> {
+        val array = entry.getAsJsonArray("points") ?: error("Missing route points")
+        require(array.size() in 1..10_000) { "Invalid route point count" }
 
         return array.map { item ->
             val point = item.asJsonArray
-            require(point.size() == 3) { "Coordinates must contain three integers" }
+            require(point.size() in 3..4) {
+                "Coordinates need three integers and route points may include a material string"
+            }
+            val material = if (point.size() == 4 && !point[3].isJsonNull) {
+                require(point[3].isJsonPrimitive && point[3].asJsonPrimitive.isString) { "Expected node material string" }
+                point[3].asString.takeIf { it.isNotBlank() }?.let {
+                    requireNotNull(MiningNodeMaterial.fromId(it)) { "Unknown node material $it" }.id
+                }
+            } else null
 
-            RepoPosition(point[0].integer(), point[1].integer(), point[2].integer())
+            RepoPosition(point[0].integer(), point[1].integer(), point[2].integer(), material)
         }
     }
 

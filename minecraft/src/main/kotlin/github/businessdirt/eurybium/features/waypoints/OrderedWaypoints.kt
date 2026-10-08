@@ -39,12 +39,25 @@ object OrderedWaypoints {
     }
 
     @HandleEvent
-    fun onWorldRenderLastEvent(event: WorldRenderLastEvent) {
+    private fun onWorldRenderLastEvent(event: WorldRenderLastEvent) {
         if (!config.enabled) return
         val player = getMinecraft().player ?: return
         route.advanceIfNear(player.position(), config.waypointRange.toDouble())
 
-        for (index in route.visibleIndices()) {
+        var traceTarget = route.waypoints.getOrNull(route.nextIndex)?.location?.center
+
+        // Reserve the current node first, then next and previous; shared nodes keep current's color.
+        val visible = if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW) {
+            route.visibleIndices().sortedByDescending { index ->
+                when (index) {
+                    route.currentIndex -> 2
+                    route.nextIndex -> 1
+                    else -> 0
+                }
+            }
+        } else route.visibleIndices()
+
+        for (index in visible) {
             val color = when (index) {
                 route.currentIndex -> config.currentWaypointColor
                 route.nextIndex -> config.nextWaypointColor
@@ -56,13 +69,21 @@ object OrderedWaypoints {
             when (config.renderMode) {
                 OrderedWaypointsConfig.RenderMode.FILL -> event.drawWaypointFilled(waypoint, color, depth = false)
                 OrderedWaypointsConfig.RenderMode.OUTLINE -> event.drawWaypointOutlined(waypoint, color, config.blockOutlineThickness.toInt(), false)
-                OrderedWaypointsConfig.RenderMode.GLOW -> event.drawWaypointGlowing(waypoint, color)
+                OrderedWaypointsConfig.RenderMode.GLOW -> {
+                    val priority = when (index) {
+                        route.currentIndex -> 2
+                        route.nextIndex -> 1
+                        else -> 0
+                    }
+                    val target = event.drawWaypointGlowing(waypoint, color, priority)
+                    if (index == route.nextIndex) traceTarget = target
+                }
             }
         }
 
         if (config.traceLine && route.waypoints.isNotEmpty() && (route.currentIndex < 0 || route.waypoints.size > 1)) {
             event.drawLineToEye(
-                route.waypoints[route.nextIndex].location.center,
+                traceTarget ?: return,
                 config.traceLineColor,
                 config.traceLineThickness.toInt(),
                 depth = true,
@@ -71,8 +92,8 @@ object OrderedWaypoints {
     }
 
     /** A route is local to its world; also invalidates clipboard imports still being parsed. */
-    @HandleEvent
-    fun onWorldChangeEvent(event: WorldChangeEvent) = unload(sendMessage = false)
+    @HandleEvent(eventType = WorldChangeEvent::class)
+    private fun onWorldChangeEvent() = unload(sendMessage = false)
 
     /** Returns a snapshot suitable for command suggestions. */
     fun getRouteNames(): List<String> = (

@@ -33,10 +33,42 @@ class RepoClientTest {
         assertEquals(123, updated.fetchedAtMillis)
         assertEquals(1, updated.routes.size)
         assertTrue(transport.requests.drop(1).all { "/$REVISION_A/" in it.first.path })
-        assertEquals(5, transport.requests.size)
+        assertEquals(4, transport.requests.size)
         val offline = RepoClient(RepoTransport { _, _ -> error("Must not fetch while restoring cache") }, cache()).loadCache()
         assertEquals(REVISION_A, assertNotNull(offline).revision)
         assertEquals(updated.routes.keys, offline.routes.keys)
+    }
+
+    @Test
+    fun `retired node catalogs are never downloaded`() {
+        val transport = Transport().apply {
+            files = repoFiles() + mapOf(
+                "mining/routes.json" to JASPER_ROUTE,
+                "mining/nodes.json" to "{invalid retired catalog}",
+                "mining/nodes/JASP1.json" to "{invalid retired survey}",
+            )
+        }
+        val updated = assertNotNull(RepoClient(transport, cache()).refresh())
+        assertEquals(1, updated.routes.size)
+        assertEquals(4, transport.requests.size)
+        assertTrue(transport.requests.none { "nodes" in it.first.path })
+    }
+
+    @Test
+    fun `legacy caches keep routes offline while dropping retired surveys`() {
+        val legacy = repoFiles() + mapOf(
+            "mining/routes.json" to JASPER_ROUTE,
+            "mining/nodes.json" to "{old catalog}",
+            "mining/nodes/JASP1.json" to "{old survey}",
+        )
+        cache().save(CachedRepo(REVISION_A, "old-etag", 123, legacy))
+        val transport = Transport().apply { status = 304 }
+        val client = RepoClient(transport, cache())
+        assertEquals(1, assertNotNull(client.loadCache()).routes.size)
+        assertEquals(repoFiles().keys + "mining/routes.json", cache().read()!!.files.keys)
+        assertTrue(transport.requests.isEmpty())
+        assertNull(client.refresh())
+        assertEquals("old-etag", transport.requests.single().second)
     }
 
     @Test

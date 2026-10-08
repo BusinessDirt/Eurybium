@@ -8,7 +8,6 @@ class RepoParserTest {
         val snapshot = RepoParser.parse(REVISION_A, 1, repoFiles())
         assertTrue(snapshot.patterns.isEmpty())
         assertTrue(snapshot.routes.isEmpty())
-        assertTrue(snapshot.nodes.isEmpty())
     }
 
     @Test
@@ -64,7 +63,7 @@ class RepoParserTest {
         val points = mutableListOf(RepoPosition(1, 2, 3))
         val route = RepoRoute("example", RepoScope(github.businessdirt.eurybium.data.model.IslandType.HUB, null, null, RepoCoordinateSpace.WORLD, null), points)
         input[route.id] = route
-        val snapshot = RepoSnapshot(REVISION_A, 1, emptyMap(), input, emptyMap())
+        val snapshot = RepoSnapshot(REVISION_A, 1, emptyMap(), input)
         input.clear()
         points.clear()
         assertEquals(1, snapshot.routes.size)

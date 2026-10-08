@@ -30,7 +30,12 @@ internal class RepoCache(private val file: File) {
         val root = JsonParser.parseString(RecoverableTextFile(file).load()).asJsonObject
         require(root.get("cacheVersion").asInt == 1) { "Unsupported repository cache" }
 
-        val files = root.getAsJsonObject("files").entrySet().associate { it.key to it.value.asString }
+        // Older bundles included surveyed nodes. Retain their patterns/routes for offline use,
+        // but drop retired node catalogs before validating or persisting the next cache revision.
+        val files = root.getAsJsonObject("files").entrySet()
+            .filterNot { it.key == "mining/nodes.json" || it.key.startsWith("mining/nodes/") }
+            .associate { it.key to it.value.asString }
+
         val etag = root.get("etag")?.takeUnless { it.isJsonNull }?.asString
         require(etag == null || (etag.length <= 1024 && '\r' !in etag && '\n' !in etag)) { "Invalid cache ETag" }
 

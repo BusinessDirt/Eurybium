@@ -30,7 +30,7 @@ class RepoWaypointRoute(val id: String) {
                 else -> BlockPos(point.x, point.y, point.z)
             }
 
-            EurybiumWaypoint(position, index + 1)
+            EurybiumWaypoint(position, index + 1).apply { nodeMaterial = point.nodeMaterial }
         }
 
         return Waypoints(points.toMutableList())

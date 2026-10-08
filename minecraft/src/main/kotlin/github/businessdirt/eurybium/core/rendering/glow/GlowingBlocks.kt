@@ -44,6 +44,12 @@ class BatchedGlowingBlockMap {
         map.getOrPut(color) { mutableSetOf() }.add(block)
     }
 
+    /** Assigns a single color to this position, replacing earlier feature submissions. */
+    fun addExclusive(color: ChromaColour, block: GlowingBlock) {
+        map.forEach { (existingColor, group) -> if (existingColor != color) group.remove(block) }
+        add(color, block)
+    }
+
     fun addAll(color: ChromaColour, blocks: Collection<GlowingBlock>?) {
         if (blocks == null) return
         map.getOrPut(color) { mutableSetOf() }.addAll(blocks)

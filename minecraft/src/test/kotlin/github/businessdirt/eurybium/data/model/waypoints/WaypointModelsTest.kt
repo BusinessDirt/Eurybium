@@ -17,21 +17,34 @@ class WaypointModelsTest {
     }
 
     @Test
-    fun `deep copy separates route waypoints options and runtime cache`() {
+    fun `deep copy separates route waypoints options and material preference`() {
         val waypoint = EurybiumWaypoint(BlockPos(1, 2, 3), 1, mutableMapOf("custom" to "original"))
-        waypoint.nearestNodeIndex = 7
+        waypoint.nodeMaterial = "minecraft:diamond_ore"
         val original = Waypoints(mutableListOf(waypoint))
         val copy = original.deepCopy()
         assertNotSame(original.waypoints, copy.waypoints)
         assertNotSame(waypoint, copy.single())
         assertNotSame(waypoint.options, copy.single().options)
-        assertNull(copy.single().nearestNodeIndex)
+        assertEquals("minecraft:diamond_ore", copy.single().nodeMaterial)
+        copy.single().nodeMaterial = null
+        assertNull(copy.single().nodeMaterial)
         copy.single().number = 2
         copy.single().options["custom"] = "changed"
         copy.clear()
         assertEquals(1, original.single().number)
         assertEquals("original", original.single().options["custom"])
-        assertEquals(7, original.single().nearestNodeIndex)
+        assertEquals("minecraft:diamond_ore", original.single().nodeMaterial)
+    }
+
+    @Test
+    fun `material preference survives Coleweight export and import`() {
+        val waypoint = EurybiumWaypoint(BlockPos(1, 2, 3), 1)
+        waypoint.nodeMaterial = "  MINECRAFT:MAGENTA_STAINED_GLASS  "
+        val format = ColeweightWaypointFormat()
+        val restored = format.load(format.export(Waypoints(mutableListOf(waypoint))))!!.single()
+        assertEquals("minecraft:magenta_stained_glass", restored.nodeMaterial)
+        restored.nodeMaterial = " "
+        assertNull(restored.nodeMaterial)
     }
 
     @Test

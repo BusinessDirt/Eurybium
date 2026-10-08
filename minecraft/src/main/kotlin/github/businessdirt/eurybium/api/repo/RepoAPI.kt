@@ -110,7 +110,7 @@ object RepoAPI {
         callback {
             val repo = snapshot
             val status = "Repo: ${repo.revision.ifEmpty { "not loaded" }} " +
-                "(${repo.patterns.size} patterns, ${repo.routes.size} routes, ${repo.nodes.size} nodes)"
+                "(${repo.patterns.size} patterns, ${repo.routes.size} routes)"
             val failure = lastFailure?.let { " Last refresh failed: $it" }.orEmpty()
 
             ChatAPI.chat(status + failure)

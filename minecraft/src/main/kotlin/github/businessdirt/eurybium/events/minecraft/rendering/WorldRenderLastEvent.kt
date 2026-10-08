@@ -1,22 +1,28 @@
 package github.businessdirt.eurybium.events.minecraft.rendering
 
 import gg.essential.universal.UMinecraft.getMinecraft
+import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.RenderingEurybiumEvent
+import github.businessdirt.eurybium.api.minecraft.math.MatrixExtensions.use
 import github.businessdirt.eurybium.core.rendering.BoxRenderer
 import github.businessdirt.eurybium.core.rendering.LineRenderer
+import github.businessdirt.eurybium.core.rendering.glow.DynamicMiningNodes
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlock
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderer
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
+import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.phys.Vec3
 
 class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent(context) {
 
-    fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
-        matrixStack.push()
+    private val glowPriorities = mutableMapOf<BlockPos, Int>()
+    private val expandedPositions = mutableSetOf<BlockPos>()
+
+    fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) = matrixStack.use {
         LineRenderer.draw3DLine(matrixStack, p1, p2, color.getEffectiveColour(), lineWidth.toFloat(), depth)
-        matrixStack.pop()
     }
 
     fun drawLineToEye(location: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
@@ -35,40 +41,58 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
         depth: Boolean = true,
-    ) {
-        matrixStack.push()
-        BoxRenderer.drawFilledBoundingBox(matrixStack, waypoint.location, color, depth)
-        matrixStack.pop()
-    }
+    ) = matrixStack.use { BoxRenderer.drawFilledBoundingBox(matrixStack, waypoint.location, color, depth) }
 
     fun drawWaypointOutlined(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
         lineWidth: Int,
         depth: Boolean,
-    ) {
-        matrixStack.push()
-        BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth)
-        matrixStack.pop()
-    }
+    ) = matrixStack.use { BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth) }
 
+    /**
+     * Submits a whole matching live mining node, or the ordinary waypoint block when expansion is
+     * unavailable or still scanning. Returns the rendering target without changing route/navigation coordinates.
+     * Higher [priority] wins when multiple visible waypoints request the same block.
+     */
     fun drawWaypointGlowing(
         waypoint: EurybiumWaypoint,
         color: ChromaColour,
-    ) {
-        /**
-        if (mineshaftType == MineshaftType.UNKNOWN ||
-            GlowingBlockRenderer.gemstoneNodes.mineshaftNodes?.get(mineshaftType.typeIndex)?.isEmpty() == true
-        ) {
-            GlowingBlockRenderer.blocks.add(color, GlowingBlock(waypoint.location))
-            return
+        priority: Int = 0,
+    ): Vec3 {
+        val config = EurybiumMod.config.mining.waypointNodes
+        val level = getMinecraft().level ?: return waypoint.location.center
+        val node = DynamicMiningNodes.request(waypoint.location, config.matchRange.toDouble(), waypoint.nodeMaterial)
+
+        // Reserve entire nodes, never partially expand one because another request used the budget.
+        val exceedsBudget = node != null && expandedPositions.size +
+            node.positions.count { it !in expandedPositions } > MAX_EXPANDED_BLOCKS
+        if (node == null || exceedsBudget) {
+            submitGlow(GlowingBlock(waypoint.location), color, priority)
+            return waypoint.location.center
         }
 
-        val gemstoneNode = waypoint.getNearestNode(mineshaftType) ?: return
-        GlowingBlockRenderer.blocks.addAll(color, gemstoneNode.blocks)
-        **/
+        expandedPositions.addAll(node.positions)
 
-        val block = GlowingBlock(waypoint.location)
-        GlowingBlockRenderer.blocks.add(color, block)
+        for (block in node.blocks) {
+            val pos = block.position
+            if (!level.hasChunk(pos.x shr 4, pos.z shr 4)) continue
+            val state = level.getBlockState(pos)
+            if (DynamicMiningNodes.materialAt(BuiltInRegistries.BLOCK.getKey(state.block).toString()) != node.material) continue
+            submitGlow(block, color, priority)
+        }
+
+        return node.center
+    }
+
+    private fun submitGlow(block: GlowingBlock, color: ChromaColour, priority: Int) {
+        val previous = glowPriorities[block.position]
+        if (previous != null && previous >= priority) return
+        glowPriorities[block.position] = priority
+        GlowingBlockRenderer.blocks.addExclusive(color, block)
+    }
+
+    companion object {
+        private const val MAX_EXPANDED_BLOCKS = 2048
     }
 }
