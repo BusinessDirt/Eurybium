@@ -16,6 +16,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix4f
+import org.joml.Vector3f
 
 class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent(context) {
 
@@ -23,19 +25,16 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
     private val expandedPositions = mutableSetOf<BlockPos>()
     private val glowNodes = mutableMapOf<EurybiumWaypoint, ScannedMiningNode?>()
 
-    fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) = matrixStack.use {
-        LineRenderer.draw3DLine(matrixStack, p1, p2, color.getEffectiveColour(), lineWidth.toFloat(), depth)
-    }
-
-    fun drawLineToEye(location: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) {
-        val tickProgress = getMinecraft().deltaTracker.getGameTimeDeltaPartialTick(false)
-        val player = getMinecraft().player ?: return
-        draw3DLine(
-            player.getEyePosition(tickProgress).add(player.getViewVector(tickProgress)),
-            location,
-            color,
-            lineWidth,
-            depth
+    fun drawLineToEye(location: Vec3, color: ChromaColour, lineWidth: Float, depth: Boolean) = matrixStack.use {
+        val camera = context.levelState().cameraRenderState
+        val forward = camera.orientation.transform(Vector3f(0f, 0f, -1f))
+        val start = camera.pos.add(forward.x.toDouble(), forward.y.toDouble(), forward.z.toDouble())
+        val window = getMinecraft().window
+        LineRenderer.drawScreenLine(
+            matrixStack, start, location, camera.pos,
+            Matrix4f(camera.projectionMatrix).mul(camera.viewRotationMatrix),
+            window.width, window.height,
+            color.getEffectiveColour(), lineWidth, depth,
         )
     }
 

@@ -4,7 +4,9 @@ import gg.essential.universal.UMatrixStack
 import gg.essential.universal.render.URenderPipeline
 import gg.essential.universal.shader.BlendState
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix4d
 import org.joml.Matrix4f
+import org.joml.Vector4d
 import java.awt.Color
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,6 +28,46 @@ class LineRendererTest {
         assertEquals(0.008, side.length(), 1e-10)
         assertEquals(0.0, side.dot(to.subtract(from)), 1e-10)
         assertEquals(0.0, side.dot(camera.subtract(from.add(to).scale(0.5))), 1e-10)
+    }
+
+    @Test
+    fun `trace has equal pixel thickness at near and distant endpoints`() {
+        val camera = Vec3(1_000_000.0, 100.0, 1_000_000.0)
+        for ((viewportWidth, viewportHeight) in listOf(1920 to 1080, 1080 to 1920)) {
+            for (fov in listOf(30.0, 70.0, 110.0)) {
+                val projection = Matrix4f().perspective(
+                    Math.toRadians(fov).toFloat(), viewportWidth.toFloat() / viewportHeight, 0.05f, 1000f,
+                )
+                val from = camera.add(0.0, 0.0, -1.0)
+                val to = camera.add(10.0, 5.0, -100.0)
+                val quad = LineRenderer.lineToScreenQuad(from, to, camera, projection, viewportWidth, viewportHeight, 2.5f)
+                assertEquals(4, quad.size)
+                fun screen(point: Vec3): Vec3 {
+                    val relative = point.subtract(camera)
+                    val clip = Matrix4d(projection).transform(Vector4d(relative.x, relative.y, relative.z, 1.0))
+                    return Vec3(clip.x / clip.w * viewportWidth / 2, clip.y / clip.w * viewportHeight / 2, 0.0)
+                }
+                assertEquals(2.5, screen(quad[0]).distanceTo(screen(quad[1])), 1e-5)
+                assertEquals(2.5, screen(quad[2]).distanceTo(screen(quad[3])), 1e-5)
+                assertTrue(quad[0].add(quad[1]).scale(0.5).distanceTo(from) < 1e-7)
+                assertTrue(quad[2].add(quad[3]).scale(0.5).distanceTo(to) < 1e-5)
+            }
+        }
+    }
+
+    @Test
+    fun `trace clips targets behind the camera and skips end-on segments`() {
+        val projection = Matrix4f().perspective(Math.toRadians(70.0).toFloat(), 16f / 9f, 0.05f, 1000f)
+        val start = Vec3(0.0, 0.0, -1.0)
+        val quad = LineRenderer.lineToScreenQuad(start, Vec3(2.0, 1.0, 4.0), Vec3.ZERO, projection, 1920, 1080, 2f)
+        assertEquals(4, quad.size)
+        assertTrue(quad.all { it.isFinite && it.z <= -0.099999 })
+        assertTrue(LineRenderer.lineToScreenQuad(
+            Vec3(0.0, 0.0, 1.0), Vec3(2.0, 1.0, 4.0), Vec3.ZERO, projection, 1920, 1080, 2f,
+        ).isEmpty())
+        assertTrue(LineRenderer.lineToScreenQuad(
+            start, Vec3(0.0, 0.0, -100.0), Vec3.ZERO, projection, 1920, 1080, 2f,
+        ).isEmpty())
     }
 
     @Test
