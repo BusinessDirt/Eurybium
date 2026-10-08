@@ -101,7 +101,7 @@ object OrderedWaypoints {
     ).distinct().sorted()
 
     /** Loads a named saved route, or parses the clipboard when [name] is blank. */
-    fun load(name: String) {
+    fun load(name: String, sendErrors: Boolean = true) {
         val revision = ++loadRevision
         if (name.isNotBlank()) {
             val saved = if (MiningRouteIds.isReserved(name)) {
@@ -111,7 +111,7 @@ object OrderedWaypoints {
             }
 
             if (saved == null) {
-                ChatAPI.userError("Route '$name' is unavailable or needs a template placement.")
+                if (sendErrors) ChatAPI.userError("Route '$name' is unavailable or needs a template placement.")
                 return
             }
 
@@ -129,7 +129,7 @@ object OrderedWaypoints {
                 // A newer load, unload, edit, or world change takes precedence over this result.
                 if (revision == loadRevision) {
                     if (imported == null) {
-                        ChatAPI.userError("Cannot parse waypoints. Supported formats: ${getWaypointFormats().joinToString(", ")}")
+                        if (sendErrors) ChatAPI.userError("Cannot parse waypoints. Supported formats: ${getWaypointFormats().joinToString(", ")}")
                     } else {
                         route.load(imported)
                         ChatAPI.chat("Loaded ordered waypoints from clipboard.")

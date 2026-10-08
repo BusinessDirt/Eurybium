@@ -3,11 +3,8 @@ package github.businessdirt.eurybium.core.rendering.glow
 import gg.essential.universal.UMinecraft.getMinecraft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI
 import github.businessdirt.eurybium.api.skyblock.MiningAPI
 import github.businessdirt.eurybium.config.features.mining.NodeExpansionPolicy
-import github.businessdirt.eurybium.data.ScoreboardData
-import github.businessdirt.eurybium.data.model.MiningNodeRegion
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.TickEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
@@ -80,7 +77,8 @@ object DynamicMiningNodes {
                 }, checkpoint = {
                     while (readsRemaining == 0 || System.nanoTime() >= deadlineNanos) yield()
                     readsRemaining--
-                }, allowedMaterials = policy.allowedMaterials, region = policy.region)
+                }, allowedMaterials = policy.allowedMaterials,
+                    dwarvenMaterials = policy.dwarvenMaterials, inCrystalHollows = policy.inCrystalHollows)
             } catch (cancelled: kotlin.coroutines.cancellation.CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
@@ -114,17 +112,18 @@ object DynamicMiningNodes {
     private fun onDisconnect() = reset()
 
     /** Region substitutions must also be used when checking cached blocks during rendering. */
-    internal fun materialAt(blockId: String): String? = miningMaterial(blockId, activePolicy?.region)
+    internal fun materialAt(blockId: String): String? = miningMaterial(
+        blockId,
+        dwarvenMaterials = activePolicy?.dwarvenMaterials == true,
+        inCrystalHollows = activePolicy?.inCrystalHollows == true,
+    )
 
-    private fun currentPolicy(): NodeExpansionPolicy? {
-        // Preserve the existing developer force-toggle for testing mineshafts in downloaded worlds.
-        val region = if (MiningAPI.currentMineshaft != null) MiningNodeRegion.MINESHAFT else {
-            val location = HypixelLocationAPI.state
-            if (!location.inSkyBlock) return null
-            MiningNodeRegion.resolve(location.island, ScoreboardData.sidebarLinesFormatted)
-        }
-        return EurybiumMod.config.mining.waypointNodes.policy(region)
-    }
+    private fun currentPolicy(): NodeExpansionPolicy? =
+        EurybiumMod.config.mining.waypointNodes.policy(
+            inMineshaft = MiningAPI.inMineshaft,
+            inGlaciteTunnels = MiningAPI.inGlaciteTunnels,
+            inCrystalHollows = MiningAPI.inCrystalHollows,
+        )
 
     private fun reset() {
         scope.coroutineContext.cancelChildren()

@@ -41,12 +41,16 @@ enum class MiningNodeMaterial(val label: String, val blockNames: List<String>, v
         private val byBlock = entries.flatMap { material -> material.blockNames.map { it to material } }.toMap()
 
         /** Resolves a loaded block; Dwarven building-block substitutions need a matching region. */
-        fun forBlock(blockId: String, region: MiningNodeRegion? = null): MiningNodeMaterial? {
+        fun forBlock(
+            blockId: String,
+            dwarvenMaterials: Boolean = false,
+            inCrystalHollows: Boolean = false,
+        ): MiningNodeMaterial? {
             if (!blockId.startsWith("minecraft:")) return null
             val name = blockId.removePrefix("minecraft:").removePrefix("deepslate_").removeSuffix("_pane")
             val material = byBlock[name] ?: return null
-            if (material.dwarvenOnly && region != MiningNodeRegion.MINESHAFT && region != MiningNodeRegion.GLACITE_TUNNELS) return null
-            if (region == MiningNodeRegion.CRYSTAL_HOLLOWS && (name == "gray_wool" || name == "cyan_terracotta" || name == "blue_wool")) return null
+            if (material.dwarvenOnly && !dwarvenMaterials) return null
+            if (inCrystalHollows && (name == "gray_wool" || name == "cyan_terracotta" || name == "blue_wool")) return null
             return material
         }
 
@@ -54,7 +58,7 @@ enum class MiningNodeMaterial(val label: String, val blockNames: List<String>, v
         fun fromId(value: String): MiningNodeMaterial? {
             val normalized = value.trim().lowercase()
             return entries.find { it.name.lowercase() == normalized || it.id == normalized }
-                ?: forBlock(if (':' in normalized) normalized else "minecraft:$normalized", MiningNodeRegion.MINESHAFT)
+                ?: forBlock(if (':' in normalized) normalized else "minecraft:$normalized", dwarvenMaterials = true)
         }
     }
 }

@@ -27,7 +27,7 @@ class MineshaftWaypointsConfig {
         NONE(null, "None"),
         MITHRIL(MiningRouteIds.SHAFT_SPAWN_MITHRIL, "Mithril"),
         TUNGSTEN(MiningRouteIds.SHAFT_SPAWN_TUNGSTEN, "Tungsten"),
-        GEMSTONES(MiningRouteIds.SHAFT_SPAWN_GEMSTONES, "GEMSTONES"),
+        GEMSTONES(MiningRouteIds.SHAFT_SPAWN_GEMSTONES, "Gemstones"),
         CUSTOM(null, "Custom"),
         ;
 

@@ -1,7 +1,6 @@
 package github.businessdirt.eurybium.core.rendering.glow
 
 import github.businessdirt.eurybium.data.model.MiningNodeMaterial
-import github.businessdirt.eurybium.data.model.MiningNodeRegion
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
 import kotlin.math.ceil
@@ -20,8 +19,11 @@ internal class ScannedMiningNode(val positions: List<BlockPos>, val material: St
  * Maps block IDs to matching materials. Glass and panes of one color form a single gemstone node;
  * normal and deepslate ores of the same resource also match. Unrelated building blocks are ignored.
  */
-internal fun miningMaterial(blockId: String, region: MiningNodeRegion? = null): String? =
-    MiningNodeMaterial.forBlock(blockId, region)?.id
+internal fun miningMaterial(
+    blockId: String,
+    dwarvenMaterials: Boolean = false,
+    inCrystalHollows: Boolean = false,
+): String? = MiningNodeMaterial.forBlock(blockId, dwarvenMaterials, inCrystalHollows)?.id
 
 /**
  * Finds the nearest eligible block inside a spherical range, then traverses its six face neighbors.
@@ -36,12 +38,13 @@ internal suspend fun scanMiningNode(
     readBlock: (BlockPos) -> String?,
     checkpoint: suspend () -> Unit,
     allowedMaterials: Set<MiningNodeMaterial> = MiningNodeMaterial.entries.toSet(),
-    region: MiningNodeRegion? = null,
+    dwarvenMaterials: Boolean = false,
+    inCrystalHollows: Boolean = false,
 ): ScannedMiningNode? {
     if (!range.isFinite() || range !in 0.0..32.0 || allowedMaterials.isEmpty()) return null
     val preference = preferredMaterial?.let { MiningNodeMaterial.fromId(it) ?: return null }
     if (preference != null && preference !in allowedMaterials) return null
-    fun eligible(id: String): MiningNodeMaterial? = MiningNodeMaterial.forBlock(id, region)
+    fun eligible(id: String): MiningNodeMaterial? = MiningNodeMaterial.forBlock(id, dwarvenMaterials, inCrystalHollows)
         ?.takeIf { it in allowedMaterials && (preference == null || it == preference) }
     val radius = ceil(range).toInt()
     checkpoint()

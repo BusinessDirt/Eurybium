@@ -35,4 +35,11 @@ object StringExtensions {
         val word = if (number == 1 || number == -1) singular else plural ?: "${singular}s"
         return if (withNumber) "${number.addSeparators()} $word" else word
     }
+
+    /**
+     * Executes the [action] only if the string is not null and not empty.
+     */
+    fun String?.ifNotNullOrEmpty(action: (String) -> Unit) {
+        if (!this.isNullOrEmpty()) action(this)
+    }
 }

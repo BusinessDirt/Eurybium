@@ -1,14 +1,8 @@
 package github.businessdirt.eurybium.config.features.mining
 
 import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 import github.businessdirt.eurybium.data.model.MiningNodeMaterial
-import github.businessdirt.eurybium.data.model.MiningNodeRegion
-import io.github.notenoughupdates.moulconfig.annotations.Accordion
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
-import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import io.github.notenoughupdates.moulconfig.annotations.*
 
 /** Live mining-node expansion with independent region switches and resource exclusions. */
 class WaypointNodeGlowConfig {
@@ -26,37 +20,50 @@ class WaypointNodeGlowConfig {
 
     @Accordion
     @ConfigOption(name = "Glacite Tunnels", desc = "Expansion and excluded resources in the tunnels and Dwarven Base Camp.")
-    @Expose var glaciteTunnels: RegionNodeGlowConfig = RegionNodeGlowConfig()
+    @Expose var glaciteTunnels: RegionNodeGlowConfig = RegionNodeGlowConfig(enabled = false)
 
     @Accordion
     @ConfigOption(name = "Crystal Hollows", desc = "Expansion and excluded resources in the Crystal Hollows.")
     @Expose var crystalHollows: RegionNodeGlowConfig = RegionNodeGlowConfig()
 
     /** Snapshots exclusions so changing the UI immediately invalidates any active scan policy. */
-    fun policy(region: MiningNodeRegion?): NodeExpansionPolicy? {
-        if (!expandNodes || region == null) return null
-        val settings = when (region) {
-            MiningNodeRegion.MINESHAFT -> mineshafts
-            MiningNodeRegion.GLACITE_TUNNELS -> glaciteTunnels
-            MiningNodeRegion.CRYSTAL_HOLLOWS -> crystalHollows
+    fun policy(
+        inMineshaft: Boolean = false,
+        inGlaciteTunnels: Boolean = false,
+        inCrystalHollows: Boolean = false,
+    ): NodeExpansionPolicy? {
+        if (!expandNodes) return null
+        val settings = when {
+            inMineshaft -> mineshafts
+            inGlaciteTunnels -> glaciteTunnels
+            inCrystalHollows -> crystalHollows
+            else -> return null
         }
 
         if (!settings.enabled) return null
-        return NodeExpansionPolicy(region, MiningNodeMaterial.entries.toSet() - settings.excludedMaterials.toSet())
+        return NodeExpansionPolicy(
+            dwarvenMaterials = inMineshaft || inGlaciteTunnels,
+            inCrystalHollows = !inMineshaft && !inGlaciteTunnels && inCrystalHollows,
+            allowedMaterials = MiningNodeMaterial.entries.toSet() - settings.excludedMaterials.toSet(),
+        )
     }
 }
 
 /** An empty exclusion list allows every supported resource; each region owns its own list. */
-class RegionNodeGlowConfig {
-
-    @ConfigEditorBoolean
-    @ConfigOption(name = "Enabled", desc = "Expand waypoint blocks to mining nodes in this region.")
-    @Expose var enabled: Boolean = true
+class RegionNodeGlowConfig(
+    @ConfigEditorBoolean @ConfigOption(
+        name = "Enabled",
+        desc = "Expand waypoint blocks to mining nodes in this region."
+    ) @Expose var enabled: Boolean = true,
 
     @ConfigEditorDraggableList
     @ConfigOption(name = "Excluded Materials", desc = "Add resources that should never be chosen for node expansion. Exclusions also apply to waypoints with an explicit material preference. List order does not matter.")
     @Expose var excludedMaterials: MutableList<MiningNodeMaterial> = mutableListOf()
-}
+)
 
 /** Immutable context used by matching and cache invalidation, independent of mutable config lists. */
-data class NodeExpansionPolicy(val region: MiningNodeRegion, val allowedMaterials: Set<MiningNodeMaterial>)
+data class NodeExpansionPolicy(
+    val dwarvenMaterials: Boolean,
+    val inCrystalHollows: Boolean,
+    val allowedMaterials: Set<MiningNodeMaterial>,
+)
