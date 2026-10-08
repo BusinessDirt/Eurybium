@@ -42,7 +42,13 @@ object OrderedWaypoints {
     private fun onWorldRenderLastEvent(event: WorldRenderLastEvent) {
         if (!config.enabled) return
         val player = getMinecraft().player ?: return
-        route.advanceIfNear(player.position(), config.waypointRange.toDouble())
+        if (config.renderMode == OrderedWaypointsConfig.RenderMode.GLOW) {
+            // Reserve current before next, matching rendering priority. Use these exact targets for arrival.
+            route.waypoints.getOrNull(route.currentIndex)?.let { event.waypointGlowTarget(it) }
+            route.advanceIfNear(player.position(), config.waypointRange.toDouble(), event::waypointGlowTarget)
+        } else {
+            route.advanceIfNear(player.position(), config.waypointRange.toDouble())
+        }
 
         var traceTarget = route.waypoints.getOrNull(route.nextIndex)?.location?.center
 

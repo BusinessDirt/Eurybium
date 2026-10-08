@@ -9,6 +9,7 @@ import github.businessdirt.eurybium.core.rendering.LineRenderer
 import github.businessdirt.eurybium.core.rendering.glow.DynamicMiningNodes
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlock
 import github.businessdirt.eurybium.core.rendering.glow.GlowingBlockRenderer
+import github.businessdirt.eurybium.core.rendering.glow.ScannedMiningNode
 import github.businessdirt.eurybium.data.model.waypoints.EurybiumWaypoint
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
@@ -20,6 +21,7 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
 
     private val glowPriorities = mutableMapOf<BlockPos, Int>()
     private val expandedPositions = mutableSetOf<BlockPos>()
+    private val glowNodes = mutableMapOf<EurybiumWaypoint, ScannedMiningNode?>()
 
     fun draw3DLine(p1: Vec3, p2: Vec3, color: ChromaColour, lineWidth: Int, depth: Boolean) = matrixStack.use {
         LineRenderer.draw3DLine(matrixStack, p1, p2, color.getEffectiveColour(), lineWidth.toFloat(), depth)
@@ -51,8 +53,28 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
     ) = matrixStack.use { BoxRenderer.drawOutlinedBoundingBox(matrixStack, waypoint.location, color, lineWidth.toFloat(), depth) }
 
     /**
+     * Resolves and reserves this frame's glow geometry once. Navigation and rendering share the same
+     * center, including the single-block fallback for pending scans or an exhausted block budget.
+     */
+    fun waypointGlowTarget(waypoint: EurybiumWaypoint): Vec3 = glowNode(waypoint)?.center ?: waypoint.location.center
+
+    private fun glowNode(waypoint: EurybiumWaypoint): ScannedMiningNode? {
+        if (glowNodes.containsKey(waypoint)) return glowNodes[waypoint]
+
+        val config = EurybiumMod.config.mining.waypointNodes
+        val node = DynamicMiningNodes.request(waypoint.location, config.matchRange.toDouble(), waypoint.nodeMaterial)
+        // Reserve entire nodes, never partially expand one because another request used the budget.
+        val exceedsBudget = node != null && expandedPositions.size +
+            node.positions.count { it !in expandedPositions } > MAX_EXPANDED_BLOCKS
+        val resolved = node?.takeUnless { exceedsBudget }
+        if (resolved != null) expandedPositions.addAll(resolved.positions)
+        glowNodes[waypoint] = resolved
+        return resolved
+    }
+
+    /**
      * Submits a whole matching live mining node, or the ordinary waypoint block when expansion is
-     * unavailable or still scanning. Returns the rendering target without changing route/navigation coordinates.
+     * unavailable or still scanning. Returns the same target as [waypointGlowTarget].
      * Higher [priority] wins when multiple visible waypoints request the same block.
      */
     fun drawWaypointGlowing(
@@ -60,19 +82,12 @@ class WorldRenderLastEvent(context: LevelRenderContext) : RenderingEurybiumEvent
         color: ChromaColour,
         priority: Int = 0,
     ): Vec3 {
-        val config = EurybiumMod.config.mining.waypointNodes
         val level = getMinecraft().level ?: return waypoint.location.center
-        val node = DynamicMiningNodes.request(waypoint.location, config.matchRange.toDouble(), waypoint.nodeMaterial)
-
-        // Reserve entire nodes, never partially expand one because another request used the budget.
-        val exceedsBudget = node != null && expandedPositions.size +
-            node.positions.count { it !in expandedPositions } > MAX_EXPANDED_BLOCKS
-        if (node == null || exceedsBudget) {
+        val node = glowNode(waypoint)
+        if (node == null) {
             submitGlow(GlowingBlock(waypoint.location), color, priority)
             return waypoint.location.center
         }
-
-        expandedPositions.addAll(node.positions)
 
         for (block in node.blocks) {
             val pos = block.position

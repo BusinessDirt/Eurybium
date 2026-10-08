@@ -76,13 +76,18 @@ internal class OrderedWaypointRoute {
     }
 
     /**
-     * Advances once when the next block is within range and closer than the current block.
+     * Advances once when the next target is within range and closer than the current target.
      * Before starting, only the first point needs to be in range.
      * Requiring the next point to be closer prevents two nearby points from alternating every frame.
+     * [targetPosition] lets glow mode use the rendered cluster centers without editing saved coordinates.
      */
-    fun advanceIfNear(playerPosition: Vec3, range: Double) {
+    fun advanceIfNear(
+        playerPosition: Vec3,
+        range: Double,
+        targetPosition: (EurybiumWaypoint) -> Vec3 = { Vec3.atLowerCornerOf(it.location) },
+    ) {
         if (waypoints.isEmpty() || (currentIndex >= 0 && waypoints.size < 2) || !range.isFinite() || range <= 0 || !playerPosition.isFinite) return
-        fun distance(index: Int): Double = playerPosition.distanceToSqr(Vec3.atLowerCornerOf(waypoints[index].location))
+        fun distance(index: Int): Double = playerPosition.distanceToSqr(targetPosition(waypoints[index]))
         val nextDistance = distance(nextIndex)
         if (nextDistance < range * range && (currentIndex < 0 || nextDistance < distance(currentIndex))) move(1)
     }

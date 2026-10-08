@@ -194,6 +194,43 @@ class OrderedWaypointRouteTest {
     }
 
     @Test
+    fun `arrival uses the expanded node center instead of the saved waypoint block`() {
+        val route = route(0, 10)
+        val center = Vec3(30.5, 0.5, 0.5)
+        val target: (EurybiumWaypoint) -> Vec3 = {
+            if (it.number == 2) center else it.location.center
+        }
+
+        route.advanceIfNear(Vec3(10.5, 0.5, 0.5), 2.0, target)
+        assertEquals(0, route.currentIndex)
+        route.advanceIfNear(center, 2.0, target)
+        assertEquals(1, route.currentIndex)
+        assertEquals(BlockPos(10, 0, 0), route.waypoints[1].location)
+    }
+
+    @Test
+    fun `closer target comparison uses cluster centers for both current and next`() {
+        val route = route(0, 10)
+        val target: (EurybiumWaypoint) -> Vec3 = {
+            if (it.number == 1) Vec3(100.0, 0.0, 0.0) else Vec3(2.0, 0.0, 0.0)
+        }
+        route.advanceIfNear(Vec3.ZERO, 3.0, target)
+        assertEquals(1, route.currentIndex)
+        repeat(20) { route.advanceIfNear(Vec3.ZERO, 3.0, target) }
+        assertEquals(1, route.currentIndex)
+    }
+
+    @Test
+    fun `first waypoint arrival also uses the resolved glow center`() {
+        val route = route(0).apply { load(waypoints) }
+        val center = Vec3(20.5, 0.5, 0.5)
+        route.advanceIfNear(Vec3.ZERO, 1.0) { center }
+        assertEquals(-1, route.currentIndex)
+        route.advanceIfNear(center, 1.0) { center }
+        assertEquals(0, route.currentIndex)
+    }
+
+    @Test
     fun `clear resets selection and a new route does not inherit navigation state`() {
         val route = route(0, 10)
         route.skipTo(2)

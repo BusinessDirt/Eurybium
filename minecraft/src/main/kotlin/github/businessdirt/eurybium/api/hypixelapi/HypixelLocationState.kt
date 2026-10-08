@@ -1,5 +1,6 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
+import github.businessdirt.eurybium.api.repo.RepoPattern
 import github.businessdirt.eurybium.data.model.IslandType
 import net.hypixel.data.type.GameType
 import net.hypixel.data.type.ServerType
@@ -51,6 +52,6 @@ data class HypixelLocationState(
     fun inAnyIsland(islands: Collection<IslandType>): Boolean = inSkyBlock && island in islands
 
     private companion object {
-        val lobbyPattern = Regex("""(?<type>.*lobby)\d+""")
+        val lobbyPattern = RepoPattern("hypixel.lobby.type", """(?<type>.*lobby)\d+""")
     }
 }
