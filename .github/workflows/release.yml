@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build all Minecraft versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read release version from tag
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo '::error::Expected a release tag such as v2.0.0 or v2.0.0-rc.1'
+            exit 1
+          fi
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6.4.0
+
+      - name: Build and test every Minecraft target
+        # The root build includes every version in minecraft_targets.
+        run: ./gradlew clean build --continue --no-daemon --stacktrace -Pdevauth=false -Pmod_version="$RELEASE_VERSION"
+
+      - name: Collect distributable jars for every target
+        shell: python
+        run: |
+          import os
+          import shutil
+          from pathlib import Path
+
+          properties = dict(
+              line.split('=', 1)
+              for line in Path('gradle.properties').read_text().splitlines()
+              if '=' in line and not line.lstrip().startswith(('#', '!'))
+          )
+          targets = [target.strip() for target in properties['minecraft_targets'].split(',')]
+          if not targets or any(not target for target in targets):
+              raise SystemExit('minecraft_targets must contain at least one non-empty target')
+          destination = Path('release-assets')
+          destination.mkdir()
+          for target in targets:
+              jar = Path('build/libs') / f"eurybium-{os.environ['RELEASE_VERSION']}+mc{target}.jar"
+              if not jar.is_file():
+                  raise SystemExit(f'Missing distributable jar for Minecraft {target}: {jar}')
+              shutil.copy2(jar, destination / jar.name)
+
+      - name: Store release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-jars
+          path: release-assets/*.jar
+          if-no-files-found: error
+          compression-level: 0
+
+  release:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download tested artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: release-jars
+          path: release-assets
+
+      - name: Create release or update its assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          assets=(release-assets/*.jar)
+          if (( ${#assets[@]} == 0 )); then
+            echo '::error::No release jars were downloaded'
+            exit 1
+          fi
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            # Reruns preserve existing release notes and replace matching assets.
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            options=(--verify-tag --generate-notes --title "$RELEASE_TAG")
+            if [[ "${RELEASE_TAG#v}" == *-* ]]; then
+              options+=(--prerelease --latest=false)
+            fi
+            gh release create "$RELEASE_TAG" "${assets[@]}" "${options[@]}"
+          fi

@@ -56,6 +56,30 @@ check if any build or test fails.
 
 The lifecycle test uses a fake platform and requires no running Minecraft client. Before releasing, also launch the built mod on the supported client and verify `/eurybium` and mixin application.
 
+## Releases
+
+Push a version tag such as `v2.0.0` to run the `Release` GitHub Actions workflow:
+
+```sh
+git tag v2.0.0
+git push origin v2.0.0
+```
+
+The tagged commit must include the release workflow. The workflow builds and tests every
+version listed in `minecraft_targets`, then creates a GitHub release with generated release
+notes and one installable jar per Minecraft target. It checks that every target produced its
+jar before publishing. Only distributable mod jars are attached; the KSP processor is not included.
+
+The tag supplies `mod_version` for the build (`v2.0.0` produces version `2.0.0`), including
+jar names and generated mod metadata. Tags must have the form `vMAJOR.MINOR.PATCH`, optionally
+with a prerelease suffix such as `v2.1.0-rc.1`; suffixes are published as GitHub prereleases.
+New Minecraft targets are included automatically without workflow changes. Currently the
+supported target is `26.1.2`.
+
+If a run fails, fix the problem and rerun it from the Actions tab when appropriate. Rerunning
+an existing release preserves its notes and replaces assets with matching filenames. Publishing
+uses the automatic `GITHUB_TOKEN`; no additional secret is needed.
+
 ## Development worlds
 
 World ZIPs are published as release attachments in
