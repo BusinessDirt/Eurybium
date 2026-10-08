@@ -8,6 +8,6 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 class MiningNotificationsConfig {
 
     @ConfigEditorBoolean
-    @ConfigOption(name = "Mining Ability Ready", desc = "Notify once when your mining ability cooldown finishes.")
+    @ConfigOption(name = "Mining Ability Ready", desc = "Show a title and play a sound when your mining ability becomes available.")
     @Expose var miningAbilityNotification: Boolean = false
 }
