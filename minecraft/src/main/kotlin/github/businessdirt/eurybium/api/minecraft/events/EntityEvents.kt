@@ -7,7 +7,7 @@ import github.businessdirt.eurybium.processors.EurybiumModule
 @EurybiumModule
 object EntityEvents {
 
-    @HandleEvent(eventType = PreModInitializationEvent::class)
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
     private fun onPreModInitializationEvent() {
 
     }

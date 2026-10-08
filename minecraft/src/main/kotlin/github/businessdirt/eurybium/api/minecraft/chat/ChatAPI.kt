@@ -20,6 +20,7 @@ import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.events.minecraft.AllowChatMessageEvent
 import github.businessdirt.eurybium.events.minecraft.AllowGameMessageEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
+import github.businessdirt.eurybium.events.minecraft.TickEvent
 import github.businessdirt.eurybium.minecraft.mixin.ChatComponentAccessor
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents
@@ -245,16 +246,16 @@ object ChatAPI {
 
     fun getTimeWhenNewlyQueuedMessageGetsExecuted(): SimpleTimeMark = SimpleTimeMark.now() + outgoing.estimateDelay()
 
-    @HandleEvent(eventType = PreModInitializationEvent::class)
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
     fun onPreModInitializationEvent() {
         ClientSendMessageEvents.CHAT.register { outgoing.recordSent() }
         ClientSendMessageEvents.COMMAND.register { outgoing.recordSent() }
     }
 
-    @HandleEvent(eventType = ClientDisconnectEvent::class)
+    @HandleEvent(events = [ TickEvent::class ])
     fun onTickEvent() { dispatchNext(); actions.cleanup() }
 
-    @HandleEvent(eventType = ClientDisconnectEvent::class)
+    @HandleEvent(events = [ ClientDisconnectEvent::class ])
     fun onClientDisconnectEvent() {
         outgoing.clear()
         actions.clear()

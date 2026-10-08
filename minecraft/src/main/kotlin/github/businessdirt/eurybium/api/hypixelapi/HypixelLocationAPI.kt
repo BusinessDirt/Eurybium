@@ -75,6 +75,6 @@ object HypixelLocationAPI {
     @HandleEvent(priority = HandleEvent.HIGHEST)
     private fun onScoreboardTitleUpdateEvent(event: ScoreboardTitleUpdateEvent) = tracker.scoreboardUpdated(event)
 
-    @HandleEvent(eventType = ClientDisconnectEvent::class, priority = HandleEvent.HIGHEST)
+    @HandleEvent(events = [ ClientDisconnectEvent::class ], priority = HandleEvent.HIGHEST)
     private fun onDisconnect() = tracker.disconnected()
 }

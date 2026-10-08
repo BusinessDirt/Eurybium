@@ -92,7 +92,7 @@ object OrderedWaypoints {
     }
 
     /** A route is local to its world; also invalidates clipboard imports still being parsed. */
-    @HandleEvent(eventType = WorldChangeEvent::class)
+    @HandleEvent(events = [ WorldChangeEvent::class ])
     private fun onWorldChangeEvent() = unload(sendMessage = false)
 
     /** Returns a snapshot suitable for command suggestions. */

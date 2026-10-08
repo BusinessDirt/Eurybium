@@ -55,10 +55,7 @@ object EurybiumEventBus {
     }
 
     private fun handleZeroParameterFunction(options: HandleEvent): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> =
-        when (options.eventTypes.size) {
-            0 -> options to listOf(options.eventType)
-            else -> options to options.eventTypes.toList()
-        }
+        options to options.events.toList()
 
     private fun handleSingleParameterFunction(function: KFunction<*>, options: HandleEvent): Pair<HandleEvent, List<KClass<out EurybiumEvent>>> {
         val paramType: KType = function.valueParameters[0].type

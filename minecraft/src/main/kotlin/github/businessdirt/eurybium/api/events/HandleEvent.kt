@@ -8,33 +8,19 @@ import kotlin.reflect.KClass
 annotation class HandleEvent(
 
     /**
-     * For cases where the event properties are themselves not needed, and solely a listener for an event fire suffices.
-     * To specify multiple events, use [eventTypes] instead.
-     */
-    val eventType: KClass<out EurybiumEvent> = EurybiumEvent::class,
-
-    /**
      * For cases where multiple events are listened to, and properties are unnecessary.
-     * To specify only one event, use [eventType] instead.
      */
-    val eventTypes: Array<KClass<out EurybiumEvent>> = [],
+    val events: Array<KClass<out EurybiumEvent>> = [],
 
     /**
      * If the event should only be received while on SkyBlock.
      */
-    val onlyOnSkyblock: Boolean = false,
+    val onlyOnSkyBlock: Boolean = false,
 
     /**
-     * If the event should only be received while on a specific skyblock island.
-     * To specify multiple islands, use [onlyOnIslands] instead.
+     * If the event should only be received while being on specific SkyBlock islands.
      */
-    val onlyOnIsland: IslandType = IslandType.ANY,
-
-    /**
-     * If the event should only be received while being on specific skyblock islands.
-     * To specify only one island, use [onlyOnIsland] instead.
-     */
-    val onlyOnIslands: Array<IslandType> = [],
+    val onIslands: Array<IslandType> = [],
 
     /**
      * The priority of when the event will be called, lower priority will be called first, see the companion object.

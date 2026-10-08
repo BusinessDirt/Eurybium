@@ -89,6 +89,6 @@ object ClientTasks {
         return task
     }
 
-    @HandleEvent(eventType = TickEvent::class, priority = Int.MAX_VALUE)
+    @HandleEvent(events = [ TickEvent::class ], priority = Int.MAX_VALUE)
     private fun onTickEvent() = scheduler.runTick()
 }

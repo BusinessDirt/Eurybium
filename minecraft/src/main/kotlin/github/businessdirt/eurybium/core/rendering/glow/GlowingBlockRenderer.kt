@@ -22,7 +22,7 @@ object GlowingBlockRenderer {
 
     internal val profile = GlowingBlockRenderProfile()
 
-    @HandleEvent(eventType = PreModInitializationEvent::class)
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
     private fun onPreModInitializationEvent() {
 
         LevelRenderEvents.END_EXTRACTION.register { context ->
@@ -94,6 +94,6 @@ object GlowingBlockRenderer {
         return System.nanoTime() - start
     }
 
-    @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ])
+    @HandleEvent(events = [ WorldChangeEvent::class, ClientDisconnectEvent::class ])
     private fun onWorldClearEvents() { blocks.clear(); prepared = emptyList() }
 }

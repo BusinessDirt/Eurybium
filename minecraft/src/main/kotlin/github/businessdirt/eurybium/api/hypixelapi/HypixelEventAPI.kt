@@ -33,7 +33,7 @@ object HypixelEventAPI {
         modApi.subscribeToEventPacket(ClientboundLocationPacket::class.java)
     }
 
-    @HandleEvent(eventTypes = [ClientJoinEvent::class, ClientDisconnectEvent::class], priority = Int.MIN_VALUE)
+    @HandleEvent(events = [ClientJoinEvent::class, ClientDisconnectEvent::class], priority = Int.MIN_VALUE)
     private fun onConnectionChanged() = bridge.invalidateConnection()
 
     /**

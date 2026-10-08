@@ -90,7 +90,7 @@ object DynamicMiningNodes {
         return entry.node
     }
 
-    @HandleEvent(eventType = TickEvent::class)
+    @HandleEvent(events = [TickEvent::class])
     private fun onTick() {
         ticks++
         val policy = currentPolicy()
@@ -105,10 +105,10 @@ object DynamicMiningNodes {
         repeat(tasks.size) { tasks.removeFirst().run() }
     }
 
-    @HandleEvent(eventType = WorldChangeEvent::class)
+    @HandleEvent(events = [ WorldChangeEvent::class ])
     private fun onWorldChange() = reset()
 
-    @HandleEvent(eventType = ClientDisconnectEvent::class)
+    @HandleEvent(events = [ ClientDisconnectEvent::class ])
     private fun onDisconnect() = reset()
 
     /** Region substitutions must also be used when checking cached blocks during rendering. */

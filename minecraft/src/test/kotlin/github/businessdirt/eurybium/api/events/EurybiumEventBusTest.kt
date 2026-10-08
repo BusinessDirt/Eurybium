@@ -12,8 +12,8 @@ class EurybiumEventBusTest : EventBusTestFixture() {
         @HandleEvent(priority = HandleEvent.HIGH) private fun parent(event: Parent) { calls.add("parent") }
         @HandleEvent
         private fun child(event: Child) { calls.add("child") }
-        @HandleEvent(eventType = Child::class, priority = HandleEvent.HIGHEST) private fun zero() { calls.add("zero") }
-        @HandleEvent(eventTypes = [Child::class, Other::class], priority = HandleEvent.LOW) private fun multiple() { calls.add("multiple") }
+        @HandleEvent(events = [ Child::class ], priority = HandleEvent.HIGHEST) private fun zero() { calls.add("zero") }
+        @HandleEvent(events = [ Child::class, Other::class ], priority = HandleEvent.LOW) private fun multiple() { calls.add("multiple") }
         @HandleEvent
         private fun base(event: EurybiumEvent) { calls.add("base") }
         @HandleEvent
@@ -59,7 +59,7 @@ class EurybiumEventBusTest : EventBusTestFixture() {
     fun <T> invalid(value: T) {} }
     class Returning { @HandleEvent
     fun invalid(event: Child): Int = 1 }
-    class ReturningZero { @HandleEvent(eventType = Child::class) fun invalid(): Int = 1 }
+    class ReturningZero { @HandleEvent(events = [ Child::class ]) fun invalid(): Int = 1 }
 
     @Test
     fun `invalid signatures and non Unit return types are rejected with method context`() {

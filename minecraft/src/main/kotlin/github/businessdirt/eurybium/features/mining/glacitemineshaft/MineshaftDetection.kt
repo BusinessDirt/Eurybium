@@ -3,7 +3,6 @@ package github.businessdirt.eurybium.features.mining.glacitemineshaft
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
-import github.businessdirt.eurybium.api.minecraft.text.ComponentExtensions.asComponent
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.MineshaftType
@@ -19,12 +18,12 @@ object MineshaftDetection {
 
     private var found = false
 
-    @HandleEvent(WorldChangeEvent::class)
+    @HandleEvent(events = [ WorldChangeEvent::class ])
     private fun onWorldChangeEvent() {
         found = false
     }
 
-    @HandleEvent(onlyOnIslands = [IslandType.MINESHAFT])
+    @HandleEvent(onIslands = [ IslandType.MINESHAFT ])
     private fun onScoreboardUpdateEvent(event: ScoreboardUpdateEvent) {
         if (found) return
 

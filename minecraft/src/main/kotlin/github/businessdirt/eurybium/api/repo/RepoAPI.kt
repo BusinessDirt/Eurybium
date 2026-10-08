@@ -20,8 +20,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runInterruptible
-import net.minecraft.network.chat.Component
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
@@ -50,7 +48,7 @@ object RepoAPI {
         }
     }
 
-    @HandleEvent(eventType = PostModInitializationEvent::class)
+    @HandleEvent(events = [ PostModInitializationEvent::class ])
     fun onPostModInitialization() {
         startUpdate(restoreCache = true)
         pollingJob = BackgroundTasks.launch("repo-poll", timeout = Duration.INFINITE) {
@@ -94,7 +92,7 @@ object RepoAPI {
     private fun publish(candidate: RepoSnapshot, source: RepoUpdateEvent.Source) = publication.publish(candidate, source)
 
     @Synchronized
-    @HandleEvent(eventType = ModShutdownEvent::class)
+    @HandleEvent(events = [ ModShutdownEvent::class ])
     fun onModShutdown() {
         stopped = true
         publication.close()

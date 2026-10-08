@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 @EurybiumModule
 object RenderEvents {
 
-    @HandleEvent(eventType = PreModInitializationEvent::class)
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
     private fun onPreModInitializationEvent() {
 
         // This phase follows both solid and translucent entity geometry.

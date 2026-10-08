@@ -19,23 +19,23 @@ object EurybiumMod {
     var config: EurybiumConfig = EurybiumConfig()
     var orderedWaypointsRoutes: OrderedWaypointsRoutes = OrderedWaypointsRoutes()
 
-    @HandleEvent(eventType = PreModInitializationEvent::class, priority = Int.MIN_VALUE)
+    @HandleEvent(events = [ PreModInitializationEvent::class ], priority = Int.MIN_VALUE)
     private fun onPreModInitializationEvent() {
 
     }
 
-    @HandleEvent(eventType = ModInitializationEvent::class, priority = Int.MIN_VALUE)
+    @HandleEvent(events = [ ModInitializationEvent::class ], priority = Int.MIN_VALUE)
     private fun onModInitializationEvent() {
         configManager = ConfigManager()
         configManager.initialize()
     }
 
-    @HandleEvent(eventType = PostModInitializationEvent::class, priority = Int.MIN_VALUE)
+    @HandleEvent(events = [ PostModInitializationEvent::class ], priority = Int.MIN_VALUE)
     private fun onPostModInitializationEvent() {
 
     }
 
-    @HandleEvent(eventType = ModShutdownEvent::class, priority = Int.MAX_VALUE)
+    @HandleEvent(events = [ ModShutdownEvent::class ], priority = Int.MAX_VALUE)
     private fun onModShutdownEvent() {
 
     }

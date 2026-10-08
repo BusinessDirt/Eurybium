@@ -29,10 +29,10 @@ object ScoreboardData {
 
     private var objectiveName = ""
 
-    @HandleEvent(eventType = TickEvent::class, priority = HIGHEST)
+    @HandleEvent(events = [ TickEvent::class ], priority = HIGHEST)
     private fun onTickEvent() { refresh() }
 
-    @HandleEvent(eventTypes = [ WorldChangeEvent::class, ClientDisconnectEvent::class ], priority = HIGHEST)
+    @HandleEvent(events = [ WorldChangeEvent::class, ClientDisconnectEvent::class ], priority = HIGHEST)
     private fun onTabListClearEvents() = clear()
 
     @HandleEvent

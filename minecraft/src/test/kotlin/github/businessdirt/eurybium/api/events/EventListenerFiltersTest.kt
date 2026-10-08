@@ -19,10 +19,9 @@ class EventListenerFiltersTest {
 
         val listeners = listOf(
             HandleEvent(),
-            HandleEvent(onlyOnSkyblock = true),
-            HandleEvent(onlyOnIsland = IslandType.HUB),
-            HandleEvent(onlyOnIslands = arrayOf(IslandType.HUB, IslandType.GARDEN)),
-            HandleEvent(onlyOnIsland = IslandType.HUB, onlyOnIslands = arrayOf(IslandType.GARDEN)),
+            HandleEvent(onlyOnSkyBlock = true),
+            HandleEvent(onIslands = arrayOf(IslandType.HUB)),
+            HandleEvent(onIslands = arrayOf(IslandType.HUB, IslandType.GARDEN)),
         ).map { EurybiumEventListener("test", {}, it) }
 
         val testCases = listOf(
@@ -30,37 +29,37 @@ class EventListenerFiltersTest {
                 connected = false,
                 skyBlock = false,
                 island = IslandType.HUB,
-                expected = listOf(true, false, false, false, false)
+                expected = listOf(true, false, false, false)
             ),
             State(
                 connected = true,
                 skyBlock = false,
                 island = IslandType.HUB,
-                expected = listOf(true, false, false, false, false)
+                expected = listOf(true, false, false, false)
             ),
             State(
                 connected = false,
                 skyBlock = true,
                 island = IslandType.HUB,
-                expected = listOf(true, false, false, false, false)
+                expected = listOf(true, false, false, false)
             ),
             State(
                 connected = true,
                 skyBlock = true,
                 island = IslandType.HUB,
-                expected = listOf(true, true, true, true, false)
+                expected = listOf(true, true, true, true)
             ),
             State(
                 connected = true,
                 skyBlock = true,
                 island = IslandType.GARDEN,
-                expected = listOf(true, true, false, true, false)
+                expected = listOf(true, true, false, true)
             ),
             State(
                 connected = true,
                 skyBlock = true,
                 island = IslandType.THE_END,
-                expected = listOf(true, true, false, false, false)
+                expected = listOf(true, true, false, false)
             ),
         )
 

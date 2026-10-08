@@ -15,7 +15,7 @@ object ClientEvents {
     var totalTicks: Long = 0
         private set
 
-    @HandleEvent(eventType = PreModInitializationEvent::class)
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
     private fun onPreModInitializationEvent()  {
 
         ClientPlayConnectionEvents.JOIN.register { handler, _, _ -> ClientJoinEvent(handler.connection).post() }

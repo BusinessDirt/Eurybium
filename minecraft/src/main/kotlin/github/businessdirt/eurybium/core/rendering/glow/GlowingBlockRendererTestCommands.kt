@@ -10,7 +10,6 @@ import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
 import io.github.notenoughupdates.moulconfig.ChromaColour
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
@@ -142,7 +141,7 @@ object GlowingBlockRendererTestCommands {
         }
     }
 
-    @HandleEvent(eventTypes = [WorldChangeEvent::class, ClientDisconnectEvent::class])
+    @HandleEvent(events = [WorldChangeEvent::class, ClientDisconnectEvent::class])
     private fun onWorldClearEvents() {
         selections.clear()
         enabled = true
