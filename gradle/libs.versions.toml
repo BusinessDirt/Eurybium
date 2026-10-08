@@ -8,6 +8,7 @@ devauth = "1.2.2"
 junit = "5.14.4"
 moulconfig = "4.7.2"
 hypixel-mod-api = "1.0.2"
+hypixel-fabric = "1.0.2+build.1"
 auto-service-ksp = "1.2.0"
 auto-service-annotations = "1.1.1"
 

@@ -15,8 +15,8 @@ fun targetProperty(name: String): String = requireNotNull(targetProperties.getPr
 }
 
 val minecraftVersion = targetProperty("minecraft_version")
-// MoulConfig artifacts follow the Minecraft release series (26.1.2 -> modern-26.1).
-val moulconfigTarget = minecraftVersion.split('.').take(2).joinToString(".")
+// Platform artifacts follow the Minecraft release series (26.1.2 -> 26.1).
+val minecraftRelease = minecraftVersion.split('.').take(2).joinToString(".")
 val minecraftRange = targetProperty("minecraft_range")
 val fabricApiVersion = targetProperty("fabric_api_version")
 val universalcraftTarget = targetProperty("universalcraft_target")
@@ -32,6 +32,10 @@ repositories {
 
     maven("https://repo.hypixel.net/repository/Hypixel/") {
         content { includeGroup("net.hypixel") }
+    }
+
+    maven("https://api.modrinth.com/maven") {
+        content { includeModule("maven.modrinth", "hypixel-mod-api") }
     }
 
     maven("https://repo.essential.gg/repository/maven-public") {
@@ -51,12 +55,14 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
     // MoulConfig
-    val moulconfig = "org.notenoughupdates.moulconfig:modern-$moulconfigTarget:${libs.versions.moulconfig.get()}"
+    val moulconfig = "org.notenoughupdates.moulconfig:modern-$minecraftRelease:${libs.versions.moulconfig.get()}"
     implementation(moulconfig)
     include(moulconfig)
 
-    // HypixelModApi
+    // Hypixel Mod API
     implementation(libs.hypixel.mod.api)
+    val hypixelFabric = "maven.modrinth:hypixel-mod-api:${libs.versions.hypixel.fabric.get()}+mc$minecraftRelease"
+    runtimeOnly(hypixelFabric)
 
     // UniversalCraft
     val universalcraft = "gg.essential:universalcraft-$universalcraftTarget:$universalcraftVersion"
@@ -99,6 +105,7 @@ val metadata = mapOf(
     "loader" to libs.versions.fabric.loader.get(),
     "fabric_kotlin" to libs.versions.fabric.kotlin.get(),
     "fabric_api" to fabricApiVersion,
+    "hypixel_mod_api" to libs.versions.hypixel.mod.api.get(),
 )
 
 tasks.processResources {

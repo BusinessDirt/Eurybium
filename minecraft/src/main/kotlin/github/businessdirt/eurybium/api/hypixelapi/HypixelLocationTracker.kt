@@ -1,6 +1,7 @@
 package github.businessdirt.eurybium.api.hypixelapi
 
 import github.businessdirt.eurybium.api.events.EurybiumEvent
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.hypixel.HypixelApiServerChangeEvent
@@ -8,6 +9,7 @@ import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
 import github.businessdirt.eurybium.events.minecraft.ScoreboardTitleUpdateEvent
 import github.businessdirt.eurybium.events.skyblock.IslandJoinEvent
 import github.businessdirt.eurybium.events.skyblock.IslandLeaveEvent
+import github.businessdirt.eurybium.events.skyblock.SkyblockAreaChangeEvent
 import net.hypixel.data.type.GameType
 
 /**
@@ -83,6 +85,24 @@ internal class HypixelLocationTracker(private val emit: (EurybiumEvent) -> Unit)
                 isGuest = guest,
             )
         )
+    }
+
+    /** Keeps the last detected area through incomplete scoreboards; server changes clear it. */
+    fun areaUpdated(lines: List<String>, pattern: Regex?) {
+        if (!state.inSkyBlock || pattern == null) return
+
+        val area = lines.firstNotNullOfOrNull { line ->
+            val match = pattern.matchEntire(line) ?: return@firstNotNullOfOrNull null
+            match.groups["area"]?.value?.trim()?.takeIf { it.isNotEmpty() }
+        } ?: return
+
+        val previousArea = state.skyBlockArea
+
+        if (area == previousArea) return
+
+        // Publish before dispatch so subscribers can immediately query the new area.
+        state = state.copy(skyBlockArea = area)
+        emit(SkyblockAreaChangeEvent(area, previousArea))
     }
 
     /** Clears metadata, pending confirmation, and history before emitting any disconnect events. */

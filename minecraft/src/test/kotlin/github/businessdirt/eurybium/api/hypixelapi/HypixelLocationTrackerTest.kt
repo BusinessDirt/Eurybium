@@ -7,12 +7,76 @@ import github.businessdirt.eurybium.events.hypixel.HypixelLeaveEvent
 import github.businessdirt.eurybium.events.minecraft.ScoreboardTitleUpdateEvent
 import github.businessdirt.eurybium.events.skyblock.IslandJoinEvent
 import github.businessdirt.eurybium.events.skyblock.IslandLeaveEvent
+import github.businessdirt.eurybium.events.skyblock.SkyblockAreaChangeEvent
 import net.hypixel.data.type.GameType
 import kotlin.test.*
 
 class HypixelLocationTrackerTest {
     private val events = mutableListOf<EurybiumEvent>()
     private val tracker = HypixelLocationTracker(events::add)
+
+    private val areaPattern = Regex("""\s*(?<symbol>[⏣ф])\s+(?<area>.+)""")
+
+    @Test
+    fun `area changes publish plain names before events and ignore duplicates`() {
+        val published = mutableListOf<String?>()
+        lateinit var location: HypixelLocationTracker
+        location = HypixelLocationTracker {
+            if (it is SkyblockAreaChangeEvent) {
+                published += location.state.skyBlockArea
+                events += it
+            }
+        }
+        location.serverChanged(change("hub"))
+        location.areaUpdated(listOf(" ⏣ Village"), areaPattern)
+        val snapshot = location.state
+        location.areaUpdated(listOf(" ⏣ Village"), areaPattern)
+        location.areaUpdated(listOf(" ф Wizard Tower"), areaPattern)
+        assertEquals(listOf<String?>("Village", "Wizard Tower"), published)
+        assertEquals("Village", snapshot.skyBlockArea)
+        val event = assertIs<SkyblockAreaChangeEvent>(events.last())
+        assertEquals("Village", event.previousArea)
+        assertEquals("Wizard Tower", event.area)
+    }
+
+    @Test
+    fun `area matching handles plain text and incomplete scoreboard updates`() {
+        tracker.serverChanged(change("hub"))
+        tracker.areaUpdated(listOf(" ⏣ Village  "), areaPattern)
+        assertEquals("Village", tracker.state.skyBlockArea)
+        val count = events.size
+        tracker.areaUpdated(emptyList(), areaPattern)
+        tracker.areaUpdated(listOf("❄ 0 Cold", " ⏣    "), areaPattern)
+        tracker.areaUpdated(listOf(" ⏣ Wizard Tower"), null)
+        assertEquals("Village", tracker.state.skyBlockArea)
+        assertEquals(count, events.size)
+    }
+
+    @Test
+    fun `resource pack location symbol matches the reported Dwarven Base Camp line`() {
+        tracker.serverChanged(change("mining_3"))
+        tracker.areaUpdated(listOf("10/08/26 m9AS", "  10:40pm ☽", "   Dwarven Base Camp", "Purse: 234,045,594"), areaPattern)
+        assertEquals("Dwarven Base Camp", tracker.state.skyBlockArea)
+        assertIs<SkyblockAreaChangeEvent>(events.last())
+    }
+
+    @Test
+    fun `area is preserved for metadata updates and cleared between servers and connections`() {
+        tracker.areaUpdated(listOf(" ⏣ Village"), areaPattern)
+        assertNull(tracker.state.skyBlockArea)
+        tracker.serverChanged(change("hub"))
+        tracker.areaUpdated(listOf(" ⏣ Village"), areaPattern)
+        tracker.serverChanged(change("hub").copy(map = "updated"))
+        assertEquals("Village", tracker.state.skyBlockArea)
+        tracker.serverChanged(change("hub", "mini2"))
+        assertNull(tracker.state.skyBlockArea)
+        tracker.areaUpdated(listOf(" ⏣ Wizard Tower"), areaPattern)
+        assertNull(assertIs<SkyblockAreaChangeEvent>(events.last()).previousArea)
+        tracker.disconnected()
+        tracker.areaUpdated(listOf(" ⏣ Village"), areaPattern)
+        assertNull(tracker.state.skyBlockArea)
+    }
+
     private fun change(mode: String?, server: String = "mini1") = HypixelApiServerChangeEvent(server, GameType.SKYBLOCK, null, mode, null)
 
     @Test

@@ -18,6 +18,7 @@ import net.hypixel.data.type.ServerType
  * @property map Optional map metadata supplied by the location packet.
  * @property lobbyName Optional lobby identifier, such as `mainlobby12`.
  * @property island The confirmed island, NONE while absent/pending, or UNKNOWN for an unmapped mode.
+ * @property skyBlockArea Plain scoreboard area name, or null before detection or after changing servers.
  * @property isGuest Whether the scoreboard confirmed a guest variant for the current island.
  */
 data class HypixelLocationState(
@@ -30,6 +31,7 @@ data class HypixelLocationState(
     val lobbyName: String? = null,
     val island: IslandType = IslandType.NONE,
     val isGuest: Boolean = false,
+    val skyBlockArea: String? = null,
 ) {
     /** True only when connected and the server reports the SkyBlock game type. */
     val inSkyBlock: Boolean get() = inHypixel && serverType == GameType.SKYBLOCK

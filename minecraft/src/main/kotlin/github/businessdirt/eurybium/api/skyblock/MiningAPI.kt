@@ -1,8 +1,11 @@
 package github.businessdirt.eurybium.api.skyblock
 
+import github.businessdirt.eurybium.api.commands.CommandCategory
+import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI
-import github.businessdirt.eurybium.data.ScoreboardData
+import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.data.model.IslandType
+import github.businessdirt.eurybium.events.CommandRegistrationEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
 
 @EurybiumModule
@@ -19,7 +22,10 @@ object MiningAPI {
 
     /** Includes the warm Dwarven Base Camp, but excludes ordinary Dwarven Mines locations. */
     val inGlaciteTunnels: Boolean
-        get() = inDwarvenMines && isGlaciteTunnels(IslandType.DWARVEN_MINES, ScoreboardData.sidebarLinesFormatted)
+        get() = HypixelLocationAPI.let { locationAPI ->
+            locationAPI.inAnyIsland(listOf(IslandType.DWARVEN_MINES)) &&
+                locationAPI.skyBlockArea?.let { "Glacite" in it || it == "Dwarven Base Camp" } == true
+        }
 
     val inCrystalHollows: Boolean get() = !inMineshaft && IslandType.CRYSTAL_HOLLOWS.isInIsland()
 
@@ -27,10 +33,18 @@ object MiningAPI {
 
     val inDeepCaverns: Boolean get() = !inMineshaft && IslandType.DEEP_CAVERNS.isInIsland()
 
-    /** Cold and the location line distinguish the tunnels and warm base camp from other Dwarven areas. */
-    internal fun isGlaciteTunnels(island: IslandType, sidebar: List<String>): Boolean =
-        island == IslandType.DWARVEN_MINES && sidebar.any { line ->
-            '❄' in line || line.trim().startsWith("Cold:") ||
-                ('⏣' in line && ("Glacite" in line || "Dwarven Base Camp" in line))
+    @HandleEvent
+    private fun onCommandRegistrationEvent(event: CommandRegistrationEvent) = event.register("eybminingapidumpstate") {
+        description = "Dumps the current state of the MiningAPI."
+        category = CommandCategory.DEVELOPER_DEBUG
+
+        simpleCallback {
+            val stateMessage = "inMiningIsland=${inMiningIsland}, inMineshaft=${inMineshaft}, inDwarvenMines=${inDwarvenMines}, " +
+                "inGlaciteTunnels=${inGlaciteTunnels}, inCrystalHollows=${inCrystalHollows}, " +
+                "inGoldMines=${inGoldMines}, inDeepCaverns=${inDeepCaverns}"
+
+            ChatAPI.debug("Current MiningAPI state:")
+            ChatAPI.debug(stateMessage)
         }
+    }
 }

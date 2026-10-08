@@ -3,6 +3,7 @@ package github.businessdirt.eurybium.api.hypixelapi
 import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.core.scheduling.ClientTasks
 import github.businessdirt.eurybium.core.scheduling.ScheduledTask
+import github.businessdirt.eurybium.events.PreModInitializationEvent
 import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
 import github.businessdirt.eurybium.events.minecraft.ClientJoinEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
@@ -25,7 +26,8 @@ object HypixelEventAPI {
         emit = { it.post() },
     )
 
-    init {
+    @HandleEvent(events = [ PreModInitializationEvent::class ])
+    private fun onPreModInitializationEvent() {
         modApi.createHandler(ClientboundHelloPacket::class.java, bridge::hello)
         modApi.createHandler(ClientboundLocationPacket::class.java, bridge::location)
 
@@ -33,7 +35,7 @@ object HypixelEventAPI {
         modApi.subscribeToEventPacket(ClientboundLocationPacket::class.java)
     }
 
-    @HandleEvent(events = [ClientJoinEvent::class, ClientDisconnectEvent::class], priority = Int.MIN_VALUE)
+    @HandleEvent(events = [ ClientJoinEvent::class, ClientDisconnectEvent::class ], priority = Int.MIN_VALUE)
     private fun onConnectionChanged() = bridge.invalidateConnection()
 
     /**
