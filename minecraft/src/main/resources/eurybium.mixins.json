@@ -5,6 +5,7 @@
   "client": [
     "ConnectionMixin",
     "ChatComponentAccessor",
+    "PlayerTabOverlayAccessor",
     "ScreenChatClickMixin"
   ],
   "injectors": {
