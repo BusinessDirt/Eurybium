@@ -65,6 +65,23 @@ git tag v2.0.0
 git push origin v2.0.0
 ```
 
+Alternatively, read the release version from `mod_version` in the root `gradle.properties`:
+
+```sh
+sh scripts/release.sh
+```
+
+Or with PowerShell:
+
+```powershell
+pwsh -File scripts/release.ps1
+```
+
+Both scripts work from any current directory, require a clean working tree, tag the current
+commit as `v<mod_version>`, and push only that tag to `origin`. Commit and push your changes
+first. Existing tags are rejected; if a push fails after creating the local tag, retry with
+`git push origin refs/tags/v<mod_version>`.
+
 The tagged commit must include the release workflow. The workflow builds and tests every
 version listed in `minecraft_targets`, then creates a GitHub release with generated release
 notes and one installable jar per Minecraft target. It checks that every target produced its
