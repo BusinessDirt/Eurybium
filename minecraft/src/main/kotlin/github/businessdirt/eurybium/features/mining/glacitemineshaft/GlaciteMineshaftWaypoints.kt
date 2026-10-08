@@ -2,6 +2,7 @@ package github.businessdirt.eurybium.features.mining.glacitemineshaft
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.events.HandleEvent
+import github.businessdirt.eurybium.api.skyblock.MiningAPI
 import github.businessdirt.eurybium.config.features.mining.glacitemineshaft.MineshaftWaypointsConfig.SpawningRoute.CUSTOM
 import github.businessdirt.eurybium.config.features.mining.glacitemineshaft.MineshaftWaypointsConfig.SpawningRoute.NONE
 import github.businessdirt.eurybium.core.utils.text.StringExtensions.ifNotNullOrEmpty
@@ -9,6 +10,7 @@ import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.data.model.waypoints.MiningRouteIds.internalRouteId
 import github.businessdirt.eurybium.events.skyblock.GlaciteMineshaftDetectionEvent
 import github.businessdirt.eurybium.events.skyblock.IslandJoinEvent
+import github.businessdirt.eurybium.events.skyblock.SkyblockAreaChangeEvent
 import github.businessdirt.eurybium.features.waypoints.OrderedWaypoints
 import github.businessdirt.eurybium.processors.EurybiumModule
 
@@ -24,10 +26,10 @@ object GlaciteMineshaftWaypoints {
         OrderedWaypoints.load(name = event.type.internalRouteId, sendErrors = false)
     }
 
-    @HandleEvent
-    private fun onIslandJoinEvent(event: IslandJoinEvent) {
+    @HandleEvent(events = [ SkyblockAreaChangeEvent::class ])
+    private fun onSkyblockAreaChangeEvent() {
         if(config.spawningRoute == NONE) return
-        if(event.island != IslandType.DWARVEN_MINES) return
+        if(!MiningAPI.inGlaciteTunnels) return
 
         when (config.spawningRoute) {
             CUSTOM -> config.customSpawningRoute.ifNotNullOrEmpty { OrderedWaypoints.loadWaypoints(data = it) }

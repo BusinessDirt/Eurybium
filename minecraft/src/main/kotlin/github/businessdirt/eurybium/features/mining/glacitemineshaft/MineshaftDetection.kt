@@ -32,9 +32,6 @@ object MineshaftDetection {
             ?.removeColor() ?: return
 
         val areaName = matchingLine.split(" ").last()
-
-        ChatAPI.debug("In area: $areaName")
-
         val type = MineshaftType.entries.firstOrNull { areaName.contains(it.name) } ?: return
         found = true
 
