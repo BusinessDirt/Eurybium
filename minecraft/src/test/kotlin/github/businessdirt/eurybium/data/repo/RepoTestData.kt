@@ -7,4 +7,5 @@ internal const val JASPER_ROUTE = """{"schemaVersion":1,"routes":[{"id":"eurybiu
 internal fun repoFiles(): Map<String, String> = mapOf(
     "patterns/chat.json" to EMPTY_PATTERNS,
     "patterns/scoreboard.json" to EMPTY_PATTERNS,
+    "patterns/tab.json" to EMPTY_PATTERNS,
 )
