@@ -1,14 +1,17 @@
-package github.businessdirt.eurybium.data
+package github.businessdirt.eurybium.api.minecraft
 
 import github.businessdirt.eurybium.EurybiumMod
 import github.businessdirt.eurybium.api.commands.CommandCategory
 import github.businessdirt.eurybium.api.events.HandleEvent
-import github.businessdirt.eurybium.api.events.HandleEvent.Companion.HIGHEST
 import github.businessdirt.eurybium.api.minecraft.chat.ChatAPI
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.legacyString
 import github.businessdirt.eurybium.api.minecraft.text.LegacyFormatting.removeColor
 import github.businessdirt.eurybium.events.CommandRegistrationEvent
-import github.businessdirt.eurybium.events.minecraft.*
+import github.businessdirt.eurybium.events.minecraft.ClientDisconnectEvent
+import github.businessdirt.eurybium.events.minecraft.ScoreboardTitleUpdateEvent
+import github.businessdirt.eurybium.events.minecraft.ScoreboardUpdateEvent
+import github.businessdirt.eurybium.events.minecraft.TickEvent
+import github.businessdirt.eurybium.events.minecraft.WorldChangeEvent
 import github.businessdirt.eurybium.processors.EurybiumModule
 import net.minecraft.client.Minecraft
 import net.minecraft.world.scores.DisplaySlot
@@ -16,7 +19,7 @@ import net.minecraft.world.scores.PlayerScoreEntry
 import net.minecraft.world.scores.PlayerTeam
 
 @EurybiumModule
-object ScoreboardData {
+object ScoreboardAPI {
 
     var sidebarLinesFormatted: List<String> = emptyList()
         private set
@@ -29,10 +32,10 @@ object ScoreboardData {
 
     private var objectiveName = ""
 
-    @HandleEvent(events = [ TickEvent::class ], priority = HIGHEST)
+    @HandleEvent(events = [ TickEvent::class ], priority = HandleEvent.Companion.HIGHEST)
     private fun onTickEvent() { refresh() }
 
-    @HandleEvent(events = [ WorldChangeEvent::class, ClientDisconnectEvent::class ], priority = HIGHEST)
+    @HandleEvent(events = [ WorldChangeEvent::class, ClientDisconnectEvent::class ], priority = HandleEvent.Companion.HIGHEST)
     private fun onTabListClearEvents() = clear()
 
     @HandleEvent

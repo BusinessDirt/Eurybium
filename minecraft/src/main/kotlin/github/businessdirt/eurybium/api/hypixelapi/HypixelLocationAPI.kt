@@ -4,7 +4,7 @@ import github.businessdirt.eurybium.api.events.HandleEvent
 import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI.inAnyIsland
 import github.businessdirt.eurybium.api.hypixelapi.HypixelLocationAPI.state
 import github.businessdirt.eurybium.api.repo.RepoPattern
-import github.businessdirt.eurybium.data.ScoreboardData
+import github.businessdirt.eurybium.api.minecraft.ScoreboardAPI
 import github.businessdirt.eurybium.data.model.IslandType
 import github.businessdirt.eurybium.events.RepoUpdateEvent
 import github.businessdirt.eurybium.events.hypixel.HypixelApiJoinEvent
@@ -91,7 +91,7 @@ object HypixelLocationAPI {
 
     // Recheck an unchanged scoreboard when repository data becomes available or its pattern changes.
     @HandleEvent(events = [ RepoUpdateEvent::class ], priority = HandleEvent.HIGHEST)
-    private fun onRepoUpdate() = tracker.areaUpdated(ScoreboardData.sidebarLinesFormatted, skyBlockAreaPattern.resolve())
+    private fun onRepoUpdate() = tracker.areaUpdated(ScoreboardAPI.sidebarLinesFormatted, skyBlockAreaPattern.resolve())
 
     @HandleEvent(events = [ ClientDisconnectEvent::class ], priority = HandleEvent.HIGHEST)
     private fun onDisconnect() = tracker.disconnected()

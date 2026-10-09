@@ -10,6 +10,7 @@ class CorpseNotificationsConfig {
     @ConfigOption(name = "Enable Corpse Notifications", desc = "Notify once when the detected shaft reaches its corpse threshold. Mineshaft type announcements do not need to be enabled.")
     @Expose var enabled: Boolean = false
 
+    @Suppress("unused")
     @ConfigEditorInfoText
     @ConfigOption(name = "Thresholds", desc = "Set the minimum corpse count required for a notification. Use the Fiesta thresholds during Mining Fiesta. Five disables notifications for that gemstone.")
     @Transient var thresholdDescription: Unit? = null

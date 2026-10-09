@@ -33,7 +33,7 @@ class RepoClientTest {
         assertEquals(123, updated.fetchedAtMillis)
         assertEquals(1, updated.routes.size)
         assertTrue(transport.requests.drop(1).all { "/$REVISION_A/" in it.first.path })
-        assertEquals(4, transport.requests.size)
+        assertEquals(5, transport.requests.size)
         val offline = RepoClient(RepoTransport { _, _ -> error("Must not fetch while restoring cache") }, cache()).loadCache()
         assertEquals(REVISION_A, assertNotNull(offline).revision)
         assertEquals(updated.routes.keys, offline.routes.keys)
@@ -50,7 +50,7 @@ class RepoClientTest {
         }
         val updated = assertNotNull(RepoClient(transport, cache()).refresh())
         assertEquals(1, updated.routes.size)
-        assertEquals(4, transport.requests.size)
+        assertEquals(5, transport.requests.size)
         assertTrue(transport.requests.none { "nodes" in it.first.path })
     }
 
