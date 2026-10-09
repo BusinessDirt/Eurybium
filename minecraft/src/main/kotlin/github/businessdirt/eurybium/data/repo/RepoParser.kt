@@ -14,7 +14,7 @@ internal object RepoParser {
 
     const val MAX_FILE_BYTES = 8 * 1024 * 1024
     const val MAX_TOTAL_FILE_BYTES = 24 * 1024 * 1024
-    val requiredFiles = listOf("patterns/chat.json", "patterns/scoreboard.json")
+    val requiredFiles = listOf("patterns/chat.json", "patterns/scoreboard.json", "patterns/tab.json")
     val optionalFiles = listOf("mining/routes.json")
 
     private val shaftRouteIds = MineshaftType.entries.map { it.internalRouteId }.toSet()
@@ -55,6 +55,7 @@ internal object RepoParser {
             for (entry in records(text, "routes")) {
                 val id = entry.id()
                 require(id in allowed) { "Unknown built-in route $id" }
+
                 val scope = scope(entry)
                 if (id !in spawningRouteIds) {
                     require(scope.island == IslandType.MINESHAFT && scope.mineshaft == id.removePrefix(MiningRouteIds.NAMESPACE)) {
@@ -65,6 +66,7 @@ internal object RepoParser {
                         "Spawning route has a mismatched scope"
                     }
                 }
+
                 require(routes.put(id, RepoRoute(id, scope, routePoints(entry))) == null) { "Duplicate route $id" }
             }
         }
