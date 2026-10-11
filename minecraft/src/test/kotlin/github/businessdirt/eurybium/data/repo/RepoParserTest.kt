@@ -12,7 +12,7 @@ class RepoParserTest {
 
     @Test
     fun `patterns are compiled once and IDs are global across files`() {
-        val text = """{"schemaVersion":1,"patterns":[{"id":"ability.ready","pattern":"Ready (?<ability>.+)"}]}"""
+        val text = """{"schemaVersion":2,"patterns":{"ability.ready":"Ready (?<ability>.+)"}}"""
         val snapshot = RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/chat.json" to text))
         assertEquals("Pickaxe", snapshot.patterns.getValue("ability.ready").regex.matchEntire("Ready Pickaxe")?.groups?.get("ability")?.value)
         assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + mapOf("patterns/chat.json" to text, "patterns/scoreboard.json" to text)) }
@@ -20,11 +20,55 @@ class RepoParserTest {
     }
 
     @Test
+    fun `version 2 preserves escaped regexes unicode symbols and named groups`() {
+        val snapshot = RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/scoreboard.json" to SCOREBOARD_PATTERNS))
+        assertEquals(setOf("skyblock.area.plain", "hypixel.lobby.type"), snapshot.patterns.keys)
+        val area = snapshot.patterns.getValue("skyblock.area.plain")
+        assertEquals("skyblock.area.plain", area.id)
+        assertEquals("""\s*(?<symbol>[⏣ф])\s+(?<area>.+)""", area.source)
+        for (symbol in listOf("⏣", "ф", "")) {
+            val match = assertNotNull(area.regex.matchEntire("  $symbol Dwarven Mines"))
+            assertEquals(symbol, match.groups["symbol"]?.value)
+            assertEquals("Dwarven Mines", match.groups["area"]?.value)
+        }
+        assertEquals("meg lobby", snapshot.patterns.getValue("hypixel.lobby.type").regex.matchEntire("meg lobby12")?.groups?.get("type")?.value)
+    }
+
+    @Test
+    fun `version 1 patterns remain readable alongside version 2 catalogs`() {
+        val legacy = """{"schemaVersion":1,"patterns":[{"id":"ability.ready","pattern":"Ready (?<ability>.+)"}]}"""
+        val files = repoFiles() + mapOf("patterns/chat.json" to legacy, "patterns/scoreboard.json" to SCOREBOARD_PATTERNS)
+        val snapshot = RepoParser.parse(REVISION_A, 1, files)
+        assertEquals(3, snapshot.patterns.size)
+        assertTrue(snapshot.patterns.getValue("ability.ready").regex.matches("Ready Pickaxe"))
+        val duplicate = """{"schemaVersion":2,"patterns":{"ability.ready":"Ready"}}"""
+        assertFails { RepoParser.parse(REVISION_A, 1, files + ("patterns/tab.json" to duplicate)) }
+    }
+
+    @Test
+    fun `version 2 requires an object with valid IDs and string regexes`() {
+        val invalidPatterns = listOf("[]", "null", "42", "true", "\"pattern\"", """{"":"valid"}""", """{"bad id":"valid"}""") +
+            listOf("null", "42", "true", "[]", "{}").map { """{"valid.id":$it}""" } +
+            listOf("""{"${"a".repeat(129)}":"valid"}""", """{"valid.id":"${"a".repeat(4097)}"}""")
+        for (patterns in invalidPatterns) {
+            val text = """{"schemaVersion":2,"patterns":$patterns}"""
+            assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/chat.json" to text)) }
+        }
+        for (text in listOf("""{"schemaVersion":2}""", """{"schemaVersion":1,"patterns":{}}""")) {
+            assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/chat.json" to text)) }
+        }
+        val tooMany = (1..20_001).joinToString(",") { "\"pattern.$it\":\"valid\"" }
+        assertFails {
+            RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/chat.json" to """{"schemaVersion":2,"patterns":{$tooMany}}"""))
+        }
+    }
+
+    @Test
     fun `invalid revisions schemas and missing required files are rejected`() {
         assertFails { RepoParser.parse("master", 1, repoFiles()) }
         assertFails { RepoParser.parse(REVISION_A, -1, repoFiles()) }
         assertFails { RepoParser.parse(REVISION_A, 1, emptyMap()) }
-        for (text in listOf(EMPTY_PATTERNS.replace(":1", ":2"), "[]", "{bad}")) {
+        for (text in listOf(EMPTY_PATTERNS.replace(":2", ":3"), "[]", "{bad}")) {
             assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + ("patterns/chat.json" to text)) }
         }
         assertFails { RepoParser.parse(REVISION_A, 1, repoFiles() + ("other.json" to "{}")) }

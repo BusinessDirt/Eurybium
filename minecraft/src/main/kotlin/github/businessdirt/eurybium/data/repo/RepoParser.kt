@@ -41,9 +41,8 @@ internal object RepoParser {
 
         val patterns = linkedMapOf<String, RepoPatternData>()
         for (path in requiredFiles) {
-            for (entry in records(files.getValue(path), "patterns")) {
-                val id = entry.id()
-                val source = entry.string("pattern")
+            for ((id, source) in patternSources(files.getValue(path))) {
+                require(idPattern.matches(id)) { "Invalid pattern ID" }
                 require(source.length <= 4096) { "Pattern $id is too long" }
                 require(patterns.put(id, RepoPatternData(id, source, Regex(source))) == null) { "Duplicate pattern $id" }
             }
@@ -74,10 +73,23 @@ internal object RepoParser {
         return RepoSnapshot(revision, fetchedAtMillis, patterns, routes)
     }
 
-    private fun document(text: String): JsonObject {
+    /** Version 1 remains readable for previously downloaded offline caches. */
+    private fun patternSources(text: String): List<Pair<String, String>> {
+        val root = document(text, 1..2)
+        return when (root.get("schemaVersion").integer()) {
+            1 -> records(root, "patterns").map { it.id() to it.string("pattern") }
+            else -> {
+                val patterns = root.getAsJsonObject("patterns") ?: error("Missing patterns object")
+                require(patterns.size() <= 20_000) { "Too many patterns records" }
+                patterns.keySet().map { id -> id to patterns.string(id) }
+            }
+        }
+    }
+
+    private fun document(text: String, supportedVersions: IntRange = 1..1): JsonObject {
         require(text.toByteArray(Charsets.UTF_8).size <= MAX_FILE_BYTES) { "Repository file is too large" }
         val root = JsonParser.parseString(text).asJsonObject
-        require(root.get("schemaVersion")?.integer() == 1) { "Unsupported repository schema" }
+        require(root.get("schemaVersion")?.integer() in supportedVersions) { "Unsupported repository schema" }
         return root
     }
 
