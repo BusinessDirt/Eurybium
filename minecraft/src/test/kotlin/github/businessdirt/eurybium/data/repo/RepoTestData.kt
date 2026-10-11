@@ -2,7 +2,14 @@ package github.businessdirt.eurybium.data.repo
 
 internal const val REVISION_A = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 internal const val REVISION_B = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-internal const val EMPTY_PATTERNS = """{"schemaVersion":1,"patterns":[]}"""
+internal const val EMPTY_PATTERNS = """{"schemaVersion":2,"patterns":{}}"""
+internal const val SCOREBOARD_PATTERNS = """{
+  "schemaVersion": 2,
+  "patterns": {
+    "skyblock.area.plain": "\\s*(?<symbol>[⏣ф])\\s+(?<area>.+)",
+    "hypixel.lobby.type": "(?<type>.*lobby)\\d+"
+  }
+}"""
 internal const val JASPER_ROUTE = """{"schemaVersion":1,"routes":[{"id":"eurybium:JASP1","island":"MINESHAFT","mineshaft":"JASP1","space":"WORLD","points":[[10,100,20],[20,100,30]]}]}"""
 internal fun repoFiles(): Map<String, String> = mapOf(
     "patterns/chat.json" to EMPTY_PATTERNS,

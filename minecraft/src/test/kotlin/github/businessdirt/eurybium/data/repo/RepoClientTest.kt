@@ -26,7 +26,9 @@ class RepoClientTest {
 
     @Test
     fun `fresh update uses one commit for every file and writes a reusable offline cache`() {
-        val transport = Transport().apply { files = repoFiles() + ("mining/routes.json" to JASPER_ROUTE) }
+        val transport = Transport().apply {
+            files = repoFiles() + mapOf("mining/routes.json" to JASPER_ROUTE, "patterns/scoreboard.json" to SCOREBOARD_PATTERNS)
+        }
         val client = RepoClient(transport, cache(), { 123 })
         assertNull(client.loadCache())
         val updated = assertNotNull(client.refresh())
@@ -37,6 +39,8 @@ class RepoClientTest {
         val offline = RepoClient(RepoTransport { _, _ -> error("Must not fetch while restoring cache") }, cache()).loadCache()
         assertEquals(REVISION_A, assertNotNull(offline).revision)
         assertEquals(updated.routes.keys, offline.routes.keys)
+        assertEquals(updated.patterns.mapValues { it.value.source }, offline.patterns.mapValues { it.value.source })
+        assertTrue(offline.patterns.getValue("skyblock.area.plain").regex.matches("⏣ Dwarven Mines"))
     }
 
     @Test
@@ -56,7 +60,7 @@ class RepoClientTest {
 
     @Test
     fun `legacy caches keep routes offline while dropping retired surveys`() {
-        val legacy = repoFiles() + mapOf(
+        val legacy = repoFiles().mapValues { """{"schemaVersion":1,"patterns":[]}""" } + mapOf(
             "mining/routes.json" to JASPER_ROUTE,
             "mining/nodes.json" to "{old catalog}",
             "mining/nodes/JASP1.json" to "{old survey}",
@@ -109,9 +113,14 @@ class RepoClientTest {
         val client = RepoClient(transport, cache())
         client.refresh()
         transport.revision = REVISION_B
-        transport.files = repoFiles() + ("mining/routes.json" to "{bad}")
-        assertFails { client.refresh() }
-        assertEquals(REVISION_A, cache().read()?.revision)
+        for (files in listOf(
+            repoFiles() + ("mining/routes.json" to "{bad}"),
+            repoFiles() + ("patterns/scoreboard.json" to """{"schemaVersion":2,"patterns":{"skyblock.area.plain":"["}}"""),
+        )) {
+            transport.files = files
+            assertFails { client.refresh() }
+            assertEquals(REVISION_A, cache().read()?.revision)
+        }
         transport.status = 304
         transport.requests.clear()
         assertNull(client.refresh())
